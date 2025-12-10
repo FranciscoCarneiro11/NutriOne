@@ -2,6 +2,7 @@ import React from "react";
 import { Camera, Flame, Beef, Wheat, Droplet, Plus, ChevronRight } from "lucide-react";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface MacroCardProps {
   icon: React.ReactNode;
@@ -9,7 +10,8 @@ interface MacroCardProps {
   current: number;
   goal: number;
   unit: string;
-  color: string;
+  colorClass: string;
+  bgClass: string;
 }
 
 const MacroCard: React.FC<MacroCardProps> = ({
@@ -18,13 +20,14 @@ const MacroCard: React.FC<MacroCardProps> = ({
   current,
   goal,
   unit,
-  color,
+  colorClass,
+  bgClass,
 }) => {
   const progress = Math.min((current / goal) * 100, 100);
 
   return (
     <div className="flex flex-col items-center p-3 bg-card rounded-2xl shadow-card">
-      <div className={`p-2 rounded-xl mb-2 ${color}`}>{icon}</div>
+      <div className={cn("p-2 rounded-xl mb-2", bgClass)}>{icon}</div>
       <span className="text-xs text-muted-foreground mb-1">{label}</span>
       <div className="flex items-baseline gap-0.5">
         <span className="text-lg font-bold text-foreground">{current}</span>
@@ -32,7 +35,7 @@ const MacroCard: React.FC<MacroCardProps> = ({
       </div>
       <div className="w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all ${color.replace('bg-', 'bg-').replace('/20', '')}`}
+          className={cn("h-full rounded-full transition-all", colorClass)}
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -79,7 +82,7 @@ const Dashboard: React.FC = () => {
     <AppShell>
       <AppHeader title="Hoje" />
 
-      <AppContent className="pb-24">
+      <AppContent className="pb-32">
         {/* Date */}
         <p className="text-sm text-muted-foreground capitalize mb-6">{today}</p>
 
@@ -91,7 +94,8 @@ const Dashboard: React.FC = () => {
             current={1240}
             goal={2000}
             unit=""
-            color="bg-primary/20"
+            colorClass="bg-primary"
+            bgClass="bg-coral-light"
           />
           <MacroCard
             icon={<Beef className="w-5 h-5 text-red-500" />}
@@ -99,7 +103,8 @@ const Dashboard: React.FC = () => {
             current={45}
             goal={120}
             unit="g"
-            color="bg-red-500/20"
+            colorClass="bg-red-500"
+            bgClass="bg-red-100"
           />
           <MacroCard
             icon={<Wheat className="w-5 h-5 text-amber-500" />}
@@ -107,7 +112,8 @@ const Dashboard: React.FC = () => {
             current={130}
             goal={250}
             unit="g"
-            color="bg-amber-500/20"
+            colorClass="bg-amber-500"
+            bgClass="bg-amber-100"
           />
           <MacroCard
             icon={<Droplet className="w-5 h-5 text-blue-500" />}
@@ -115,7 +121,8 @@ const Dashboard: React.FC = () => {
             current={35}
             goal={65}
             unit="g"
-            color="bg-blue-500/20"
+            colorClass="bg-blue-500"
+            bgClass="bg-blue-100"
           />
         </div>
 
@@ -161,20 +168,35 @@ const Dashboard: React.FC = () => {
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className={`flex-1 h-8 rounded-lg transition-all ${
+                className={cn(
+                  "flex-1 h-8 rounded-lg transition-all",
                   i < 5 ? "bg-blue-500" : "bg-blue-200"
-                }`}
+                )}
               />
             ))}
           </div>
         </div>
       </AppContent>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-        <Button variant="coral" size="fab" className="gap-2">
-          <Camera className="w-6 h-6" />
-        </Button>
+      {/* Prominent Floating Scan Button */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
+        <div className="max-w-md mx-auto px-6 pb-8 flex flex-col items-center pointer-events-auto">
+          {/* Glow Effect */}
+          <div className="absolute bottom-6 w-20 h-20 bg-primary/30 rounded-full blur-xl" />
+          
+          {/* Main FAB */}
+          <Button 
+            variant="coral" 
+            className="relative h-20 w-20 rounded-full shadow-fab hover:scale-105 transition-transform"
+          >
+            <Camera className="w-8 h-8" />
+          </Button>
+          
+          {/* Label */}
+          <span className="mt-2 text-sm font-medium text-foreground">
+            Escanear comida
+          </span>
+        </div>
       </div>
     </AppShell>
   );
