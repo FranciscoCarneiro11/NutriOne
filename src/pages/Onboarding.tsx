@@ -13,6 +13,7 @@ import { WeightSlider } from "@/components/onboarding/WeightSlider";
 import { ActivityLevelCard } from "@/components/onboarding/ActivityLevelCard";
 import { DietaryChips } from "@/components/onboarding/DietaryChips";
 import { WorkoutDaysSelector } from "@/components/onboarding/WorkoutDaysSelector";
+import { BodyZoneSelector } from "@/components/onboarding/BodyZoneSelector";
 import { AILoadingScreen } from "@/components/onboarding/AILoadingScreen";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ type Goal = "weight-loss" | "muscle" | "fit" | "flexibility";
 type Motivation = "body" | "appearance" | "health" | "confidence";
 type Gender = "male" | "female";
 type ActivityLevel = "sedentary" | "light" | "moderate" | "very";
+type BodyZone = "arms" | "abs" | "glutes" | "legs" | "fullBody";
 
 const goals: { id: Goal; title: string }[] = [
   { id: "weight-loss", title: "Perder peso" },
@@ -49,6 +51,7 @@ interface OnboardingData {
   age: number;
   height: number;
   weight: number;
+  bodyZones: BodyZone[];
   activityLevel: ActivityLevel | null;
   dietaryRestrictions: string[];
   workoutDays: number;
@@ -68,12 +71,13 @@ const Onboarding: React.FC = () => {
     age: 28,
     height: 165,
     weight: 70.3,
+    bodyZones: [],
     activityLevel: null,
     dietaryRestrictions: [],
     workoutDays: 3,
   });
 
-  const totalSteps = 9;
+  const totalSteps = 10;
 
   const animateTransition = (direction: "left" | "right", callback: () => void) => {
     setSlideDirection(direction);
@@ -94,20 +98,17 @@ const Onboarding: React.FC = () => {
     if (step < totalSteps) {
       animateTransition("left", () => setStep(step + 1));
     } else {
-      // Show AI loading screen instead of navigating directly
       console.log("Onboarding complete:", data);
       setShowAILoading(true);
     }
   };
 
   const handleAILoadingComplete = () => {
-    // Navigate to dashboard with firstLoad flag
     navigate("/dashboard", { state: { firstLoad: true } });
   };
 
   const handleGenderSelect = (gender: Gender) => {
     setData({ ...data, gender });
-    // Auto-advance after selection with slight delay for visual feedback
     setTimeout(() => {
       animateTransition("left", () => setStep(step + 1));
     }, 300);
@@ -126,10 +127,12 @@ const Onboarding: React.FC = () => {
       case 6:
         return true;
       case 7:
-        return data.activityLevel !== null;
+        return data.bodyZones.length > 0;
       case 8:
-        return data.dietaryRestrictions.length > 0;
+        return data.activityLevel !== null;
       case 9:
+        return data.dietaryRestrictions.length > 0;
+      case 10:
         return true;
       default:
         return false;
@@ -255,6 +258,21 @@ const Onboarding: React.FC = () => {
         return (
           <div className={animationClass}>
             <h1 className="text-2xl font-bold text-center text-foreground mb-2">
+              Em qual parte do corpo você
+            </h1>
+            <p className="text-center text-foreground font-bold text-2xl mb-8">quer focar?</p>
+            <BodyZoneSelector
+              gender={data.gender || "female"}
+              selected={data.bodyZones}
+              onChange={(bodyZones) => setData({ ...data, bodyZones })}
+            />
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className={animationClass}>
+            <h1 className="text-2xl font-bold text-center text-foreground mb-2">
               Quão <span className="text-primary">ativo</span> você é?
             </h1>
             <p className="text-center text-muted-foreground mb-8">
@@ -275,7 +293,7 @@ const Onboarding: React.FC = () => {
           </div>
         );
 
-      case 8:
+      case 9:
         return (
           <div className={animationClass}>
             <h1 className="text-2xl font-bold text-center text-foreground mb-2">
@@ -291,7 +309,7 @@ const Onboarding: React.FC = () => {
           </div>
         );
 
-      case 9:
+      case 10:
         return (
           <div className={animationClass}>
             <h1 className="text-2xl font-bold text-center text-foreground mb-2">

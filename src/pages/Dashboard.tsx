@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Camera, Flame, Beef, Wheat, Droplet, Plus } from "lucide-react";
+import { Flame, Beef, Wheat, Droplet, Plus } from "lucide-react";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
-import { Button } from "@/components/ui/button";
 import { HydrationTracker } from "@/components/dashboard/HydrationTracker";
 import { MealCard } from "@/components/dashboard/MealCard";
 import { DaySection } from "@/components/dashboard/DaySection";
+import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { useConfetti } from "@/hooks/useConfetti";
 import { cn } from "@/lib/utils";
 
@@ -67,11 +67,9 @@ const Dashboard: React.FC = () => {
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
   const [streak] = useState(3);
 
-  // Check if this is the first load after onboarding
   useEffect(() => {
     const isFirstLoad = location.state?.firstLoad;
     if (isFirstLoad && !hasTriggeredConfetti) {
-      // Trigger confetti after a short delay
       setTimeout(() => {
         triggerConfetti();
         setHasTriggeredConfetti(true);
@@ -137,8 +135,7 @@ const Dashboard: React.FC = () => {
         rightAction={<StreakBadge count={streak} />}
       />
 
-      <AppContent className="pb-36">
-        {/* Date */}
+      <AppContent className="pb-28">
         <p className="text-sm text-muted-foreground capitalize mb-6">{today}</p>
 
         {/* Macro Cards */}
@@ -233,26 +230,7 @@ const Dashboard: React.FC = () => {
         </DaySection>
       </AppContent>
 
-      {/* Prominent Floating Scan Button */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
-        <div className="max-w-md mx-auto px-6 pb-8 flex flex-col items-center pointer-events-auto">
-          {/* Glow Effect */}
-          <div className="absolute bottom-6 w-20 h-20 bg-primary/30 rounded-full blur-xl animate-glow-pulse" />
-          
-          {/* Main FAB */}
-          <Button 
-            variant="coral" 
-            className="relative h-20 w-20 rounded-full shadow-fab hover:scale-105 transition-transform"
-          >
-            <Camera className="w-8 h-8" />
-          </Button>
-          
-          {/* Label */}
-          <span className="mt-2 text-sm font-medium text-foreground">
-            Escanear comida
-          </span>
-        </div>
-      </div>
+      <BottomNavigation />
     </AppShell>
   );
 };
