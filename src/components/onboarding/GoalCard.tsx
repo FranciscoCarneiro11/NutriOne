@@ -32,47 +32,38 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     <button
       onClick={onClick}
       className={cn(
-        "relative w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 text-left",
+        "relative w-full flex items-center gap-4 p-5 rounded-2xl transition-all duration-200 text-left",
         selected
-          ? "border-primary bg-coral-light shadow-card"
-          : "border-border bg-card hover:border-primary/30 hover:bg-muted/50",
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         className
       )}
     >
-      {/* Content */}
-      <div className="flex-1">
-        <h3 className={cn(
-          "font-semibold text-lg transition-colors",
-          selected ? "text-foreground" : "text-foreground"
-        )}>
-          {title}
-        </h3>
-      </div>
-
-      {/* Image/Icon Area */}
-      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+      {/* Icon Area */}
+      <div className={cn(
+        "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
+        selected ? "bg-white/20" : "bg-white"
+      )}>
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover rounded-xl"
           />
         ) : (
           <Icon className={cn(
-            "w-8 h-8 transition-colors",
-            selected ? "text-primary" : "text-muted-foreground"
+            "w-6 h-6 transition-colors",
+            selected ? "text-white" : "text-foreground"
           )} />
         )}
       </div>
 
-      {/* Selection Indicator */}
-      {selected && (
-        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-          <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-      )}
+      {/* Content */}
+      <div className="flex-1">
+        <h3 className="font-semibold text-lg">
+          {title}
+        </h3>
+      </div>
     </button>
   );
 };
