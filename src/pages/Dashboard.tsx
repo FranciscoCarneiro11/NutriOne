@@ -74,6 +74,19 @@ interface UserProfile {
   workout_plan: any;
 }
 
+interface Meal {
+  id: string;
+  title: string;
+  time: string | null;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  items: string[];
+  completed: boolean;
+  meal_type: string;
+}
+
 // Calculate BMR using Mifflin-St Jeor equation
 const calculateBMR = (weight: number, height: number, age: number, gender: string) => {
   if (gender === "male") {
@@ -99,10 +112,11 @@ const Dashboard: React.FC = () => {
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
   const [streak] = useState(3);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -110,25 +124,53 @@ const Dashboard: React.FC = () => {
           return;
         }
 
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("age, gender, height, weight, target_weight, activity_level, goal, nutrition_plan, workout_plan")
-          .eq("user_id", user.id)
-          .maybeSingle();
+        const today = new Date().toISOString().split('T')[0];
 
-        if (error) {
-          console.error("Error fetching profile:", error);
+        // Fetch profile and meals in parallel
+        const [profileResult, mealsResult] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select("age, gender, height, weight, target_weight, activity_level, goal, nutrition_plan, workout_plan")
+            .eq("user_id", user.id)
+            .maybeSingle(),
+          supabase
+            .from("meals")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("date", today)
+            .order("time", { ascending: true })
+        ]);
+
+        if (profileResult.error) {
+          console.error("Error fetching profile:", profileResult.error);
         } else {
-          setProfile(data);
+          setProfile(profileResult.data);
+        }
+
+        if (mealsResult.error) {
+          console.error("Error fetching meals:", mealsResult.error);
+        } else {
+          setTodayMeals(mealsResult.data?.map(m => ({
+            id: m.id,
+            title: m.title,
+            time: m.time,
+            calories: m.calories,
+            protein: Number(m.protein) || 0,
+            carbs: Number(m.carbs) || 0,
+            fat: Number(m.fat) || 0,
+            items: m.items || [],
+            completed: m.completed || false,
+            meal_type: m.meal_type,
+          })) || []);
         }
       } catch (err) {
-        console.error("Failed to fetch profile:", err);
+        console.error("Failed to fetch data:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProfile();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -173,59 +215,40 @@ const Dashboard: React.FC = () => {
 
   const macros = calculateMacros();
 
+  // Calculate consumed values from today's meals
+  const consumedCalories = todayMeals.reduce((sum, meal) => sum + meal.calories, 0);
+  const consumedProtein = todayMeals.reduce((sum, meal) => sum + meal.protein, 0);
+  const consumedCarbs = todayMeals.reduce((sum, meal) => sum + meal.carbs, 0);
+  const consumedFat = todayMeals.reduce((sum, meal) => sum + meal.fat, 0);
+
   const today = new Date().toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
 
-  const todayMeals = [
-    {
-      title: "Café da manhã",
-      time: "07:30",
-      calories: 420,
-      items: ["Ovos mexidos", "Pão integral", "Café"],
-    },
-    {
-      title: "Almoço",
-      time: "12:30",
-      calories: 580,
-      items: ["Frango grelhado", "Arroz", "Salada"],
-    },
-    {
-      title: "Jantar",
-      time: "19:00",
-      calories: 240,
-      items: ["Salmão", "Legumes", "Batata doce"],
-    },
-  ];
+  const handleMealComplete = async (mealId: string) => {
+    try {
+      const meal = todayMeals.find(m => m.id === mealId);
+      if (!meal) return;
 
-  const tomorrowMeals = [
-    {
-      title: "Café da manhã",
-      time: "07:30",
-      calories: 380,
-      items: ["Iogurte", "Granola", "Frutas"],
-    },
-    {
-      title: "Almoço",
-      time: "12:30",
-      calories: 620,
-      items: ["Carne moída", "Purê", "Brócolis"],
-    },
-  ];
+      const { error } = await supabase
+        .from("meals")
+        .update({ completed: !meal.completed })
+        .eq("id", mealId);
 
-  const day3Meals = [
-    {
-      title: "Café da manhã",
-      time: "07:30",
-      calories: 450,
-      items: ["Panquecas", "Mel", "Banana"],
-    },
-  ];
+      if (error) {
+        console.error("Error updating meal:", error);
+        return;
+      }
 
-  // Calculate consumed calories from today's meals
-  const consumedCalories = todayMeals.reduce((sum, meal) => sum + meal.calories, 0);
+      setTodayMeals(prev => 
+        prev.map(m => m.id === mealId ? { ...m, completed: !m.completed } : m)
+      );
+    } catch (err) {
+      console.error("Failed to update meal:", err);
+    }
+  };
 
   return (
     <AppShell>
@@ -261,7 +284,7 @@ const Dashboard: React.FC = () => {
           <MacroCard
             icon={<Beef className="w-5 h-5 text-red-500" />}
             label="Proteína"
-            current={45}
+            current={Math.round(consumedProtein)}
             goal={macros.protein}
             unit="g"
             colorClass="bg-red-500"
@@ -270,7 +293,7 @@ const Dashboard: React.FC = () => {
           <MacroCard
             icon={<Wheat className="w-5 h-5 text-amber-500" />}
             label="Carbos"
-            current={130}
+            current={Math.round(consumedCarbs)}
             goal={macros.carbs}
             unit="g"
             colorClass="bg-amber-500"
@@ -279,7 +302,7 @@ const Dashboard: React.FC = () => {
           <MacroCard
             icon={<Droplet className="w-5 h-5 text-hydration-foreground" />}
             label="Gordura"
-            current={35}
+            current={Math.round(consumedFat)}
             goal={macros.fat}
             unit="g"
             colorClass="bg-hydration-foreground"
@@ -299,43 +322,27 @@ const Dashboard: React.FC = () => {
               Adicionar
             </button>
           </div>
-          {todayMeals.map((meal, index) => (
-            <MealCard
-              key={index}
-              title={meal.title}
-              time={meal.time}
-              calories={meal.calories}
-              items={meal.items}
-            />
-          ))}
-        </DaySection>
-
-        {/* Tomorrow's Meals (Locked) */}
-        <DaySection title="Amanhã" locked className="mt-8">
-          {tomorrowMeals.map((meal, index) => (
-            <MealCard
-              key={index}
-              title={meal.title}
-              time={meal.time}
-              calories={meal.calories}
-              items={meal.items}
-              locked
-            />
-          ))}
-        </DaySection>
-
-        {/* Day 3 Meals (Locked) */}
-        <DaySection title="Dia 3" locked className="mt-8">
-          {day3Meals.map((meal, index) => (
-            <MealCard
-              key={index}
-              title={meal.title}
-              time={meal.time}
-              calories={meal.calories}
-              items={meal.items}
-              locked
-            />
-          ))}
+          {isLoading ? (
+            <div className="py-8 text-center text-muted-foreground">
+              Carregando...
+            </div>
+          ) : todayMeals.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground bg-muted/30 rounded-2xl">
+              <p>Nenhuma refeição registada hoje</p>
+              <p className="text-xs mt-1">Adicione sua primeira refeição</p>
+            </div>
+          ) : (
+            todayMeals.map((meal) => (
+              <MealCard
+                key={meal.id}
+                title={meal.title}
+                time={meal.time || ""}
+                calories={meal.calories}
+                items={meal.items}
+                onComplete={() => handleMealComplete(meal.id)}
+              />
+            ))
+          )}
         </DaySection>
       </AppContent>
 

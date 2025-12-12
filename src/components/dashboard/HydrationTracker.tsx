@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Droplets } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HydrationTrackerProps {
   goal?: number;
@@ -12,21 +13,95 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
   className 
 }) => {
   const [filled, setFilled] = useState<boolean[]>(Array(goal).fill(false));
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch hydration data on mount
+  useEffect(() => {
+    const fetchHydration = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsLoading(false);
+          return;
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data, error } = await supabase
+          .from("hydration_logs")
+          .select("cups_filled")
+          .eq("user_id", user.id)
+          .eq("date", today)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching hydration:", error);
+        } else if (data) {
+          // Set filled state based on cups_filled
+          const newFilled = Array(goal).fill(false);
+          for (let i = 0; i < Math.min(data.cups_filled, goal); i++) {
+            newFilled[i] = true;
+          }
+          setFilled(newFilled);
+        }
+      } catch (err) {
+        console.error("Failed to fetch hydration:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHydration();
+  }, [goal]);
+
+  const saveHydration = async (cupsFilled: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const today = new Date().toISOString().split('T')[0];
+
+      const { error } = await supabase
+        .from("hydration_logs")
+        .upsert({
+          user_id: user.id,
+          date: today,
+          cups_filled: cupsFilled,
+          goal: goal,
+        }, {
+          onConflict: 'user_id,date'
+        });
+
+      if (error) {
+        console.error("Error saving hydration:", error);
+      }
+    } catch (err) {
+      console.error("Failed to save hydration:", err);
+    }
+  };
 
   const handleCupClick = (index: number) => {
     setFilled((prev) => {
       const newFilled = [...prev];
+      let newCount = 0;
+      
       // If clicking a filled cup, unfill it and all after
       if (newFilled[index]) {
         for (let i = index; i < goal; i++) {
           newFilled[i] = false;
         }
+        newCount = index;
       } else {
         // Fill this cup and all before
         for (let i = 0; i <= index; i++) {
           newFilled[i] = true;
         }
+        newCount = index + 1;
       }
+      
+      // Save to database
+      saveHydration(newCount);
+      
       return newFilled;
     });
   };
@@ -34,6 +109,14 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
   const filledCount = filled.filter(Boolean).length;
   const liters = (filledCount * 0.25).toFixed(1);
   const goalLiters = (goal * 0.25).toFixed(1);
+
+  if (isLoading) {
+    return (
+      <div className={cn("p-4 bg-hydration rounded-2xl animate-pulse", className)}>
+        <div className="h-20"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("p-4 bg-hydration rounded-2xl", className)}>
