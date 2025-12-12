@@ -14,7 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          activity_level: string | null
+          age: number | null
+          body_zones: string[] | null
+          created_at: string | null
+          dietary_restrictions: string[] | null
+          gender: string | null
+          goal: string | null
+          height: number | null
+          id: string
+          nutrition_plan: Json | null
+          obstacles: string[] | null
+          previous_experience: boolean | null
+          professional_help: boolean | null
+          target_weight: number | null
+          updated_at: string | null
+          user_id: string
+          weight: number | null
+          workout_days: number | null
+          workout_plan: Json | null
+        }
+        Insert: {
+          activity_level?: string | null
+          age?: number | null
+          body_zones?: string[] | null
+          created_at?: string | null
+          dietary_restrictions?: string[] | null
+          gender?: string | null
+          goal?: string | null
+          height?: number | null
+          id?: string
+          nutrition_plan?: Json | null
+          obstacles?: string[] | null
+          previous_experience?: boolean | null
+          professional_help?: boolean | null
+          target_weight?: number | null
+          updated_at?: string | null
+          user_id: string
+          weight?: number | null
+          workout_days?: number | null
+          workout_plan?: Json | null
+        }
+        Update: {
+          activity_level?: string | null
+          age?: number | null
+          body_zones?: string[] | null
+          created_at?: string | null
+          dietary_restrictions?: string[] | null
+          gender?: string | null
+          goal?: string | null
+          height?: number | null
+          id?: string
+          nutrition_plan?: Json | null
+          obstacles?: string[] | null
+          previous_experience?: boolean | null
+          professional_help?: boolean | null
+          target_weight?: number | null
+          updated_at?: string | null
+          user_id?: string
+          weight?: number | null
+          workout_days?: number | null
+          workout_plan?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
