@@ -1,4 +1,6 @@
 export { PreviousExperienceStep } from "./PreviousExperienceStep";
+export { SocialProofStep } from "./SocialProofStep";
+export { SmartLoadingScreen } from "./SmartLoadingScreen";
 export { LongTermSuccessStep } from "./LongTermSuccessStep";
 export { GenderStep } from "./GenderStep";
 export { ProfessionalHelpStep } from "./ProfessionalHelpStep";
