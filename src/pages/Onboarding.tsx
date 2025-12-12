@@ -180,7 +180,8 @@ const Onboarding: React.FC = () => {
   };
 
   const handleAILoadingComplete = () => {
-    navigate("/dashboard", { state: { firstLoad: true, plan: generatedPlan } });
+    // Redirect to auth page to capture user before showing dashboard
+    navigate("/auth?trigger=save_plan", { state: { firstLoad: true, plan: generatedPlan } });
   };
 
   const canProceed = () => {
