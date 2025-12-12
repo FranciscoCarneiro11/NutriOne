@@ -46,36 +46,30 @@ export const ActivityLevelCard: React.FC<ActivityLevelCardProps> = ({
     <button
       onClick={onClick}
       className={cn(
-        "w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 text-left",
+        "w-full flex items-center gap-4 p-5 rounded-2xl transition-all duration-200 text-left",
         selected
-          ? "border-primary bg-coral-light"
-          : "border-border bg-card hover:border-primary/30",
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         className
       )}
     >
       <div className={cn(
-        "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all",
-        selected ? "bg-primary/20" : bgMap[level]
+        "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
+        selected ? "bg-white/20" : "bg-white"
       )}>
         <Icon className={cn(
-          "w-6 h-6 transition-colors",
-          selected ? "text-primary" : colorMap[level]
+          "w-6 h-6",
+          selected ? "text-white" : "text-foreground"
         )} />
       </div>
       
       <div className="flex-1">
-        <h3 className="font-semibold text-foreground mb-0.5">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <h3 className="font-semibold mb-0.5">{title}</h3>
+        <p className={cn(
+          "text-sm",
+          selected ? "text-white/70" : "text-muted-foreground"
+        )}>{description}</p>
       </div>
-
-      {/* Selection Indicator */}
-      {selected && (
-        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 animate-scale-in">
-          <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-      )}
     </button>
   );
 };

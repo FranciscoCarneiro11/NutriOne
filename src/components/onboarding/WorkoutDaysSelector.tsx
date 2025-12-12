@@ -37,12 +37,12 @@ export const WorkoutDaysSelector: React.FC<WorkoutDaysSelectorProps> = ({
               key={day}
               onClick={() => onChange(day)}
               className={cn(
-                "w-12 h-12 rounded-xl font-bold text-lg transition-all duration-300",
+                "w-12 h-12 rounded-xl font-bold text-lg transition-all duration-200",
                 isSelected
-                  ? "bg-primary text-primary-foreground scale-110 shadow-button"
+                  ? "bg-primary text-primary-foreground scale-110"
                   : isLess
-                  ? "bg-coral-light text-primary"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-primary/20 text-foreground"
+                  : "bg-secondary text-muted-foreground hover:bg-secondary/80"
               )}
             >
               {day}
@@ -58,7 +58,7 @@ export const WorkoutDaysSelector: React.FC<WorkoutDaysSelectorProps> = ({
       </div>
 
       {/* Recommendation Card */}
-      <div className="mt-8 w-full p-4 bg-coral-light rounded-2xl">
+      <div className="mt-8 w-full p-4 bg-secondary rounded-2xl">
         <h4 className="font-semibold text-foreground mb-1">
           {value <= 2 ? "Comece devagar" : value <= 4 ? "Ótimo equilíbrio" : "Atleta dedicado"}
         </h4>

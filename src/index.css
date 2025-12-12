@@ -7,51 +7,53 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 355 100% 66%;
+    /* Monochrome Luxury Theme - Primary is Black */
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 355 100% 97%;
-    --secondary-foreground: 355 100% 66%;
+    /* Secondary is Light Gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 0 0% 96%;
+    --muted: 220 14% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 355 100% 97%;
-    --accent-foreground: 355 100% 66%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 92%;
     --input: 0 0% 92%;
-    --ring: 355 100% 66%;
+    --ring: 0 0% 0%;
 
-    --radius: 1rem;
+    --radius: 0.875rem;
 
-    /* Custom NutriFit tokens */
-    --coral: 355 100% 66%;
-    --coral-light: 355 100% 95%;
-    --coral-dark: 355 85% 55%;
-    --dark: 0 0% 15%;
-    --light-gray: 0 0% 97%;
+    /* Custom NutriFit tokens - updated for monochrome */
+    --coral: 30 100% 70%;
+    --coral-light: 30 100% 90%;
+    --coral-dark: 30 90% 60%;
+    --dark: 0 0% 0%;
+    --light-gray: 220 14% 96%;
     --medium-gray: 0 0% 85%;
 
     /* Hydration colors */
     --hydration: 195 100% 95%;
     --hydration-foreground: 195 90% 50%;
 
-    /* Shadows */
-    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.08);
-    --shadow-button: 0 8px 24px -8px hsl(355 100% 66% / 0.4);
-    --shadow-fab: 0 12px 32px -8px hsl(355 100% 66% / 0.5);
+    /* Shadows - subtle for monochrome */
+    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.06);
+    --shadow-button: 0 4px 12px -4px rgba(0, 0, 0, 0.15);
+    --shadow-fab: 0 8px 24px -8px rgba(0, 0, 0, 0.2);
 
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

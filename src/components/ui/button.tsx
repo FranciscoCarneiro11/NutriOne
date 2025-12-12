@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-button hover:bg-coral-dark",
+          "bg-primary text-primary-foreground shadow-button hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -20,8 +20,10 @@ const buttonVariants = cva(
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         dark: "bg-foreground text-background hover:bg-foreground/90",
-        coral: "bg-primary text-primary-foreground shadow-button hover:shadow-fab hover:bg-coral-dark",
-        "coral-outline": "border-2 border-primary text-primary bg-transparent hover:bg-coral-light",
+        coral: "bg-coral text-white shadow-button hover:shadow-fab hover:bg-coral-dark",
+        "coral-outline": "border-2 border-coral text-coral bg-transparent hover:bg-coral-light",
+        monochrome: "bg-primary text-primary-foreground hover:bg-primary/90",
+        "monochrome-secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/70",
       },
       size: {
         default: "h-12 px-6 py-3 rounded-2xl",

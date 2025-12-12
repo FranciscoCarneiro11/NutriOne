@@ -260,17 +260,17 @@ export const BodyZoneSelector: React.FC<BodyZoneSelectorProps> = ({
               data-zone={zone.id}
               onClick={() => toggleZone(zone.id)}
               className={cn(
-                "relative flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all duration-300",
+                "relative flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200",
                 isSelected
-                  ? "border-primary bg-coral-light text-primary"
-                  : "border-border bg-card text-foreground hover:border-primary/30"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
               )}
             >
               <div
                 className={cn(
                   "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
                   isSelected
-                    ? "border-primary bg-primary"
+                    ? "border-white bg-white/20"
                     : "border-muted-foreground/30 bg-transparent"
                 )}
               >

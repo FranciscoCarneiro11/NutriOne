@@ -50,20 +50,17 @@ export const DietaryChips: React.FC<DietaryChipsProps> = ({
             key={id}
             onClick={() => handleToggle(id)}
             className={cn(
-              "flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 text-left",
+              "flex items-center gap-3 p-4 rounded-2xl transition-all duration-200 text-left",
               isSelected
-                ? "border-primary bg-coral-light"
-                : "border-border bg-card hover:border-primary/30"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             )}
           >
             <Icon className={cn(
-              "w-5 h-5 transition-colors flex-shrink-0",
-              isSelected ? "text-primary" : "text-muted-foreground"
+              "w-5 h-5 flex-shrink-0",
+              isSelected ? "text-white" : "text-foreground"
             )} />
-            <span className={cn(
-              "text-sm font-medium transition-colors",
-              isSelected ? "text-foreground" : "text-foreground"
-            )}>
+            <span className="text-sm font-medium">
               {label}
             </span>
           </button>
