@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      hydration_logs: {
+        Row: {
+          created_at: string | null
+          cups_filled: number
+          date: string
+          goal: number
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          cups_filled?: number
+          date?: string
+          goal?: number
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          cups_filled?: number
+          date?: string
+          goal?: number
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meals: {
+        Row: {
+          calories: number
+          carbs: number | null
+          completed: boolean | null
+          created_at: string | null
+          date: string
+          fat: number | null
+          id: string
+          items: string[] | null
+          meal_type: string
+          protein: number | null
+          time: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          calories?: number
+          carbs?: number | null
+          completed?: boolean | null
+          created_at?: string | null
+          date?: string
+          fat?: number | null
+          id?: string
+          items?: string[] | null
+          meal_type: string
+          protein?: number | null
+          time?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number | null
+          completed?: boolean | null
+          created_at?: string | null
+          date?: string
+          fat?: number | null
+          id?: string
+          items?: string[] | null
+          meal_type?: string
+          protein?: number | null
+          time?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activity_level: string | null
