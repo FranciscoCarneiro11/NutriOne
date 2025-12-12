@@ -12,7 +12,6 @@ import { ActivityLevelCard } from "@/components/onboarding/ActivityLevelCard";
 import { DietaryChips } from "@/components/onboarding/DietaryChips";
 import { WorkoutDaysSelector } from "@/components/onboarding/WorkoutDaysSelector";
 import { BodyZoneSelector } from "@/components/onboarding/BodyZoneSelector";
-import { AILoadingScreen } from "@/components/onboarding/AILoadingScreen";
 import {
   PreviousExperienceStep,
   LongTermSuccessStep,
@@ -22,6 +21,8 @@ import {
   RealisticGoalStep,
   MultiplierStep,
   ObstaclesStep,
+  SocialProofStep,
+  SmartLoadingScreen,
   type Obstacle,
 } from "@/components/onboarding/steps";
 import { cn } from "@/lib/utils";
@@ -86,7 +87,7 @@ const Onboarding: React.FC = () => {
     workoutDays: 3,
   });
 
-  const totalSteps = 16;
+  const totalSteps = 17;
 
   const animateTransition = (direction: "left" | "right", callback: () => void) => {
     setSlideDirection(direction);
@@ -149,6 +150,8 @@ const Onboarding: React.FC = () => {
       case 15: // Dietary
         return data.dietaryRestrictions.length > 0;
       case 16: // Workout Days
+        return true;
+      case 17: // Social Proof
         return true;
       default:
         return false;
@@ -385,14 +388,21 @@ const Onboarding: React.FC = () => {
           </div>
         );
 
+      case 17: // Social Proof
+        return (
+          <div className={animationClass}>
+            <SocialProofStep appName={APP_NAME} />
+          </div>
+        );
+
       default:
         return null;
     }
   };
 
-  // Show AI Loading Screen
+  // Show Smart Loading Screen
   if (showAILoading) {
-    return <AILoadingScreen onComplete={handleAILoadingComplete} />;
+    return <SmartLoadingScreen onComplete={handleAILoadingComplete} />;
   }
 
   return (
