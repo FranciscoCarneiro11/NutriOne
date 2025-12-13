@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Camera, X, Loader2, Sparkles, Upload } from "lucide-react";
+import { Camera, X, Loader2, Sparkles, ImageIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,8 @@ export const FoodScannerModal: React.FC<FoodScannerModalProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -78,8 +79,12 @@ export const FoodScannerModal: React.FC<FoodScannerModalProps> = ({
     onOpenChange(false);
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
+  const triggerCameraInput = () => {
+    cameraInputRef.current?.click();
+  };
+
+  const triggerGalleryInput = () => {
+    galleryInputRef.current?.click();
   };
 
   return (
@@ -93,12 +98,19 @@ export const FoodScannerModal: React.FC<FoodScannerModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Hidden file input */}
+          {/* Hidden file inputs */}
           <input
-            ref={fileInputRef}
+            ref={cameraInputRef}
             type="file"
             accept="image/*"
             capture="environment"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <input
+            ref={galleryInputRef}
+            type="file"
+            accept="image/*"
             onChange={handleFileSelect}
             className="hidden"
           />
@@ -124,26 +136,34 @@ export const FoodScannerModal: React.FC<FoodScannerModalProps> = ({
               </Button>
             </div>
           ) : (
-            <button
-              onClick={triggerFileInput}
-              className={cn(
-                "w-full h-64 border-2 border-dashed border-border rounded-xl",
-                "flex flex-col items-center justify-center gap-4",
-                "bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-              )}
-            >
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Upload className="w-8 h-8 text-primary" />
-              </div>
-              <div className="text-center">
-                <p className="font-medium text-foreground">
-                  Toque para selecionar uma foto
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  ou tire uma foto do seu prato
-                </p>
-              </div>
-            </button>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={triggerCameraInput}
+                className={cn(
+                  "h-40 border-2 border-dashed border-border rounded-xl",
+                  "flex flex-col items-center justify-center gap-3",
+                  "bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                )}
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Camera className="w-7 h-7 text-primary" />
+                </div>
+                <p className="font-medium text-foreground text-sm">Câmera</p>
+              </button>
+              <button
+                onClick={triggerGalleryInput}
+                className={cn(
+                  "h-40 border-2 border-dashed border-border rounded-xl",
+                  "flex flex-col items-center justify-center gap-3",
+                  "bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                )}
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <ImageIcon className="w-7 h-7 text-primary" />
+                </div>
+                <p className="font-medium text-foreground text-sm">Galeria</p>
+              </button>
+            </div>
           )}
 
           {/* Action Buttons */}
