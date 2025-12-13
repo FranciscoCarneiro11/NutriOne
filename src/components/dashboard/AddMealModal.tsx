@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Barcode, Plus } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,21 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+export interface MealPrefillData {
+  title: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  items: string[];
+  mealType: "breakfast" | "lunch" | "dinner" | "snack";
+}
+
 interface AddMealModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onMealAdded: () => void;
+  prefillData?: MealPrefillData | null;
 }
 
 const mealTypes = [
@@ -51,6 +62,7 @@ export const AddMealModal: React.FC<AddMealModalProps> = ({
   open,
   onOpenChange,
   onMealAdded,
+  prefillData,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -63,6 +75,21 @@ export const AddMealModal: React.FC<AddMealModalProps> = ({
     time: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Handle prefill data from scanner
+  useEffect(() => {
+    if (prefillData && open) {
+      setFormData({
+        title: prefillData.title,
+        mealType: prefillData.mealType,
+        calories: prefillData.calories.toString(),
+        protein: prefillData.protein.toString(),
+        carbs: prefillData.carbs.toString(),
+        fat: prefillData.fat.toString(),
+        time: new Date().toTimeString().slice(0, 5), // Current time
+      });
+    }
+  }, [prefillData, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

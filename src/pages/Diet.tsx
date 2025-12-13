@@ -2,11 +2,13 @@ import React, { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
-import { AddMealModal } from "@/components/dashboard/AddMealModal";
+import { AddMealModal, MealPrefillData } from "@/components/dashboard/AddMealModal";
+import { FoodScannerModal } from "@/components/scanner/FoodScannerModal";
 import { Clock, Flame, ChevronRight, Check, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { FoodAnalysisResult } from "@/services/foodScanner";
 
 interface WeekDay {
   day: number;
@@ -30,6 +32,8 @@ const WEEK_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const Diet: React.FC = () => {
   const queryClient = useQueryClient();
   const [isAddMealOpen, setIsAddMealOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [mealPrefillData, setMealPrefillData] = useState<MealPrefillData | null>(null);
 
   // Generate dynamic week days based on current date
   const weekDays = useMemo<WeekDay[]>(() => {
@@ -277,12 +281,33 @@ const Diet: React.FC = () => {
         )}
       </AppContent>
 
-      <BottomNavigation />
+      <BottomNavigation onScanClick={() => setIsScannerOpen(true)} />
 
       <AddMealModal
         open={isAddMealOpen}
-        onOpenChange={setIsAddMealOpen}
+        onOpenChange={(open) => {
+          setIsAddMealOpen(open);
+          if (!open) setMealPrefillData(null);
+        }}
         onMealAdded={handleMealAdded}
+        prefillData={mealPrefillData}
+      />
+
+      <FoodScannerModal
+        open={isScannerOpen}
+        onOpenChange={setIsScannerOpen}
+        onAnalysisComplete={(result: FoodAnalysisResult) => {
+          setMealPrefillData({
+            title: result.title,
+            calories: result.calories,
+            protein: result.protein,
+            carbs: result.carbs,
+            fat: result.fat,
+            items: result.items,
+            mealType: result.mealType,
+          });
+          setIsAddMealOpen(true);
+        }}
       />
     </AppShell>
   );

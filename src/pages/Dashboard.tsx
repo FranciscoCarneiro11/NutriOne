@@ -6,12 +6,14 @@ import { HydrationTracker } from "@/components/dashboard/HydrationTracker";
 import { MealCard } from "@/components/dashboard/MealCard";
 import { DaySection } from "@/components/dashboard/DaySection";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
-import { AddMealModal } from "@/components/dashboard/AddMealModal";
+import { AddMealModal, MealPrefillData } from "@/components/dashboard/AddMealModal";
+import { FoodScannerModal } from "@/components/scanner/FoodScannerModal";
 import { useConfetti } from "@/hooks/useConfetti";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { FoodAnalysisResult } from "@/services/foodScanner";
 
 interface MacroCardProps {
   icon: React.ReactNode;
@@ -118,6 +120,8 @@ const Dashboard: React.FC = () => {
   const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddMealOpen, setIsAddMealOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [mealPrefillData, setMealPrefillData] = useState<MealPrefillData | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
   const fetchMeals = useCallback(async () => {
@@ -346,6 +350,26 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleScanComplete = (result: FoodAnalysisResult) => {
+    setMealPrefillData({
+      title: result.title,
+      calories: result.calories,
+      protein: result.protein,
+      carbs: result.carbs,
+      fat: result.fat,
+      items: result.items,
+      mealType: result.mealType,
+    });
+    setIsAddMealOpen(true);
+  };
+
+  const handleAddMealOpenChange = (open: boolean) => {
+    setIsAddMealOpen(open);
+    if (!open) {
+      setMealPrefillData(null);
+    }
+  };
+
   return (
     <AppShell>
       <AppHeader 
@@ -467,12 +491,19 @@ const Dashboard: React.FC = () => {
         )}
       </AppContent>
 
-      <BottomNavigation />
+      <BottomNavigation onScanClick={() => setIsScannerOpen(true)} />
 
       <AddMealModal
         open={isAddMealOpen}
-        onOpenChange={setIsAddMealOpen}
+        onOpenChange={handleAddMealOpenChange}
         onMealAdded={fetchMeals}
+        prefillData={mealPrefillData}
+      />
+
+      <FoodScannerModal
+        open={isScannerOpen}
+        onOpenChange={setIsScannerOpen}
+        onAnalysisComplete={handleScanComplete}
       />
     </AppShell>
   );
