@@ -9,7 +9,7 @@ const Welcome: React.FC = () => {
   const stats = [
     { icon: Users, value: "+1500k", label: "Usuários" },
     { icon: Star, value: "+1200k", label: "Avaliações 5★" },
-    { icon: Dumbbell, value: "2000+", label: "Exercícios" },
+    { icon: Dumbbell, value: "120+", label: "Exercícios" },
   ];
 
   return (
