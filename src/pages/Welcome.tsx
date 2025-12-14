@@ -7,7 +7,7 @@ const Welcome: React.FC = () => {
   const navigate = useNavigate();
 
   const stats = [
-    { icon: Users, value: "1500", label: "Usuários" },
+    { icon: Users, value: "+1500", label: "Usuários" },
     { icon: Star, value: "120k+", label: "Avaliações 5★" },
     { icon: Dumbbell, value: "2000+", label: "Exercícios" },
   ];
