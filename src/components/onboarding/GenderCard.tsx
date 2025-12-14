@@ -22,8 +22,8 @@ export const GenderCard: React.FC<GenderCardProps> = ({
       className={cn(
         "relative flex flex-col items-center justify-between p-4 rounded-3xl border-2 transition-all duration-300 w-full aspect-[3/4] overflow-hidden",
         selected
-          ? "border-primary bg-zinc-900 shadow-[0_0_30px_rgba(255,111,97,0.3)] scale-[1.02]"
-          : "border-zinc-700 bg-zinc-900 hover:border-primary/50",
+          ? "border-primary bg-primary/10 shadow-[0_0_40px_hsl(var(--primary)/0.4)]"
+          : "border-muted bg-secondary hover:border-primary/50",
         className
       )}
     >
@@ -31,8 +31,11 @@ export const GenderCard: React.FC<GenderCardProps> = ({
       <div className="flex-1 w-full flex items-center justify-center py-2">
         <svg
           viewBox="0 0 120 200"
-          className="h-full max-h-56 w-auto"
-          style={{ filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5))" }}
+          className={cn(
+            "h-full max-h-56 w-auto transition-all duration-300",
+            selected ? "brightness-100" : "brightness-75 grayscale"
+          )}
+          style={{ filter: selected ? "drop-shadow(0 8px 24px hsl(var(--primary) / 0.5))" : "drop-shadow(0 8px 24px rgba(0,0,0,0.5))" }}
         >
           <defs>
             {/* Realistic skin/muscle gradient */}
@@ -262,10 +265,10 @@ export const GenderCard: React.FC<GenderCardProps> = ({
       </div>
       
       <span className={cn(
-        "text-lg font-semibold transition-colors pb-2",
-        selected ? "text-primary" : "text-white"
+        "text-lg font-semibold transition-all duration-300 pb-2",
+        selected ? "text-primary font-bold scale-105" : "text-muted-foreground"
       )}>
-        {isMale ? "Masculino" : "Feminino"}
+        {isMale ? "Homem" : "Mulher"}
       </span>
 
       {/* Selection Ring */}

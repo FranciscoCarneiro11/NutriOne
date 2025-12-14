@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import { GenderCard } from "../GenderCard";
 
 type Gender = "male" | "female" | "other";
 
@@ -14,36 +15,43 @@ export const GenderStep: React.FC<GenderStepProps> = ({
   onChange,
   className,
 }) => {
-  const options: { id: Gender; label: string }[] = [
-    { id: "male", label: "Masculino" },
-    { id: "female", label: "Feminino" },
-    { id: "other", label: "Outro" },
-  ];
-
   return (
     <div className={cn("flex flex-col", className)}>
       <h1 className="text-3xl font-bold text-foreground mb-2 leading-tight">
-        Escolha seu gênero
+        Qual é o seu gênero?
       </h1>
-      <p className="text-muted-foreground mb-12">
-        Isso será usado para calibrar seu plano personalizado.
+      <p className="text-muted-foreground mb-8">
+        Isso nos ajuda a personalizar sua experiência.
       </p>
 
-      <div className="space-y-3 mt-auto">
-        {options.map((option) => (
-          <button
-            key={option.id}
-            onClick={() => onChange(option.id)}
-            className={cn(
-              "w-full flex items-center justify-center p-5 rounded-2xl transition-all duration-200 text-lg font-semibold",
-              value === option.id
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
+      <div className="flex gap-4 justify-center items-end flex-1">
+        {/* Male figure */}
+        <div
+          className={cn(
+            "flex-1 max-w-[180px] transition-all duration-300 ease-out cursor-pointer",
+            value === "male" ? "scale-105 z-10" : value === "female" ? "scale-95 opacity-60" : "hover:scale-[1.02]"
+          )}
+        >
+          <GenderCard
+            gender="male"
+            selected={value === "male"}
+            onClick={() => onChange("male")}
+          />
+        </div>
+
+        {/* Female figure */}
+        <div
+          className={cn(
+            "flex-1 max-w-[180px] transition-all duration-300 ease-out cursor-pointer",
+            value === "female" ? "scale-105 z-10" : value === "male" ? "scale-95 opacity-60" : "hover:scale-[1.02]"
+          )}
+        >
+          <GenderCard
+            gender="female"
+            selected={value === "female"}
+            onClick={() => onChange("female")}
+          />
+        </div>
       </div>
     </div>
   );
