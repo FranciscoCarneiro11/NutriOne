@@ -13,7 +13,7 @@ export const MultiplierStep: React.FC<MultiplierStepProps> = ({
   return (
     <div className={cn("flex flex-col", className)}>
       <h1 className="text-3xl font-bold text-foreground mb-8 leading-tight">
-        Ganhar duas vezes mais perda de peso com {appName} versus sozinho
+        Ganhar duas vezes mais perda de peso com {appName} sozinho
       </h1>
 
       <div className="bg-white rounded-3xl p-8 shadow-card">
