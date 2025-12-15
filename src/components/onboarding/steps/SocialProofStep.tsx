@@ -46,7 +46,7 @@ export const SocialProofStep: React.FC<SocialProofStepProps> = ({
           </div>
         </div>
       </div>
-      <p className="text-sm text-muted-foreground mb-8">5M+ Usuários do {appName}</p>
+      <p className="text-sm text-muted-foreground mb-8">3k+ Usuários do {appName}</p>
 
       {/* Testimonial Card */}
       <div className="w-full bg-background border border-border rounded-2xl p-5 shadow-sm">
