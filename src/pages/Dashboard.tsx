@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Flame, Beef, Wheat, Droplet, Plus, Sparkles } from "lucide-react";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { HydrationTracker } from "@/components/dashboard/HydrationTracker";
@@ -113,109 +114,97 @@ const getActivityMultiplier = (level: string | null) => {
 
 const Dashboard: React.FC = () => {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const { triggerConfetti } = useConfetti();
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
   const [streak] = useState(3);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [todayMeals, setTodayMeals] = useState<Meal[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isAddMealOpen, setIsAddMealOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [mealPrefillData, setMealPrefillData] = useState<MealPrefillData | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
-  const fetchMeals = useCallback(async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+  const todayDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 
-      const today = new Date().toISOString().split('T')[0];
-      
+  // Fetch profile
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("age, gender, height, weight, target_weight, activity_level, goal, nutrition_plan, workout_plan")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return null;
+      }
+      return data as UserProfile | null;
+    },
+  });
+
+  // Fetch meals using React Query (same key as Diet page)
+  const { data: todayMeals = [], isLoading } = useQuery({
+    queryKey: ["meals", todayDate],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
       const { data, error } = await supabase
         .from("meals")
         .select("*")
         .eq("user_id", user.id)
-        .eq("date", today)
+        .eq("date", todayDate)
         .order("time", { ascending: true });
 
       if (error) {
         console.error("Error fetching meals:", error);
-      } else {
-        setTodayMeals(data?.map(m => ({
-          id: m.id,
-          title: m.title,
-          time: m.time,
-          calories: m.calories,
-          protein: Number(m.protein) || 0,
-          carbs: Number(m.carbs) || 0,
-          fat: Number(m.fat) || 0,
-          items: m.items || [],
-          completed: m.completed || false,
-          meal_type: m.meal_type,
-        })) || []);
+        return [];
       }
-    } catch (err) {
-      console.error("Failed to fetch meals:", err);
-    }
-  }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          setIsLoading(false);
-          return;
-        }
+      return (data || []).map(m => ({
+        id: m.id,
+        title: m.title,
+        time: m.time,
+        calories: m.calories,
+        protein: Number(m.protein) || 0,
+        carbs: Number(m.carbs) || 0,
+        fat: Number(m.fat) || 0,
+        items: m.items || [],
+        completed: m.completed || false,
+        meal_type: m.meal_type,
+      })) as Meal[];
+    },
+  });
 
-        const today = new Date().toISOString().split('T')[0];
+  // Toggle meal completion mutation
+  const toggleMutation = useMutation({
+    mutationFn: async ({ id, completed }: { id: string; completed: boolean }) => {
+      const { error } = await supabase
+        .from("meals")
+        .update({ completed })
+        .eq("id", id);
 
-        // Fetch profile and meals in parallel
-        const [profileResult, mealsResult] = await Promise.all([
-          supabase
-            .from("profiles")
-            .select("age, gender, height, weight, target_weight, activity_level, goal, nutrition_plan, workout_plan")
-            .eq("user_id", user.id)
-            .maybeSingle(),
-          supabase
-            .from("meals")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("date", today)
-            .order("time", { ascending: true })
-        ]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meals", todayDate] });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a refeição",
+        variant: "destructive",
+      });
+    },
+  });
 
-        if (profileResult.error) {
-          console.error("Error fetching profile:", profileResult.error);
-        } else {
-          setProfile(profileResult.data);
-        }
-
-        if (mealsResult.error) {
-          console.error("Error fetching meals:", mealsResult.error);
-        } else {
-          setTodayMeals(mealsResult.data?.map(m => ({
-            id: m.id,
-            title: m.title,
-            time: m.time,
-            calories: m.calories,
-            protein: Number(m.protein) || 0,
-            carbs: Number(m.carbs) || 0,
-            fat: Number(m.fat) || 0,
-            items: m.items || [],
-            completed: m.completed || false,
-            meal_type: m.meal_type,
-          })) || []);
-        }
-      } catch (err) {
-        console.error("Failed to fetch data:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const fetchMeals = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["meals", todayDate] });
+  }, [queryClient, todayDate]);
 
   const handleGenerateMealPlan = async () => {
     setIsGeneratingPlan(true);
@@ -318,28 +307,12 @@ const Dashboard: React.FC = () => {
     month: "long",
   });
 
-  const handleMealComplete = async (mealId: string) => {
-    try {
-      const meal = todayMeals.find(m => m.id === mealId);
-      if (!meal) return;
-
-      const { error } = await supabase
-        .from("meals")
-        .update({ completed: !meal.completed })
-        .eq("id", mealId);
-
-      if (error) {
-        console.error("Error updating meal:", error);
-        return;
-      }
-
-      setTodayMeals(prev => 
-        prev.map(m => m.id === mealId ? { ...m, completed: !m.completed } : m)
-      );
-    } catch (err) {
-      console.error("Failed to update meal:", err);
+  const handleMealComplete = useCallback((mealId: string) => {
+    const meal = todayMeals.find(m => m.id === mealId);
+    if (meal) {
+      toggleMutation.mutate({ id: mealId, completed: !meal.completed });
     }
-  };
+  }, [todayMeals, toggleMutation]);
 
   const handleScanComplete = (result: FoodAnalysisResult) => {
     setMealPrefillData({
