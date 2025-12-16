@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
-import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight, Camera } from "lucide-react";
+import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight, Camera, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -19,7 +19,8 @@ interface ProfileData {
   starting_weight: number | null;
   created_at: string | null;
   active_days_count: number | null;
-  last_active_date: string | null;
+  current_streak: number | null;
+  longest_streak: number | null;
 }
 
 const Profile: React.FC = () => {
@@ -35,43 +36,12 @@ const Profile: React.FC = () => {
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("first_name, last_name, avatar_url, weight, height, target_weight, goal, starting_weight, created_at, active_days_count, last_active_date")
+      .select("first_name, last_name, avatar_url, weight, height, target_weight, goal, starting_weight, created_at, active_days_count, current_streak, longest_streak")
       .eq("user_id", user.id)
       .single();
 
     if (!error && data) {
       setProfile(data);
-      // Check and update active days on first visit of the day
-      await checkAndUpdateActiveDays(data);
-    }
-  };
-
-  const checkAndUpdateActiveDays = async (profileData: ProfileData) => {
-    if (!user) return;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const lastActiveDate = profileData.last_active_date;
-    
-    // If already visited today, do nothing
-    if (lastActiveDate === today) return;
-    
-    // First visit of the day - increment active days
-    const newActiveDays = (profileData.active_days_count || 0) + 1;
-    
-    const { error } = await supabase
-      .from("profiles")
-      .update({ 
-        active_days_count: newActiveDays,
-        last_active_date: today 
-      })
-      .eq("user_id", user.id);
-    
-    if (!error) {
-      setProfile(prev => prev ? {
-        ...prev,
-        active_days_count: newActiveDays,
-        last_active_date: today
-      } : null);
     }
   };
 
@@ -104,7 +74,8 @@ const Profile: React.FC = () => {
     ? `${profile.first_name}${profile.last_name ? ` ${profile.last_name}` : ""}`
     : "Sem Nome";
 
-  // Calculate stats - now using tracked active days
+  // Stats values
+  const currentStreak = profile?.current_streak || 0;
   const activeDays = profile?.active_days_count || 0;
 
   const kgLost = profile?.starting_weight && profile?.weight
@@ -159,9 +130,12 @@ const Profile: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-card rounded-2xl p-4 text-center shadow-card border border-border">
-            <p className="text-2xl font-bold text-primary">{activeDays}</p>
-            <p className="text-xs text-muted-foreground">Dias ativos</p>
+          <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-2xl p-4 text-center shadow-card border border-orange-500/20">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <p className="text-2xl font-bold text-orange-500">{currentStreak}</p>
+            </div>
+            <p className="text-xs text-muted-foreground">Sequência</p>
           </div>
           <div className="bg-card rounded-2xl p-4 text-center shadow-card border border-border">
             <p className="text-2xl font-bold text-primary">{kgLost.toFixed(1)}kg</p>

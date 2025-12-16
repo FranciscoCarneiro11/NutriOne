@@ -9,6 +9,7 @@ import { DaySection } from "@/components/dashboard/DaySection";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { AddMealModal, MealPrefillData } from "@/components/dashboard/AddMealModal";
 import { FoodScannerModal } from "@/components/scanner/FoodScannerModal";
+import { StreakLostModal } from "@/components/dashboard/StreakLostModal";
 import { useConfetti } from "@/hooks/useConfetti";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,6 +79,9 @@ interface UserProfile {
   goal: string | null;
   nutrition_plan: any;
   workout_plan: any;
+  current_streak: number | null;
+  longest_streak: number | null;
+  last_active_date: string | null;
 }
 
 interface Meal {
@@ -117,15 +121,17 @@ const Dashboard: React.FC = () => {
   const queryClient = useQueryClient();
   const { triggerConfetti } = useConfetti();
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
-  const [streak] = useState(3);
   const [isAddMealOpen, setIsAddMealOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [mealPrefillData, setMealPrefillData] = useState<MealPrefillData | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [showStreakLostModal, setShowStreakLostModal] = useState(false);
+  const [lostStreak, setLostStreak] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
 
   const todayDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 
-  // Fetch profile
+  // Fetch profile and check streak
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -134,7 +140,7 @@ const Dashboard: React.FC = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("age, gender, height, weight, target_weight, activity_level, goal, nutrition_plan, workout_plan")
+        .select("age, gender, height, weight, target_weight, activity_level, goal, nutrition_plan, workout_plan, current_streak, longest_streak, last_active_date")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -145,6 +151,72 @@ const Dashboard: React.FC = () => {
       return data as UserProfile | null;
     },
   });
+
+  // Check and update streak on mount
+  useEffect(() => {
+    const checkAndUpdateStreak = async () => {
+      if (!profile) return;
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const lastActiveDate = profile.last_active_date;
+      
+      // Already visited today
+      if (lastActiveDate === today) {
+        setCurrentStreak(profile.current_streak || 0);
+        return;
+      }
+
+      // Calculate days since last visit
+      let daysSinceLastVisit = 0;
+      if (lastActiveDate) {
+        const lastDate = new Date(lastActiveDate);
+        const todayDate = new Date(today);
+        daysSinceLastVisit = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+      }
+
+      let newStreak = profile.current_streak || 0;
+      let newLongestStreak = profile.longest_streak || 0;
+
+      if (daysSinceLastVisit === 1) {
+        // Consecutive day - increment streak
+        newStreak += 1;
+        if (newStreak > newLongestStreak) {
+          newLongestStreak = newStreak;
+        }
+      } else if (daysSinceLastVisit > 1 && (profile.current_streak || 0) > 0) {
+        // Streak lost - show modal
+        setLostStreak(profile.current_streak || 0);
+        setShowStreakLostModal(true);
+        newStreak = 1; // Start new streak today
+      } else if (!lastActiveDate) {
+        // First time user
+        newStreak = 1;
+      } else {
+        // Same as above but no previous streak to lose
+        newStreak = 1;
+      }
+
+      // Update database
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          current_streak: newStreak,
+          longest_streak: newLongestStreak,
+          last_active_date: today 
+        })
+        .eq("user_id", user.id);
+
+      if (!error) {
+        setCurrentStreak(newStreak);
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+      }
+    };
+
+    checkAndUpdateStreak();
+  }, [profile?.last_active_date, queryClient]);
 
   // Fetch meals using React Query (same key as Diet page)
   const { data: todayMeals = [], isLoading } = useQuery({
@@ -338,7 +410,7 @@ const Dashboard: React.FC = () => {
     <AppShell>
       <AppHeader 
         title="Hoje"
-        rightAction={<StreakBadge count={streak} />}
+        rightAction={<StreakBadge count={currentStreak} />}
       />
 
       <AppContent className="pb-28">
@@ -472,6 +544,12 @@ const Dashboard: React.FC = () => {
         open={isScannerOpen}
         onOpenChange={setIsScannerOpen}
         onAnalysisComplete={handleScanComplete}
+      />
+
+      <StreakLostModal
+        open={showStreakLostModal}
+        onOpenChange={setShowStreakLostModal}
+        previousStreak={lostStreak}
       />
     </AppShell>
   );

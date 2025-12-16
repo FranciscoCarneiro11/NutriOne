@@ -103,6 +103,7 @@ export type Database = {
           avatar_url: string | null
           body_zones: string[] | null
           created_at: string | null
+          current_streak: number | null
           dark_mode: boolean | null
           dietary_restrictions: string[] | null
           email_notifications: boolean | null
@@ -113,6 +114,7 @@ export type Database = {
           id: string
           last_active_date: string | null
           last_name: string | null
+          longest_streak: number | null
           nutrition_plan: Json | null
           obstacles: string[] | null
           previous_experience: boolean | null
@@ -134,6 +136,7 @@ export type Database = {
           avatar_url?: string | null
           body_zones?: string[] | null
           created_at?: string | null
+          current_streak?: number | null
           dark_mode?: boolean | null
           dietary_restrictions?: string[] | null
           email_notifications?: boolean | null
@@ -144,6 +147,7 @@ export type Database = {
           id?: string
           last_active_date?: string | null
           last_name?: string | null
+          longest_streak?: number | null
           nutrition_plan?: Json | null
           obstacles?: string[] | null
           previous_experience?: boolean | null
@@ -165,6 +169,7 @@ export type Database = {
           avatar_url?: string | null
           body_zones?: string[] | null
           created_at?: string | null
+          current_streak?: number | null
           dark_mode?: boolean | null
           dietary_restrictions?: string[] | null
           email_notifications?: boolean | null
@@ -175,6 +180,7 @@ export type Database = {
           id?: string
           last_active_date?: string | null
           last_name?: string | null
+          longest_streak?: number | null
           nutrition_plan?: Json | null
           obstacles?: string[] | null
           previous_experience?: boolean | null
