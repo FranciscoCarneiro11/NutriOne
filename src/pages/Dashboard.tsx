@@ -305,11 +305,12 @@ const Dashboard: React.FC = () => {
 
   const macros = calculateMacros();
 
-  // Calculate consumed values from today's meals
-  const consumedCalories = todayMeals.reduce((sum, meal) => sum + meal.calories, 0);
-  const consumedProtein = todayMeals.reduce((sum, meal) => sum + meal.protein, 0);
-  const consumedCarbs = todayMeals.reduce((sum, meal) => sum + meal.carbs, 0);
-  const consumedFat = todayMeals.reduce((sum, meal) => sum + meal.fat, 0);
+  // Calculate consumed values from completed meals only
+  const completedMeals = todayMeals.filter(meal => meal.completed);
+  const consumedCalories = completedMeals.reduce((sum, meal) => sum + meal.calories, 0);
+  const consumedProtein = completedMeals.reduce((sum, meal) => sum + meal.protein, 0);
+  const consumedCarbs = completedMeals.reduce((sum, meal) => sum + meal.carbs, 0);
+  const consumedFat = completedMeals.reduce((sum, meal) => sum + meal.fat, 0);
 
   const today = new Date().toLocaleDateString("pt-BR", {
     weekday: "long",
