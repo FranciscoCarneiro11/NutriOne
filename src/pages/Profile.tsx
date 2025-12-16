@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
-import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight } from "lucide-react";
+import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -104,7 +104,10 @@ const Profile: React.FC = () => {
       <AppContent className="pb-28">
         {/* Profile Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-24 h-24 rounded-full bg-coral-light flex items-center justify-center mb-4 overflow-hidden">
+          <button 
+            onClick={() => setIsEditModalOpen(true)}
+            className="w-24 h-24 rounded-full bg-coral-light flex items-center justify-center mb-4 overflow-hidden relative cursor-pointer hover:opacity-80 transition-opacity group"
+          >
             {profile?.avatar_url ? (
               <img 
                 src={profile.avatar_url} 
@@ -114,7 +117,11 @@ const Profile: React.FC = () => {
             ) : (
               <User className="w-12 h-12 text-primary" />
             )}
-          </div>
+            {/* Camera overlay on hover */}
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+              <Camera className="w-8 h-8 text-white" />
+            </div>
+          </button>
           <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
           <p className="text-muted-foreground">{user?.email || "usuario@email.com"}</p>
         </div>
