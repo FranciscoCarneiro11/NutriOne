@@ -1,25 +1,34 @@
 import React, { useState } from "react";
-import { Flame, ChevronRight, Check } from "lucide-react";
+import { Flame, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MealCardProps {
   title: string;
-  time: string;
+  index: number;
   calories: number;
   items: string[];
+  protein?: number;
+  carbs?: number;
+  fat?: number;
   locked?: boolean;
+  completed?: boolean;
   onComplete?: () => void;
 }
 
 export const MealCard: React.FC<MealCardProps> = ({ 
-  title, 
-  time, 
+  title,
+  index,
   calories, 
   items,
+  protein,
+  carbs,
+  fat,
   locked = false,
+  completed = false,
   onComplete
 }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(completed);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const handleComplete = (e: React.MouseEvent) => {
@@ -37,10 +46,15 @@ export const MealCard: React.FC<MealCardProps> = ({
     }, 300);
   };
 
+  const handleExpand = () => {
+    if (locked) return;
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <div 
       className={cn(
-        "relative w-full flex items-center gap-4 p-4 bg-card rounded-2xl shadow-card transition-all duration-300",
+        "relative w-full bg-card rounded-2xl shadow-card transition-all duration-300 overflow-hidden",
         locked && "blur-[2px] opacity-60",
         isCompleted && "opacity-60 bg-muted"
       )}
@@ -57,49 +71,93 @@ export const MealCard: React.FC<MealCardProps> = ({
         </div>
       )}
 
-      {/* Complete button */}
-      <button
-        onClick={handleComplete}
-        disabled={locked}
-        className={cn(
-          "flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300",
-          isCompleted 
-            ? "bg-primary border-primary" 
-            : "border-border hover:border-primary",
-          isAnimating && "scale-125",
-          locked && "pointer-events-none"
-        )}
-      >
-        {isCompleted && (
-          <Check 
-            className={cn(
-              "w-4 h-4 text-primary-foreground transition-transform duration-300",
-              isAnimating && "scale-110"
-            )} 
-          />
-        )}
-      </button>
+      {/* Main content */}
+      <div className="flex items-center gap-4 p-4">
+        {/* Complete button */}
+        <button
+          onClick={handleComplete}
+          disabled={locked}
+          className={cn(
+            "flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300",
+            isCompleted 
+              ? "bg-primary border-primary" 
+              : "border-border hover:border-primary",
+            isAnimating && "scale-125",
+            locked && "pointer-events-none"
+          )}
+        >
+          {isCompleted && (
+            <Check 
+              className={cn(
+                "w-4 h-4 text-primary-foreground transition-transform duration-300",
+                isAnimating && "scale-110"
+              )} 
+            />
+          )}
+        </button>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex-1 min-w-0">
           <h3 className={cn(
             "font-semibold text-foreground transition-all",
             isCompleted && "line-through text-muted-foreground"
           )}>
-            {title}
+            Refeição {index}
           </h3>
-          <span className="text-xs text-muted-foreground">{time}</span>
+          <div className="flex items-center gap-1 mt-1 text-primary">
+            <Flame className="w-4 h-4" />
+            <span className="text-sm font-medium">{calories} kcal</span>
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-1">
-          {items.join(", ")}
-        </p>
-        <div className="flex items-center gap-1 mt-2 text-primary">
-          <Flame className="w-4 h-4" />
-          <span className="text-sm font-medium">{calories} kcal</span>
-        </div>
+        
+        <button 
+          onClick={handleExpand}
+          disabled={locked}
+          className={cn(
+            "p-2 rounded-full hover:bg-muted transition-colors",
+            locked && "pointer-events-none"
+          )}
+        >
+          {isExpanded ? (
+            <ChevronDown className="w-5 h-5 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          )}
+        </button>
       </div>
-      
-      <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+
+      {/* Expanded content */}
+      {isExpanded && (
+        <div className="px-4 pb-4 pt-0 border-t border-border mt-0">
+          <div className="pt-3">
+            <p className="text-sm font-medium text-foreground mb-2">{title}</p>
+            <p className="text-sm text-muted-foreground mb-3">
+              {items.join(", ")}
+            </p>
+            
+            {/* Macros */}
+            <div className="flex gap-4 text-xs">
+              {protein !== undefined && (
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Proteína:</span>
+                  <span className="font-medium text-foreground">{protein}g</span>
+                </div>
+              )}
+              {carbs !== undefined && (
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Carbs:</span>
+                  <span className="font-medium text-foreground">{carbs}g</span>
+                </div>
+              )}
+              {fat !== undefined && (
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Gordura:</span>
+                  <span className="font-medium text-foreground">{fat}g</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
