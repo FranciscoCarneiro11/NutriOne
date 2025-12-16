@@ -452,13 +452,17 @@ const Dashboard: React.FC = () => {
               </Button>
             </div>
           ) : (
-            todayMeals.map((meal) => (
+            todayMeals.map((meal, index) => (
               <MealCard
                 key={meal.id}
                 title={meal.title}
-                time={meal.time || ""}
+                index={index + 1}
                 calories={meal.calories}
                 items={meal.items}
+                protein={meal.protein ? Number(meal.protein) : undefined}
+                carbs={meal.carbs ? Number(meal.carbs) : undefined}
+                fat={meal.fat ? Number(meal.fat) : undefined}
+                completed={meal.completed || false}
                 onComplete={() => handleMealComplete(meal.id)}
               />
             ))
