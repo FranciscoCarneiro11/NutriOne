@@ -62,8 +62,8 @@ interface StreakBadgeProps {
 
 const StreakBadge: React.FC<StreakBadgeProps> = ({ count }) => {
   return (
-    <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-full shadow-sm">
-      <Flame className="w-4 h-4" />
+    <div className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 via-red-500 to-rose-600 text-white px-3 py-1.5 rounded-full shadow-lg shadow-orange-500/30">
+      <Flame className="w-4 h-4 text-yellow-300 drop-shadow-[0_0_4px_rgba(251,191,36,0.8)]" />
       <span className="text-sm font-bold">{count}</span>
     </div>
   );
