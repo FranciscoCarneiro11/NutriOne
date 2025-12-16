@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Camera } from "lucide-react";
+import { Loader2, Camera, User } from "lucide-react";
 
 interface ProfileData {
   first_name: string | null;
@@ -33,6 +33,9 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -40,6 +43,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     height: "",
     target_weight: "",
     goal: "",
+    avatar_url: "",
   });
 
   useEffect(() => {
@@ -51,9 +55,79 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
         height: profile.height?.toString() || "",
         target_weight: profile.target_weight?.toString() || "",
         goal: profile.goal || "",
+        avatar_url: profile.avatar_url || "",
       });
+      setAvatarPreview(profile.avatar_url);
     }
   }, [profile]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Create unique file path: userId/timestamp.extension
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(fileName);
+
+      // Update preview and form data
+      setAvatarPreview(publicUrl);
+      setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
+
+      toast({
+        title: "Imagem carregada",
+        description: "Clique em Salvar para confirmar as alterações.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar imagem",
+        description: error.message || "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -70,6 +144,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           height: formData.height ? parseFloat(formData.height) : null,
           target_weight: formData.target_weight ? parseFloat(formData.target_weight) : null,
           goal: formData.goal || null,
+          avatar_url: formData.avatar_url || null,
         })
         .eq("user_id", user.id);
 
@@ -100,14 +175,40 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Avatar placeholder */}
+          {/* Avatar upload */}
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-coral-light flex items-center justify-center">
-                <Camera className="w-8 h-8 text-primary" />
-              </div>
+              <button
+                type="button"
+                onClick={handleAvatarClick}
+                disabled={isUploading}
+                className="w-20 h-20 rounded-full bg-coral-light flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity relative"
+              >
+                {isUploading ? (
+                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                ) : avatarPreview ? (
+                  <img 
+                    src={avatarPreview} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-8 h-8 text-primary" />
+                )}
+                {/* Camera overlay */}
+                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
               <p className="text-xs text-muted-foreground text-center mt-2">
-                Avatar em breve
+                Clique para alterar
               </p>
             </div>
           </div>
@@ -191,7 +292,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button className="flex-1" onClick={handleSave} disabled={isLoading}>
+          <Button className="flex-1" onClick={handleSave} disabled={isLoading || isUploading}>
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Salvar
           </Button>
