@@ -23,25 +23,25 @@ serve(async (req) => {
       );
     }
 
-    const openAIApiKey = Deno.env.get('OPEN_AI_KEY');
-    if (!openAIApiKey) {
-      console.error("OPEN_AI_KEY not configured");
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY not configured");
       return new Response(
-        JSON.stringify({ error: "OpenAI API key not configured" }),
+        JSON.stringify({ error: "Lovable API key not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Analyzing food image with gpt-4o-mini...");
+    console.log("Analyzing food image with Gemini 2.5 Flash...");
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',
@@ -74,14 +74,12 @@ Do not include any text before or after the JSON. Only output the JSON object.`
             ]
           }
         ],
-        max_tokens: 500,
-        temperature: 0.3,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("OpenAI API error:", response.status, errorText);
+      console.error("Lovable AI API error:", response.status, errorText);
       return new Response(
         JSON.stringify({ error: "Failed to analyze image", details: errorText }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -92,7 +90,7 @@ Do not include any text before or after the JSON. Only output the JSON object.`
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      console.error("No content in OpenAI response");
+      console.error("No content in AI response");
       return new Response(
         JSON.stringify({ error: "No analysis result from AI" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
