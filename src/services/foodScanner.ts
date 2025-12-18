@@ -1,8 +1,9 @@
 /**
  * Food Scanner Service
- * Analyzes food images and returns nutritional data.
- * Currently uses mock data - ready for real AI integration.
+ * Analyzes food images using OpenAI's gpt-4o-mini vision model.
  */
+
+import { supabase } from "@/integrations/supabase/client";
 
 export interface FoodAnalysisResult {
   title: string;
@@ -15,64 +16,53 @@ export interface FoodAnalysisResult {
 }
 
 /**
+ * Converts a File to a Base64 string
+ */
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
  * Analyzes a food image and returns nutritional information.
  * @param file - The image file to analyze
  * @returns Promise with the analysis result
  */
 export async function analyzeFoodImage(file: File): Promise<FoodAnalysisResult> {
-  // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  // Convert file to base64
+  const imageBase64 = await fileToBase64(file);
 
-  // Mock responses based on random selection to simulate variety
-  const mockResponses: FoodAnalysisResult[] = [
-    {
-      title: "Frango Grelhado com Salada",
-      calories: 350,
-      protein: 35,
-      carbs: 12,
-      fat: 18,
-      items: ["Peito de frango", "Alface", "Tomate", "Azeite"],
-      mealType: "lunch",
-    },
-    {
-      title: "Açaí com Granola",
-      calories: 420,
-      protein: 8,
-      carbs: 65,
-      fat: 15,
-      items: ["Açaí", "Granola", "Banana", "Mel"],
-      mealType: "snack",
-    },
-    {
-      title: "Omelete de Legumes",
-      calories: 280,
-      protein: 18,
-      carbs: 8,
-      fat: 20,
-      items: ["Ovos", "Espinafre", "Tomate", "Queijo"],
-      mealType: "breakfast",
-    },
-    {
-      title: "Salmão com Batata Doce",
-      calories: 480,
-      protein: 32,
-      carbs: 35,
-      fat: 22,
-      items: ["Salmão", "Batata doce", "Brócolis", "Limão"],
-      mealType: "dinner",
-    },
-    {
-      title: "Sanduíche Natural",
-      calories: 320,
-      protein: 22,
-      carbs: 28,
-      fat: 14,
-      items: ["Pão integral", "Frango desfiado", "Alface", "Cenoura"],
-      mealType: "lunch",
-    },
-  ];
+  // Call the Edge Function
+  const { data, error } = await supabase.functions.invoke('analyze-food', {
+    body: { imageBase64 }
+  });
 
-  // Return a random mock response
-  const randomIndex = Math.floor(Math.random() * mockResponses.length);
-  return mockResponses[randomIndex];
+  if (error) {
+    console.error("Error calling analyze-food function:", error);
+    throw new Error(error.message || "Erro ao analisar imagem");
+  }
+
+  if (!data || data.error) {
+    console.error("Error in analyze-food response:", data?.error);
+    throw new Error(data?.error || "Erro ao processar resposta da IA");
+  }
+
+  // Validate the response structure
+  const result: FoodAnalysisResult = {
+    title: data.title || "Refeição não identificada",
+    calories: Number(data.calories) || 0,
+    protein: Number(data.protein) || 0,
+    carbs: Number(data.carbs) || 0,
+    fat: Number(data.fat) || 0,
+    items: Array.isArray(data.items) ? data.items : [],
+    mealType: ["breakfast", "lunch", "dinner", "snack"].includes(data.mealType) 
+      ? data.mealType 
+      : "snack"
+  };
+
+  return result;
 }
