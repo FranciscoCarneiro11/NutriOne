@@ -15,7 +15,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, isActive }) => {
     <NavLink
       to={to}
       className={cn(
-        "relative flex flex-col items-center justify-center gap-1 py-2 px-3 transition-all duration-200",
+        "relative flex flex-col items-center justify-center gap-1 py-2 px-2 transition-all duration-200",
         isActive 
           ? "text-white" 
           : "text-white/50 hover:text-white/80"
