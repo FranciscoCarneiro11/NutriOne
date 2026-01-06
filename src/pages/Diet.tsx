@@ -4,22 +4,35 @@ import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { AddMealModal, MealPrefillData } from "@/components/dashboard/AddMealModal";
 import { FoodScannerModal } from "@/components/scanner/FoodScannerModal";
-import { Clock, Flame, ChevronRight, Check, Plus, Sparkles, Beef, Wheat, Droplet } from "lucide-react";
+import { Clock, Flame, ChevronRight, Check, Plus, Sparkles, Beef, Wheat, Droplet, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FoodAnalysisResult } from "@/services/foodScanner";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Animated meal card component with per-meal macros
 interface AnimatedMealCardProps {
   meal: MealItem;
   index: number;
   onToggle: () => void;
+  onDelete: () => void;
   isPending: boolean;
+  isDeleting: boolean;
 }
 
-const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onToggle, isPending }) => {
+const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onToggle, onDelete, isPending, isDeleting }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const prevCompletedRef = useRef(meal.completed);
@@ -115,16 +128,46 @@ const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onTogg
         </div>
       </div>
 
-      {/* Expanded content with items */}
+      {/* Expanded content with items and delete button */}
       <div className={cn(
         "overflow-hidden transition-all duration-300 ease-out",
-        isExpanded ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+        isExpanded ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
       )}>
         <div className="px-4 pb-4 pt-0 border-t border-border">
           <div className="pt-3">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-3">
               {meal.items.length > 0 ? meal.items.join(", ") : "Sem itens registados"}
             </p>
+            
+            {/* Delete button */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button 
+                  className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  {isDeleting ? "A eliminar..." : "Eliminar refeição"}
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Eliminar refeição?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tem certeza que deseja eliminar "{meal.title}"? Esta ação não pode ser revertida.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={onDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>
@@ -244,12 +287,42 @@ const Diet: React.FC = () => {
     },
   });
 
+  // Delete meal mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("meals")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meals", selectedDate] });
+      toast({
+        title: "Refeição eliminada",
+        description: "A refeição foi removida com sucesso.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível eliminar a refeição",
+        variant: "destructive",
+      });
+    },
+  });
+
   const toggleMealComplete = useCallback((id: string) => {
     const meal = meals.find((m) => m.id === id);
     if (meal) {
       toggleMutation.mutate({ id, completed: !meal.completed });
     }
   }, [meals, toggleMutation]);
+
+  const handleDeleteMeal = useCallback((id: string) => {
+    deleteMutation.mutate(id);
+  }, [deleteMutation]);
 
   const handleMealAdded = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["meals", selectedDate] });
@@ -414,7 +487,9 @@ const Diet: React.FC = () => {
                 meal={meal}
                 index={index + 1}
                 onToggle={() => toggleMealComplete(meal.id)}
+                onDelete={() => handleDeleteMeal(meal.id)}
                 isPending={toggleMutation.isPending}
+                isDeleting={deleteMutation.isPending}
               />
             ))}
           </div>
