@@ -417,21 +417,31 @@ const Dashboard: React.FC = () => {
   return (
     <AppShell>
       <AppHeader 
-        title="Hoje"
+        title=""
         rightAction={<StreakBadge count={currentStreak} />}
       />
 
       <AppContent className="pb-28">
-        <p className="text-sm text-muted-foreground capitalize mb-6">{today}</p>
-
-        {/* Profile Summary */}
-        {profile && (
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-4 mb-6 border border-primary/20">
-            <p className="text-sm text-muted-foreground">
-              {profile.gender === "male" ? "♂" : "♀"} {profile.age} anos • {profile.height}cm • {profile.weight}kg
-              {profile.target_weight && ` → ${profile.target_weight}kg`}
-            </p>
-          </div>
+        <p className="text-sm text-muted-foreground capitalize">{today}</p>
+        
+        {/* Personalized Greeting */}
+        <h1 className="text-2xl font-bold text-foreground mt-1">Olá, Francisco!</h1>
+        
+        {/* Goal Status */}
+        {profile?.weight && profile?.target_weight && (
+          <p className="text-sm text-muted-foreground mt-1 mb-4">
+            {profile.target_weight > profile.weight
+              ? `Faltam apenas ${profile.target_weight - profile.weight}kg para atingires o teu objetivo.`
+              : profile.target_weight < profile.weight
+              ? `Faltam apenas ${profile.weight - profile.target_weight}kg para atingires o teu objetivo.`
+              : "Parabéns! Atingiste o teu objetivo de peso!"
+            }
+          </p>
+        )}
+        {(!profile?.weight || !profile?.target_weight) && (
+          <p className="text-sm text-muted-foreground mt-1 mb-4">
+            Pronto para mais um dia de conquistas!
+          </p>
         )}
 
         {/* Macro Cards */}
