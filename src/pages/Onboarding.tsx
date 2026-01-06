@@ -484,36 +484,51 @@ const Onboarding: React.FC = () => {
     return <SmartLoadingScreen onComplete={handleAILoadingComplete} />;
   }
 
+  // Check if we're on the final step for dark theme
+  const isFinalStep = step === totalSteps;
+
   return (
-    <AppShell className="bg-background">
+    <AppShell className={isFinalStep ? "bg-[#0B0F1A]" : "bg-background"}>
       <AppHeader
+        className={isFinalStep ? "bg-[#0B0F1A]/95" : undefined}
         leftAction={
           step > 1 ? (
             <button
               onClick={handleBack}
-              className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
+                isFinalStep 
+                  ? "bg-white/10 hover:bg-white/20" 
+                  : "bg-secondary hover:bg-secondary/80"
+              )}
             >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
+              <ChevronLeft className={cn("w-5 h-5", isFinalStep ? "text-white" : "text-foreground")} />
             </button>
           ) : (
             <div className="w-10" />
           )
         }
       >
-        <ProgressBar currentStep={step} totalSteps={totalSteps} className="mt-2" />
+        <ProgressBar 
+          currentStep={step} 
+          totalSteps={totalSteps} 
+          className="mt-2" 
+          variant={isFinalStep ? "dark" : "default"}
+        />
       </AppHeader>
 
-      <AppContent className="flex-1 overflow-hidden">
+      <AppContent className={cn("flex-1 overflow-hidden", isFinalStep && "flex items-center justify-center")}>
         {renderStep()}
       </AppContent>
 
-      <AppFooter>
+      <AppFooter className={isFinalStep ? "bg-[#0B0F1A]" : undefined}>
         <Button
           variant="default"
           size="xl"
           fullWidth
           onClick={handleNext}
           disabled={!canProceed()}
+          className={isFinalStep ? "shadow-lg shadow-primary/30" : undefined}
         >
           {step === totalSteps ? "Criar meu plano" : "Continuar"}
         </Button>
