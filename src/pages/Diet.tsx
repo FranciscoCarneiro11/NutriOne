@@ -4,7 +4,7 @@ import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { AddMealModal, MealPrefillData } from "@/components/dashboard/AddMealModal";
 import { FoodScannerModal } from "@/components/scanner/FoodScannerModal";
-import { Clock, Flame, ChevronRight, Check, Plus, Sparkles, Beef, Wheat, Droplet, Trash2 } from "lucide-react";
+import { Clock, Flame, ChevronRight, Check, Plus, Sparkles, Beef, Wheat, Droplet, Trash2, SkipForward, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -27,12 +27,13 @@ interface AnimatedMealCardProps {
   meal: MealItem;
   index: number;
   onToggle: () => void;
+  onSkip: () => void;
   onDelete: () => void;
   isPending: boolean;
   isDeleting: boolean;
 }
 
-const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onToggle, onDelete, isPending, isDeleting }) => {
+const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onToggle, onSkip, onDelete, isPending, isDeleting }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const prevCompletedRef = useRef(meal.completed);
@@ -58,17 +59,20 @@ const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onTogg
       className={cn(
         "bg-card rounded-2xl shadow-card border border-border transition-all duration-300",
         meal.completed && "opacity-70 bg-muted/50",
+        meal.skipped && "opacity-60 bg-muted/30",
         isAnimating && (meal.completed ? "animate-pulse ring-2 ring-primary/50" : "animate-pulse ring-2 ring-muted-foreground/30")
       )}
     >
       <div className="flex items-center gap-4 p-4">
         <button
           onClick={handleToggle}
-          disabled={isPending}
+          disabled={isPending || meal.skipped}
           className={cn(
             "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 flex-shrink-0",
             meal.completed 
               ? "bg-primary text-primary-foreground" 
+              : meal.skipped
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
               : "bg-coral-light text-primary hover:scale-105",
             isAnimating && "scale-110"
           )}
@@ -78,6 +82,8 @@ const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onTogg
               "w-6 h-6 transition-all duration-300",
               isAnimating ? "scale-110" : "scale-100"
             )} />
+          ) : meal.skipped ? (
+            <SkipForward className="w-5 h-5" />
           ) : (
             <Clock className="w-6 h-6" />
           )}
@@ -87,10 +93,16 @@ const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onTogg
           <div className="flex items-center gap-2">
             <h4 className={cn(
               "font-semibold transition-all duration-300",
-              meal.completed ? "text-muted-foreground line-through" : "text-foreground"
+              meal.completed ? "text-muted-foreground line-through" : 
+              meal.skipped ? "text-muted-foreground line-through" : "text-foreground"
             )}>
               {meal.title}
             </h4>
+            {meal.skipped && (
+              <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
+                Saltada
+              </span>
+            )}
           </div>
           <div className={cn(
             "flex items-center gap-1 mt-0.5",
@@ -139,35 +151,50 @@ const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onTogg
               {meal.items.length > 0 ? meal.items.join(", ") : "Sem itens registados"}
             </p>
             
-            {/* Delete button */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            {/* Action buttons */}
+            <div className="flex items-center gap-4">
+              {/* Skip button - only show if not completed or skipped */}
+              {!meal.completed && !meal.skipped && (
                 <button 
-                  className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
-                  disabled={isDeleting}
+                  onClick={onSkip}
+                  disabled={isPending}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  {isDeleting ? "A eliminar..." : "Eliminar refeição"}
+                  <SkipForward className="w-3.5 h-3.5" />
+                  Saltar refeição
                 </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Eliminar refeição?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Tem certeza que deseja eliminar "{meal.title}"? Esta ação não pode ser revertida.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={onDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              )}
+              
+              {/* Delete button */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button 
+                    className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
+                    disabled={isDeleting}
                   >
-                    Eliminar
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    {isDeleting ? "A eliminar..." : "Eliminar"}
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Eliminar refeição?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja eliminar "{meal.title}"? Esta ação não pode ser revertida.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={onDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Eliminar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </div>
       </div>
@@ -192,8 +219,81 @@ interface MealItem {
   fat: number;
   items: string[];
   completed: boolean;
+  skipped: boolean;
   meal_type: string;
 }
+
+// Daily Progress Tracker Component
+interface DailyProgressTrackerProps {
+  meals: MealItem[];
+}
+
+const DailyProgressTracker: React.FC<DailyProgressTrackerProps> = ({ meals }) => {
+  const completedCount = meals.filter(m => m.completed).length;
+  const skippedCount = meals.filter(m => m.skipped).length;
+  const remainingCount = meals.length - completedCount - skippedCount;
+  const totalMeals = meals.length;
+
+  // Generate motivational message
+  const getMessage = () => {
+    if (totalMeals === 0) {
+      return "Adicione refeições ao seu plano para começar!";
+    }
+    if (completedCount === totalMeals) {
+      return "Incrível! Completaste 100% do teu plano alimentar hoje! 🌟";
+    }
+    if (completedCount === 0 && skippedCount === 0) {
+      return "Bom dia! Pronto para começar o plano de hoje?";
+    }
+    if (skippedCount > 0 && completedCount < totalMeals) {
+      return `Não desistas! Ainda podes completar ${remainingCount} refeição${remainingCount > 1 ? "ões" : ""} hoje.`;
+    }
+    return `Excelente! Faltam apenas ${remainingCount} refeição${remainingCount > 1 ? "ões" : ""} para bateres a meta.`;
+  };
+
+  if (totalMeals === 0) return null;
+
+  return (
+    <div className="bg-card rounded-2xl p-4 shadow-card border border-border mb-6">
+      {/* Meal Progress Icons */}
+      <div className="flex items-center justify-center gap-3 mb-3">
+        {meals.map((meal, index) => (
+          <div key={meal.id} className="flex flex-col items-center gap-1">
+            <div
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                meal.completed
+                  ? "bg-primary text-primary-foreground"
+                  : meal.skipped
+                  ? "bg-muted text-muted-foreground"
+                  : "border-2 border-border bg-background text-muted-foreground"
+              )}
+            >
+              {meal.completed ? (
+                <Check className="w-5 h-5" />
+              ) : meal.skipped ? (
+                <SkipForward className="w-4 h-4" />
+              ) : (
+                <Utensils className="w-4 h-4" />
+              )}
+            </div>
+            <span className="text-[10px] text-muted-foreground truncate max-w-[48px]">
+              {index + 1}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Motivational Message */}
+      <p className={cn(
+        "text-sm text-center",
+        completedCount === totalMeals ? "text-primary font-medium" : "text-muted-foreground"
+      )}>
+        {getMessage()}
+      </p>
+    </div>
+  );
+};
 
 const WEEK_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
@@ -260,6 +360,7 @@ const Diet: React.FC = () => {
         fat: Number(m.fat) || 0,
         items: m.items || [],
         completed: m.completed || false,
+        skipped: m.skipped || false,
         meal_type: m.meal_type,
       })) as MealItem[];
     },
@@ -313,12 +414,42 @@ const Diet: React.FC = () => {
     },
   });
 
+  // Skip meal mutation
+  const skipMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("meals")
+        .update({ skipped: true, completed: false })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meals", selectedDate] });
+      toast({
+        title: "Refeição saltada",
+        description: "Não desistas! Foca-te na próxima refeição.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível saltar a refeição",
+        variant: "destructive",
+      });
+    },
+  });
+
   const toggleMealComplete = useCallback((id: string) => {
     const meal = meals.find((m) => m.id === id);
     if (meal) {
       toggleMutation.mutate({ id, completed: !meal.completed });
     }
   }, [meals, toggleMutation]);
+
+  const handleSkipMeal = useCallback((id: string) => {
+    skipMutation.mutate(id);
+  }, [skipMutation]);
 
   const handleDeleteMeal = useCallback((id: string) => {
     deleteMutation.mutate(id);
@@ -447,6 +578,9 @@ const Diet: React.FC = () => {
           </div>
         </div>
 
+        {/* Daily Progress Tracker with Motivational Messages */}
+        <DailyProgressTracker meals={meals} />
+
         {/* Meals List */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-foreground">
@@ -487,8 +621,9 @@ const Diet: React.FC = () => {
                 meal={meal}
                 index={index + 1}
                 onToggle={() => toggleMealComplete(meal.id)}
+                onSkip={() => handleSkipMeal(meal.id)}
                 onDelete={() => handleDeleteMeal(meal.id)}
-                isPending={toggleMutation.isPending}
+                isPending={toggleMutation.isPending || skipMutation.isPending}
                 isDeleting={deleteMutation.isPending}
               />
             ))}

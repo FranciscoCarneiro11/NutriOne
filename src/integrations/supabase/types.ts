@@ -56,6 +56,7 @@ export type Database = {
           items: string[] | null
           meal_type: string
           protein: number | null
+          skipped: boolean | null
           time: string | null
           title: string
           updated_at: string | null
@@ -72,6 +73,7 @@ export type Database = {
           items?: string[] | null
           meal_type: string
           protein?: number | null
+          skipped?: boolean | null
           time?: string | null
           title: string
           updated_at?: string | null
@@ -88,6 +90,7 @@ export type Database = {
           items?: string[] | null
           meal_type?: string
           protein?: number | null
+          skipped?: boolean | null
           time?: string | null
           title?: string
           updated_at?: string | null
