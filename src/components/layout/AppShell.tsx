@@ -6,18 +6,23 @@ interface AppShellProps {
   children: React.ReactNode;
   className?: string;
   hideScrollbar?: boolean;
+  fullWidth?: boolean;
 }
 
 export const AppShell: React.FC<AppShellProps> = ({
   children,
   className,
   hideScrollbar = true,
+  fullWidth = false,
 }) => {
   return (
     <div className="min-h-screen bg-background flex justify-center">
       <div
         className={cn(
-          "w-full max-w-md min-h-screen flex flex-col bg-background",
+          "min-h-screen flex flex-col",
+          fullWidth 
+            ? "w-full" 
+            : "w-full max-w-md md:max-w-2xl lg:max-w-4xl",
           hideScrollbar && "hide-scrollbar overflow-y-auto",
           className
         )}
@@ -50,7 +55,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm",
+        "sticky top-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-12 py-3 bg-background/95 backdrop-blur-sm",
         className
       )}
     >
@@ -66,7 +71,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           leftAction
         )}
       </div>
-      <div className="flex-1 text-center">
+      <div className="flex-1 text-center max-w-xl mx-auto">
         {title && <h1 className="text-lg font-semibold text-foreground">{title}</h1>}
         {children}
       </div>
@@ -89,7 +94,7 @@ export const AppContent: React.FC<AppContentProps> = ({
   return (
     <main
       className={cn(
-        "flex-1 px-6 py-4",
+        "flex-1 px-6 md:px-8 lg:px-12 py-4 md:py-6 lg:py-8",
         centered && "flex flex-col items-center justify-center",
         className
       )}
@@ -108,11 +113,13 @@ export const AppFooter: React.FC<AppFooterProps> = ({ children, className }) => 
   return (
     <footer
       className={cn(
-        "sticky bottom-0 px-6 py-4 pb-8 bg-background",
+        "sticky bottom-0 px-6 md:px-8 lg:px-12 py-4 pb-8 bg-background",
         className
       )}
     >
-      {children}
+      <div className="max-w-md mx-auto md:max-w-lg">
+        {children}
+      </div>
     </footer>
   );
 };

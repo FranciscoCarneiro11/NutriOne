@@ -384,17 +384,18 @@ const Onboarding: React.FC = () => {
 
       case 13: // Body Zone
         return (
-          <div className={animationClass}>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+          <div className={cn(animationClass, "max-w-2xl mx-auto w-full")}>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 md:text-center">
               Em qual parte do corpo você quer focar?
             </h1>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-8 md:text-center md:text-lg">
               Selecione as áreas que deseja trabalhar.
             </p>
             <BodyZoneSelector
               gender={data.gender === "male" ? "male" : "female"}
               selected={data.bodyZones}
               onChange={(bodyZones) => setData({ ...data, bodyZones })}
+              className="md:justify-center"
             />
           </div>
         );
@@ -488,7 +489,7 @@ const Onboarding: React.FC = () => {
   const isFinalStep = step === totalSteps;
 
   return (
-    <AppShell className={isFinalStep ? "bg-[#0B0F1A]" : "bg-background"}>
+    <AppShell className={isFinalStep ? "bg-[#0B0F1A]" : "bg-background"} fullWidth={isFinalStep}>
       <AppHeader
         className={isFinalStep ? "bg-[#0B0F1A]/95" : undefined}
         leftAction={

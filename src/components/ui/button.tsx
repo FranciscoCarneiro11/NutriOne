@@ -34,7 +34,7 @@ const buttonVariants = cva(
         fab: "h-16 w-16 rounded-full shadow-fab",
       },
       fullWidth: {
-        true: "w-full",
+        true: "w-full md:max-w-lg md:mx-auto",
       },
     },
     defaultVariants: {

@@ -150,9 +150,9 @@ export const BodyZoneSelector: React.FC<BodyZoneSelectorProps> = ({
   }, []);
 
   return (
-    <div ref={containerRef} className={cn("relative flex items-center gap-4", className)}>
+    <div ref={containerRef} className={cn("relative flex flex-col md:flex-row items-center gap-4 md:gap-8 lg:gap-12", className)}>
       {/* Body Figure with Heatmap Overlays */}
-      <div ref={figureRef} className="relative flex-shrink-0 w-[45%]">
+      <div ref={figureRef} className="relative flex-shrink-0 w-[60%] md:w-[45%] lg:w-[40%] max-w-[280px] md:max-w-[320px]">
         {/* Background Glow Effect */}
         <div 
           className={cn(
