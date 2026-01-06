@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import maleFigure from "@/assets/male-figure.png";
@@ -82,12 +82,33 @@ const femaleHeatmapZones: Record<BodyZone, { areas: { top: string; left: string;
   },
 };
 
+// Connection points on the body figure (percentage-based)
+const maleBodyPoints: Record<BodyZone, { x: number; y: number }> = {
+  arms: { x: 75, y: 28 },
+  abs: { x: 50, y: 40 },
+  glutes: { x: 50, y: 54 },
+  legs: { x: 60, y: 72 },
+  fullBody: { x: 50, y: 50 },
+};
+
+const femaleBodyPoints: Record<BodyZone, { x: number; y: number }> = {
+  arms: { x: 80, y: 26 },
+  abs: { x: 50, y: 38 },
+  glutes: { x: 50, y: 50 },
+  legs: { x: 60, y: 70 },
+  fullBody: { x: 50, y: 48 },
+};
+
 export const BodyZoneSelector: React.FC<BodyZoneSelectorProps> = ({
   gender,
   selected,
   onChange,
   className,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const figureRef = useRef<HTMLDivElement>(null);
+  const [buttonPositions, setButtonPositions] = useState<Record<string, { x: number; y: number }>>({});
+
   const toggleZone = (zone: BodyZone) => {
     if (selected.includes(zone)) {
       onChange(selected.filter((z) => z !== zone));
@@ -98,12 +119,40 @@ export const BodyZoneSelector: React.FC<BodyZoneSelectorProps> = ({
 
   const isMale = gender === "male";
   const heatmapZones = isMale ? maleHeatmapZones : femaleHeatmapZones;
+  const bodyPoints = isMale ? maleBodyPoints : femaleBodyPoints;
   const figureImage = isMale ? maleFigure : femaleFigure;
 
+  // Update button positions for connecting lines
+  useEffect(() => {
+    const updatePositions = () => {
+      if (!containerRef.current) return;
+      const buttons = containerRef.current.querySelectorAll("[data-zone]");
+      const newPositions: Record<string, { x: number; y: number }> = {};
+
+      buttons.forEach((button) => {
+        const zone = button.getAttribute("data-zone");
+        if (zone) {
+          const rect = button.getBoundingClientRect();
+          const containerRect = containerRef.current!.getBoundingClientRect();
+          newPositions[zone] = {
+            x: rect.left - containerRect.left,
+            y: rect.top - containerRect.top + rect.height / 2,
+          };
+        }
+      });
+
+      setButtonPositions(newPositions);
+    };
+
+    updatePositions();
+    window.addEventListener("resize", updatePositions);
+    return () => window.removeEventListener("resize", updatePositions);
+  }, []);
+
   return (
-    <div className={cn("flex items-center gap-4", className)}>
+    <div ref={containerRef} className={cn("relative flex items-center gap-4", className)}>
       {/* Body Figure with Heatmap Overlays */}
-      <div className="relative flex-shrink-0 w-[45%]">
+      <div ref={figureRef} className="relative flex-shrink-0 w-[45%]">
         {/* Background Glow Effect */}
         <div 
           className={cn(
@@ -188,8 +237,70 @@ export const BodyZoneSelector: React.FC<BodyZoneSelectorProps> = ({
               }}
             />
           )}
+
+          {/* Connection Points on Body */}
+          {selected.map((zone) => {
+            const point = bodyPoints[zone];
+            if (!point) return null;
+            return (
+              <div
+                key={`point-${zone}`}
+                className="absolute w-3 h-3 bg-background border-2 border-primary rounded-full shadow-md z-30"
+                style={{
+                  left: `${point.x}%`,
+                  top: `${point.y}%`,
+                  transform: "translate(-50%, -50%)",
+                  boxShadow: "0 0 8px hsl(var(--primary) / 0.5)",
+                }}
+              />
+            );
+          })}
         </div>
       </div>
+
+      {/* SVG Lines Container */}
+      <svg className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 25 }}>
+        {selected.map((zone) => {
+          const buttonPos = buttonPositions[zone];
+          const bodyPoint = bodyPoints[zone];
+          if (!buttonPos || !bodyPoint || !figureRef.current) return null;
+
+          const figureWidth = figureRef.current.offsetWidth;
+          const figureHeight = figureWidth * (5 / 3);
+
+          const startX = buttonPos.x;
+          const startY = buttonPos.y;
+          const endX = figureWidth * (bodyPoint.x / 100);
+          const endY = figureHeight * (bodyPoint.y / 100);
+
+          return (
+            <g key={`line-${zone}`}>
+              {/* Glow effect line */}
+              <line
+                x1={startX}
+                y1={startY}
+                x2={endX}
+                y2={endY}
+                stroke="hsl(var(--primary))"
+                strokeWidth="4"
+                strokeLinecap="round"
+                opacity="0.3"
+                style={{ filter: "blur(2px)" }}
+              />
+              {/* Main line */}
+              <line
+                x1={startX}
+                y1={startY}
+                x2={endX}
+                y2={endY}
+                stroke="hsl(var(--primary))"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </g>
+          );
+        })}
+      </svg>
 
       {/* Selection Buttons - Vertical Stack */}
       <div className="flex-1 flex flex-col gap-2.5">
@@ -198,6 +309,7 @@ export const BodyZoneSelector: React.FC<BodyZoneSelectorProps> = ({
           return (
             <button
               key={zone.id}
+              data-zone={zone.id}
               onClick={() => toggleZone(zone.id)}
               className={cn(
                 "relative flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300",
