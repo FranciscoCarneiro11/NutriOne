@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, Utensils, ChevronRight } from "lucide-react";
+import { Clock, Utensils, ChevronRight, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Meal {
@@ -12,21 +12,26 @@ interface Meal {
   fat: number;
   items: string[];
   completed: boolean;
+  skipped?: boolean;
   meal_type: string;
 }
 
 interface NextMealCardProps {
   meal: Meal | null;
   onComplete?: () => void;
+  onSkip?: () => void;
   onViewAll?: () => void;
   className?: string;
+  allMealsCompleted?: boolean;
 }
 
 export const NextMealCard: React.FC<NextMealCardProps> = ({
   meal,
   onComplete,
+  onSkip,
   onViewAll,
   className,
+  allMealsCompleted = false,
 }) => {
   if (!meal) {
     return (
@@ -38,7 +43,9 @@ export const NextMealCard: React.FC<NextMealCardProps> = ({
           <h3 className="font-semibold text-foreground">Próxima Refeição</h3>
         </div>
         <p className="text-sm text-muted-foreground">
-          Todas as refeições de hoje foram concluídas! 🎉
+          {allMealsCompleted 
+            ? "Incrível! Completaste todas as refeições de hoje! 🎉" 
+            : "Nenhuma refeição pendente."}
         </p>
       </div>
     );
@@ -103,12 +110,22 @@ export const NextMealCard: React.FC<NextMealCardProps> = ({
           </p>
         )}
 
-        <button
-          onClick={onComplete}
-          className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-medium text-sm hover:bg-primary/90 transition-colors"
-        >
-          Marcar como Concluída
-        </button>
+        {/* Action buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={onComplete}
+            className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-xl font-medium text-sm hover:bg-primary/90 transition-colors"
+          >
+            Concluída
+          </button>
+          <button
+            onClick={onSkip}
+            className="px-4 py-2.5 bg-muted text-muted-foreground rounded-xl font-medium text-sm hover:bg-muted/80 transition-colors flex items-center gap-1.5"
+          >
+            <SkipForward className="w-4 h-4" />
+            Saltar
+          </button>
+        </div>
       </div>
     </div>
   );

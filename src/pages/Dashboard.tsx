@@ -97,6 +97,7 @@ interface Meal {
   fat: number;
   items: string[];
   completed: boolean;
+  skipped: boolean;
   meal_type: string;
 }
 
@@ -251,6 +252,7 @@ const Dashboard: React.FC = () => {
         fat: Number(m.fat) || 0,
         items: m.items || [],
         completed: m.completed || false,
+        skipped: m.skipped || false,
         meal_type: m.meal_type,
       })) as Meal[];
     },
@@ -273,6 +275,32 @@ const Dashboard: React.FC = () => {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar a refeição",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Skip meal mutation
+  const skipMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("meals")
+        .update({ skipped: true, completed: false })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meals", todayDate] });
+      toast({
+        title: "Refeição saltada",
+        description: "Não desistas! Foca-te na próxima refeição.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível saltar a refeição",
         variant: "destructive",
       });
     },
@@ -377,10 +405,29 @@ const Dashboard: React.FC = () => {
   const consumedCarbs = completedMeals.reduce((sum, meal) => sum + meal.carbs, 0);
   const consumedFat = completedMeals.reduce((sum, meal) => sum + meal.fat, 0);
 
-  // Get next uncompleted meal
+  // Get next uncompleted and non-skipped meal
   const nextMeal = useMemo(() => {
-    return todayMeals.find(meal => !meal.completed) || null;
+    return todayMeals.find(meal => !meal.completed && !meal.skipped) || null;
   }, [todayMeals]);
+
+  // Check if all meals are completed (for confetti)
+  const allMealsCompleted = useMemo(() => {
+    return todayMeals.length > 0 && todayMeals.every(meal => meal.completed || meal.skipped) && todayMeals.some(meal => meal.completed);
+  }, [todayMeals]);
+
+  // Track previous completion state for confetti trigger
+  const prevAllCompletedRef = React.useRef(false);
+
+  useEffect(() => {
+    if (allMealsCompleted && !prevAllCompletedRef.current && todayMeals.length > 0) {
+      triggerConfetti();
+      toast({
+        title: "Parabéns! 🎉",
+        description: "Completaste todas as refeições de hoje!",
+      });
+    }
+    prevAllCompletedRef.current = allMealsCompleted;
+  }, [allMealsCompleted, todayMeals.length, triggerConfetti]);
 
   const today = new Date().toLocaleDateString("pt-BR", {
     weekday: "long",
@@ -394,6 +441,10 @@ const Dashboard: React.FC = () => {
       toggleMutation.mutate({ id: mealId, completed: !meal.completed });
     }
   }, [todayMeals, toggleMutation]);
+
+  const handleMealSkip = useCallback((mealId: string) => {
+    skipMutation.mutate(mealId);
+  }, [skipMutation]);
 
   const handleScanComplete = (result: FoodAnalysisResult) => {
     setMealPrefillData({
@@ -496,7 +547,9 @@ const Dashboard: React.FC = () => {
           <NextMealCard
             meal={nextMeal}
             onComplete={nextMeal ? () => handleMealComplete(nextMeal.id) : undefined}
+            onSkip={nextMeal ? () => handleMealSkip(nextMeal.id) : undefined}
             onViewAll={() => navigate("/diet")}
+            allMealsCompleted={allMealsCompleted}
           />
 
           {/* Today's Workout Card */}
