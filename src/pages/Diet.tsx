@@ -4,21 +4,24 @@ import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { AddMealModal, MealPrefillData } from "@/components/dashboard/AddMealModal";
 import { FoodScannerModal } from "@/components/scanner/FoodScannerModal";
-import { Clock, Flame, ChevronRight, Check, Plus } from "lucide-react";
+import { Clock, Flame, ChevronRight, Check, Plus, Sparkles, Beef, Wheat, Droplet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FoodAnalysisResult } from "@/services/foodScanner";
+import { Button } from "@/components/ui/button";
 
-// Animated meal card component for Diet page
+// Animated meal card component with per-meal macros
 interface AnimatedMealCardProps {
   meal: MealItem;
+  index: number;
   onToggle: () => void;
   isPending: boolean;
 }
 
-const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, onToggle, isPending }) => {
+const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, index, onToggle, isPending }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const prevCompletedRef = useRef(meal.completed);
 
   useEffect(() => {
@@ -30,7 +33,8 @@ const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, onToggle, isP
     }
   }, [meal.completed]);
 
-  const handleClick = () => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 400);
     onToggle();
@@ -39,60 +43,91 @@ const AnimatedMealCard: React.FC<AnimatedMealCardProps> = ({ meal, onToggle, isP
   return (
     <div
       className={cn(
-        "bg-card rounded-2xl p-4 shadow-card border border-border flex items-center gap-4 transition-all duration-300",
+        "bg-card rounded-2xl shadow-card border border-border transition-all duration-300",
         meal.completed && "opacity-70 bg-muted/50",
         isAnimating && (meal.completed ? "animate-pulse ring-2 ring-primary/50" : "animate-pulse ring-2 ring-muted-foreground/30")
       )}
     >
-      <button
-        onClick={handleClick}
-        disabled={isPending}
-        className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300",
-          meal.completed 
-            ? "bg-primary text-primary-foreground" 
-            : "bg-coral-light text-primary hover:scale-105",
-          isAnimating && "scale-110"
-        )}
-      >
-        {meal.completed ? (
-          <Check className={cn(
-            "w-6 h-6 transition-all duration-300",
-            isAnimating ? "scale-110" : "scale-100"
-          )} />
-        ) : (
-          <Clock className="w-6 h-6" />
-        )}
-      </button>
-      
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <h4 className={cn(
-            "font-semibold transition-all duration-300",
-            meal.completed ? "text-muted-foreground line-through" : "text-foreground"
-          )}>
-            {meal.title}
-          </h4>
-        </div>
-        <span className={cn(
-          "text-sm transition-colors duration-300",
-          meal.completed ? "text-muted-foreground" : "text-muted-foreground"
-        )}>
-          {meal.calories} kcal
-        </span>
-        <div className="flex flex-wrap gap-1 mt-1">
-          {meal.items.slice(0, 3).map((item, i) => (
-            <span key={i} className="text-xs text-muted-foreground">
-              {item}{i < Math.min(meal.items.length, 3) - 1 && ","}
-            </span>
-          ))}
-          {meal.items.length > 3 && (
-            <span className="text-xs text-muted-foreground">+{meal.items.length - 3}</span>
+      <div className="flex items-center gap-4 p-4">
+        <button
+          onClick={handleToggle}
+          disabled={isPending}
+          className={cn(
+            "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 flex-shrink-0",
+            meal.completed 
+              ? "bg-primary text-primary-foreground" 
+              : "bg-coral-light text-primary hover:scale-105",
+            isAnimating && "scale-110"
           )}
+        >
+          {meal.completed ? (
+            <Check className={cn(
+              "w-6 h-6 transition-all duration-300",
+              isAnimating ? "scale-110" : "scale-100"
+            )} />
+          ) : (
+            <Clock className="w-6 h-6" />
+          )}
+        </button>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className={cn(
+              "font-semibold transition-all duration-300",
+              meal.completed ? "text-muted-foreground line-through" : "text-foreground"
+            )}>
+              {meal.title}
+            </h4>
+          </div>
+          <div className={cn(
+            "flex items-center gap-1 mt-0.5",
+            meal.completed ? "text-muted-foreground" : "text-primary"
+          )}>
+            <Flame className="w-4 h-4" />
+            <span className="text-sm font-medium">{meal.calories} kcal</span>
+          </div>
+        </div>
+        
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-2 rounded-full hover:bg-muted transition-all"
+        >
+          <ChevronRight className={cn(
+            "w-5 h-5 text-muted-foreground transition-transform duration-200",
+            isExpanded && "rotate-90"
+          )} />
+        </button>
+      </div>
+
+      {/* Per-meal macros - always visible */}
+      <div className="px-4 pb-3 flex gap-3">
+        <div className="flex items-center gap-1 text-xs">
+          <Beef className="w-3.5 h-3.5 text-red-500" />
+          <span className="text-muted-foreground">{meal.protein}g</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs">
+          <Wheat className="w-3.5 h-3.5 text-amber-500" />
+          <span className="text-muted-foreground">{meal.carbs}g</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs">
+          <Droplet className="w-3.5 h-3.5 text-blue-500" />
+          <span className="text-muted-foreground">{meal.fat}g</span>
         </div>
       </div>
-      
-      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+
+      {/* Expanded content with items */}
+      <div className={cn(
+        "overflow-hidden transition-all duration-300 ease-out",
+        isExpanded ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+      )}>
+        <div className="px-4 pb-4 pt-0 border-t border-border">
+          <div className="pt-3">
+            <p className="text-sm text-muted-foreground">
+              {meal.items.length > 0 ? meal.items.join(", ") : "Sem itens registados"}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -101,7 +136,6 @@ interface WeekDay {
   day: number;
   label: string;
   date: string;
-  completed: boolean;
   isToday: boolean;
 }
 
@@ -110,8 +144,12 @@ interface MealItem {
   title: string;
   time: string | null;
   calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
   items: string[];
   completed: boolean;
+  meal_type: string;
 }
 
 const WEEK_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -121,12 +159,15 @@ const Diet: React.FC = () => {
   const [isAddMealOpen, setIsAddMealOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [mealPrefillData, setMealPrefillData] = useState<MealPrefillData | null>(null);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const [selectedDate, setSelectedDate] = useState(todayStr);
 
   // Generate dynamic week days based on current date
   const weekDays = useMemo<WeekDay[]>(() => {
     const today = new Date();
     const currentDay = today.getDay(); // 0 = Sunday
-    const todayStr = today.toISOString().split("T")[0];
     
     // Start from Monday of current week
     const monday = new Date(today);
@@ -139,20 +180,17 @@ const Diet: React.FC = () => {
       const dayOfWeek = date.getDay();
       
       return {
-        day: i + 1,
+        day: date.getDate(),
         label: WEEK_LABELS[dayOfWeek],
         date: dateStr,
-        completed: false, // Will be updated based on meals data
         isToday: dateStr === todayStr,
       };
     });
-  }, []);
+  }, [todayStr]);
 
-  const todayDate = useMemo(() => new Date().toISOString().split("T")[0], []);
-
-  // Fetch meals for today
+  // Fetch meals for selected date
   const { data: meals = [], isLoading } = useQuery({
-    queryKey: ["meals", todayDate],
+    queryKey: ["meals", selectedDate],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -161,7 +199,7 @@ const Diet: React.FC = () => {
         .from("meals")
         .select("*")
         .eq("user_id", user.id)
-        .eq("date", todayDate)
+        .eq("date", selectedDate)
         .order("time", { ascending: true });
 
       if (error) {
@@ -174,8 +212,12 @@ const Diet: React.FC = () => {
         title: m.title,
         time: m.time,
         calories: m.calories,
+        protein: Number(m.protein) || 0,
+        carbs: Number(m.carbs) || 0,
+        fat: Number(m.fat) || 0,
         items: m.items || [],
         completed: m.completed || false,
+        meal_type: m.meal_type,
       })) as MealItem[];
     },
   });
@@ -191,7 +233,7 @@ const Diet: React.FC = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meals", todayDate] });
+      queryClient.invalidateQueries({ queryKey: ["meals", selectedDate] });
     },
     onError: () => {
       toast({
@@ -210,64 +252,112 @@ const Diet: React.FC = () => {
   }, [meals, toggleMutation]);
 
   const handleMealAdded = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["meals", todayDate] });
-  }, [queryClient, todayDate]);
+    queryClient.invalidateQueries({ queryKey: ["meals", selectedDate] });
+  }, [queryClient, selectedDate]);
+
+  const handleGenerateMealPlan = async () => {
+    setIsGeneratingPlan(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-meal-plan', {
+        body: { daysToGenerate: 7 },
+      });
+
+      if (error) {
+        console.error("Edge function error:", error);
+        toast({
+          title: "Erro",
+          description: error.message || "Não foi possível gerar o plano",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.error) {
+        toast({
+          title: "Erro",
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso!",
+        description: data?.message || "Plano alimentar gerado com sucesso!",
+      });
+
+      // Refresh meals
+      queryClient.invalidateQueries({ queryKey: ["meals"] });
+    } catch (err: any) {
+      console.error("Failed to generate meal plan:", err);
+      toast({
+        title: "Erro",
+        description: err?.message || "Ocorreu um erro inesperado. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  };
 
   // Calculate dynamic values
-  const completedCount = weekDays.filter((d) => d.isToday && meals.some((m) => m.completed)).length || 
-    weekDays.filter((d) => d.completed).length;
   const totalCalories = meals.reduce((acc, meal) => acc + meal.calories, 0);
   const consumedCalories = meals.filter((m) => m.completed).reduce((acc, meal) => acc + meal.calories, 0);
+
+  // Format selected date for display
+  const selectedDateFormatted = useMemo(() => {
+    const date = new Date(selectedDate + 'T12:00:00');
+    return date.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+  }, [selectedDate]);
+
+  const isViewingToday = selectedDate === todayStr;
 
   return (
     <AppShell>
       <AppHeader title="Plano Alimentar" />
 
       <AppContent className="pb-28">
-        <p className="text-muted-foreground mb-6">Semana 1 de 12</p>
-
-        {/* Week Progress Card */}
+        {/* Weekly Calendar Selector */}
         <div className="bg-card rounded-2xl p-4 shadow-card border border-border mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-foreground">Progresso da Semana</span>
-            <span className="text-primary font-semibold">{completedCount}/7 dias</span>
-          </div>
-          
           <div className="flex justify-between">
             {weekDays.map((day) => (
-              <div key={day.day} className="flex flex-col items-center gap-1">
+              <button 
+                key={day.date} 
+                onClick={() => setSelectedDate(day.date)}
+                className="flex flex-col items-center gap-1"
+              >
                 <div
                   className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
-                    day.completed
+                    selectedDate === day.date
                       ? "bg-primary text-primary-foreground"
                       : day.isToday
                       ? "border-2 border-primary text-primary"
-                      : "bg-muted text-muted-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                 >
-                  {day.completed ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    day.day
-                  )}
+                  {day.day}
                 </div>
                 <span className={cn(
                   "text-xs",
-                  day.isToday ? "text-primary font-semibold" : "text-muted-foreground"
+                  selectedDate === day.date || day.isToday ? "text-primary font-semibold" : "text-muted-foreground"
                 )}>
                   {day.label}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Today's Summary */}
-        <div className="bg-primary rounded-2xl p-5 shadow-card mb-8">
+        {/* Day's Summary */}
+        <div className="bg-primary rounded-2xl p-5 shadow-card mb-6">
+          <p className="text-primary-foreground/80 text-sm capitalize mb-1">{selectedDateFormatted}</p>
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-primary-foreground/80 text-sm">Consumo de Hoje</span>
               <h3 className="text-2xl font-bold text-primary-foreground">
                 {consumedCalories} <span className="text-lg font-normal">/ {totalCalories} kcal</span>
               </h3>
@@ -279,21 +369,25 @@ const Diet: React.FC = () => {
           <div className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden">
             <div 
               className="h-full bg-white rounded-full transition-all"
-              style={{ width: `${(consumedCalories / totalCalories) * 100}%` }}
+              style={{ width: `${totalCalories > 0 ? (consumedCalories / totalCalories) * 100 : 0}%` }}
             />
           </div>
         </div>
 
         {/* Meals List */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-foreground">Refeições de Hoje</h3>
-          <button 
-            className="text-primary text-sm font-medium flex items-center gap-1"
-            onClick={() => setIsAddMealOpen(true)}
-          >
-            <Plus className="w-4 h-4" />
-            Adicionar
-          </button>
+          <h3 className="font-semibold text-foreground">
+            {isViewingToday ? "Refeições de Hoje" : "Refeições do Dia"}
+          </h3>
+          {isViewingToday && (
+            <button 
+              className="text-primary text-sm font-medium flex items-center gap-1"
+              onClick={() => setIsAddMealOpen(true)}
+            >
+              <Plus className="w-4 h-4" />
+              Adicionar
+            </button>
+          )}
         </div>
         
         {isLoading ? (
@@ -302,26 +396,42 @@ const Diet: React.FC = () => {
           </div>
         ) : meals.length === 0 ? (
           <div className="py-8 text-center bg-muted/30 rounded-2xl">
-            <p className="text-muted-foreground">Nenhuma refeição registada hoje</p>
-            <button 
-              className="text-primary text-sm font-medium mt-2"
-              onClick={() => setIsAddMealOpen(true)}
-            >
-              Adicionar sua primeira refeição
-            </button>
+            <p className="text-muted-foreground">Nenhuma refeição registada</p>
+            {isViewingToday && (
+              <button 
+                className="text-primary text-sm font-medium mt-2"
+                onClick={() => setIsAddMealOpen(true)}
+              >
+                Adicionar sua primeira refeição
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
-            {meals.map((meal) => (
+            {meals.map((meal, index) => (
               <AnimatedMealCard
                 key={meal.id}
                 meal={meal}
+                index={index + 1}
                 onToggle={() => toggleMealComplete(meal.id)}
                 isPending={toggleMutation.isPending}
               />
             ))}
           </div>
         )}
+
+        {/* Regenerate Weekly Plan Button */}
+        <div className="mt-8">
+          <Button
+            onClick={handleGenerateMealPlan}
+            disabled={isGeneratingPlan}
+            className="w-full bg-foreground text-background hover:bg-foreground/90"
+            size="lg"
+          >
+            <Sparkles className={cn("w-5 h-5 mr-2", isGeneratingPlan && "animate-spin")} />
+            {isGeneratingPlan ? "A gerar plano..." : "Regenerar Plano Semanal"}
+          </Button>
+        </div>
       </AppContent>
 
       <BottomNavigation onScanClick={() => setIsScannerOpen(true)} />
