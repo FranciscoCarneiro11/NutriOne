@@ -458,7 +458,19 @@ const Onboarding: React.FC = () => {
       case 17: // Social Proof
         return (
           <div className={animationClass}>
-            <SocialProofStep appName={APP_NAME} />
+            <SocialProofStep 
+              appName={APP_NAME} 
+              profileData={{
+                age: data.age,
+                gender: data.gender,
+                goal: data.goal,
+                targetWeight: data.targetWeight,
+                currentWeight: data.weight,
+                bodyZones: data.bodyZones,
+                activityLevel: data.activityLevel,
+                workoutDays: data.workoutDays,
+              }}
+            />
           </div>
         );
 
