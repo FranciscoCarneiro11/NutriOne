@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
-import { Sparkles, Dumbbell, RefreshCw, ArrowLeft } from "lucide-react";
+import { Sparkles, Dumbbell, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import WorkoutGalleryCard from "@/components/workout/WorkoutGalleryCard";
 import ExerciseDetailCard from "@/components/workout/ExerciseDetailCard";
+import ExerciseGallery from "@/components/workout/ExerciseGallery";
 
 interface Exercise {
   name: string;
@@ -46,9 +47,12 @@ const dayMapping: { [key: string]: string } = {
   "domingo": "Domingo",
 };
 
+type TabType = "treino" | "galeria";
+
 const Workout: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<TabType>("treino");
   const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -152,14 +156,32 @@ const Workout: React.FC = () => {
     return dayMapping[day] || day;
   };
 
+  // Tab Button Component
+  const TabButton = ({ tab, label }: { tab: TabType; label: string }) => (
+    <button
+      onClick={() => {
+        setActiveTab(tab);
+        setSelectedDay(null); // Reset selected day when switching tabs
+      }}
+      className={cn(
+        "flex-1 py-3 px-6 rounded-full font-semibold text-sm transition-all",
+        activeTab === tab
+          ? "bg-primary text-primary-foreground shadow-button"
+          : "bg-transparent text-muted-foreground hover:text-foreground"
+      )}
+    >
+      {label}
+    </button>
+  );
+
   if (loading) {
     return (
       <AppShell>
-        <AppHeader title="Galeria de Treinos" />
+        <AppHeader title="Treino" />
         <AppContent className="pb-28 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-muted-foreground">Carregando plano...</p>
+            <p className="text-muted-foreground">Carregando...</p>
           </div>
         </AppContent>
         <BottomNavigation />
@@ -167,57 +189,8 @@ const Workout: React.FC = () => {
     );
   }
 
-  if (!workoutPlan) {
-    return (
-      <AppShell>
-        <AppHeader title="Galeria de Treinos" />
-        <AppContent className="pb-28">
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-              <Dumbbell className="w-12 h-12 text-primary" />
-            </div>
-            
-            <h2 className="text-2xl font-bold text-foreground mb-3">
-              Crie Sua Galeria de Treinos
-            </h2>
-            
-            <p className="text-muted-foreground mb-8 max-w-sm">
-              Nossa IA vai criar um plano de treino personalizado baseado nas suas informações, objetivos e preferências.
-            </p>
-
-            <Button
-              onClick={generateWorkoutPlan}
-              disabled={generating}
-              size="lg"
-              className="gap-2 px-8 py-6 text-lg rounded-2xl"
-            >
-              {generating ? (
-                <>
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                  Gerando plano...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Gerar Plano com IA
-                </>
-              )}
-            </Button>
-
-            {generating && (
-              <p className="text-sm text-muted-foreground mt-4 animate-pulse">
-                Analisando seu perfil e criando treinos personalizados...
-              </p>
-            )}
-          </div>
-        </AppContent>
-        <BottomNavigation />
-      </AppShell>
-    );
-  }
-
-  // Exercise Detail View
-  if (selectedDay) {
+  // Exercise Detail View (only for "Seu Treino" tab)
+  if (selectedDay && activeTab === "treino") {
     return (
       <AppShell>
         <AppHeader 
@@ -247,7 +220,7 @@ const Workout: React.FC = () => {
           </div>
 
           {/* Recommendations */}
-          {workoutPlan.recommendations && workoutPlan.recommendations.length > 0 && (
+          {workoutPlan?.recommendations && workoutPlan.recommendations.length > 0 && (
             <div className="mt-8">
               <h3 className="font-semibold text-foreground mb-3">💡 Dicas para este treino</h3>
               <div className="bg-card rounded-2xl p-4 shadow-card border border-border">
@@ -268,54 +241,105 @@ const Workout: React.FC = () => {
     );
   }
 
-  // Gallery View
   return (
     <AppShell>
-      <AppHeader title="Galeria de Treinos" />
+      <AppHeader title="Treino" />
 
       <AppContent className="pb-28">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-foreground">Seus Treinos</h2>
-            <p className="text-muted-foreground text-sm">Toque num treino para ver os exercícios</p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={generateWorkoutPlan}
-            disabled={generating}
-            className="text-primary"
-          >
-            {generating ? (
-              <RefreshCw className="w-5 h-5 animate-spin" />
+        {/* Tab Switcher */}
+        <div className="bg-card rounded-full p-1 flex gap-1 mb-6 border border-border shadow-card">
+          <TabButton tab="treino" label="Seu Treino" />
+          <TabButton tab="galeria" label="Galeria" />
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "treino" ? (
+          // "Seu Treino" Content
+          <>
+            {!workoutPlan ? (
+              // No workout plan - show generation prompt
+              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                  <Dumbbell className="w-12 h-12 text-primary" />
+                </div>
+                
+                <h2 className="text-2xl font-bold text-foreground mb-3">
+                  Crie Seu Treino Personalizado
+                </h2>
+                
+                <p className="text-muted-foreground mb-8 max-w-sm">
+                  Nossa IA vai criar um plano de treino personalizado baseado nas suas informações, objetivos e preferências.
+                </p>
+
+                <Button
+                  onClick={generateWorkoutPlan}
+                  disabled={generating}
+                  size="lg"
+                  className="gap-2 px-8 py-6 text-lg rounded-2xl"
+                >
+                  {generating ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      Gerando plano...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      Gerar Plano com IA
+                    </>
+                  )}
+                </Button>
+
+                {generating && (
+                  <p className="text-sm text-muted-foreground mt-4 animate-pulse">
+                    Analisando seu perfil e criando treinos personalizados...
+                  </p>
+                )}
+              </div>
             ) : (
-              <RefreshCw className="w-5 h-5" />
+              // Has workout plan - show gallery of training days
+              <>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">Seus Treinos</h2>
+                    <p className="text-muted-foreground text-sm">Toque num treino para ver os exercícios</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={generateWorkoutPlan}
+                    disabled={generating}
+                    className="text-primary"
+                  >
+                    {generating ? (
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-5 h-5" />
+                    )}
+                  </Button>
+                </div>
+
+                {/* Gallery Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  {workoutPlan.weekly_schedule?.map((schedule, index) => (
+                    <WorkoutGalleryCard
+                      key={index}
+                      title={schedule.focus}
+                      exerciseCount={schedule.exercises?.length || 0}
+                      isToday={isWorkoutToday(schedule)}
+                      dayLabel={getDayLabel(schedule.day)}
+                      onClick={() => setSelectedDay(schedule)}
+                    />
+                  ))}
+                </div>
+              </>
             )}
-          </Button>
-        </div>
-
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          {workoutPlan.weekly_schedule?.map((schedule, index) => (
-            <WorkoutGalleryCard
-              key={index}
-              title={schedule.focus}
-              exerciseCount={schedule.exercises?.length || 0}
-              isToday={isWorkoutToday(schedule)}
-              dayLabel={getDayLabel(schedule.day)}
-              onClick={() => setSelectedDay(schedule)}
-            />
-          ))}
-        </div>
-
-        {/* Info Card */}
-        <div className="mt-8 bg-card rounded-2xl p-4 shadow-card border border-border">
-          <h3 className="font-semibold text-foreground mb-2">📹 Vídeos Demonstrativos</h3>
-          <p className="text-sm text-muted-foreground">
-            Em breve, cada exercício terá um vídeo demonstrativo para te ajudar a executar os movimentos corretamente.
-          </p>
-        </div>
+          </>
+        ) : (
+          // "Galeria" Content
+          <ExerciseGallery />
+        )}
       </AppContent>
 
       <BottomNavigation />
