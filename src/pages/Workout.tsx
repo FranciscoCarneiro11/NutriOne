@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
-import { Clock, Flame, Play, ChevronRight, Check, Sparkles, Dumbbell, RefreshCw } from "lucide-react";
+import { Sparkles, Dumbbell, RefreshCw, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import WorkoutGalleryCard from "@/components/workout/WorkoutGalleryCard";
+import ExerciseDetailCard from "@/components/workout/ExerciseDetailCard";
 
 interface Exercise {
   name: string;
   sets: number;
   reps: string;
   rest: string;
+  videoUrl?: string;
 }
 
 interface DaySchedule {
@@ -26,39 +29,21 @@ interface WorkoutPlan {
   recommendations: string[];
 }
 
-interface WeekDay {
-  day: number;
-  label: string;
-  fullLabel: string;
-  completed: boolean;
-  isToday: boolean;
-}
-
 const dayMapping: { [key: string]: string } = {
-  "Monday": "Segunda",
-  "Tuesday": "Terça",
-  "Wednesday": "Quarta",
-  "Thursday": "Quinta",
-  "Friday": "Sexta",
+  "Monday": "Segunda-feira",
+  "Tuesday": "Terça-feira",
+  "Wednesday": "Quarta-feira",
+  "Thursday": "Quinta-feira",
+  "Friday": "Sexta-feira",
   "Saturday": "Sábado",
   "Sunday": "Domingo",
-  "segunda": "Segunda",
-  "terça": "Terça",
-  "quarta": "Quarta",
-  "quinta": "Quinta",
-  "sexta": "Sexta",
+  "segunda": "Segunda-feira",
+  "terça": "Terça-feira",
+  "quarta": "Quarta-feira",
+  "quinta": "Quinta-feira",
+  "sexta": "Sexta-feira",
   "sábado": "Sábado",
   "domingo": "Domingo",
-};
-
-const dayAbbreviation: { [key: string]: string } = {
-  "Segunda": "Seg",
-  "Terça": "Ter",
-  "Quarta": "Qua",
-  "Quinta": "Qui",
-  "Sexta": "Sex",
-  "Sábado": "Sáb",
-  "Domingo": "Dom",
 };
 
 const Workout: React.FC = () => {
@@ -73,15 +58,7 @@ const Workout: React.FC = () => {
   const dayOfWeek = today.getDay();
   const weekDayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
-  const [weekDays] = useState<WeekDay[]>([
-    { day: 1, label: "Seg", fullLabel: "Segunda", completed: false, isToday: weekDayIndex === 0 },
-    { day: 2, label: "Ter", fullLabel: "Terça", completed: false, isToday: weekDayIndex === 1 },
-    { day: 3, label: "Qua", fullLabel: "Quarta", completed: false, isToday: weekDayIndex === 2 },
-    { day: 4, label: "Qui", fullLabel: "Quinta", completed: false, isToday: weekDayIndex === 3 },
-    { day: 5, label: "Sex", fullLabel: "Sexta", completed: false, isToday: weekDayIndex === 4 },
-    { day: 6, label: "Sáb", fullLabel: "Sábado", completed: false, isToday: weekDayIndex === 5 },
-    { day: 7, label: "Dom", fullLabel: "Domingo", completed: false, isToday: weekDayIndex === 6 },
-  ]);
+  const weekDayNames = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
   useEffect(() => {
     if (user) {
@@ -114,7 +91,6 @@ const Workout: React.FC = () => {
     try {
       setGenerating(true);
       
-      // Fetch user profile data
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -123,7 +99,6 @@ const Workout: React.FC = () => {
 
       if (profileError) throw profileError;
 
-      // Call the generate-plan edge function
       const { data, error } = await supabase.functions.invoke("generate-plan", {
         body: { profile },
       });
@@ -131,7 +106,6 @@ const Workout: React.FC = () => {
       if (error) throw error;
 
       if (data?.workout_plan) {
-        // Save to profile
         const { error: updateError } = await supabase
           .from("profiles")
           .update({ 
@@ -160,28 +134,28 @@ const Workout: React.FC = () => {
     }
   };
 
-  const getTodayWorkout = (): DaySchedule | null => {
-    if (!workoutPlan?.weekly_schedule) return null;
+  const getTodayName = (): string => {
+    return weekDayNames[weekDayIndex];
+  };
+
+  const isWorkoutToday = (schedule: DaySchedule): boolean => {
+    const todayName = getTodayName().toLowerCase();
+    const scheduleDay = schedule.day.toLowerCase();
+    const normalizedDay = (dayMapping[schedule.day] || schedule.day).toLowerCase();
     
-    const todayName = weekDays[weekDayIndex].fullLabel;
-    return workoutPlan.weekly_schedule.find(schedule => {
-      const normalizedDay = dayMapping[schedule.day] || schedule.day;
-      return normalizedDay.toLowerCase().includes(todayName.toLowerCase()) || 
-             todayName.toLowerCase().includes(normalizedDay.toLowerCase());
-    }) || workoutPlan.weekly_schedule[0];
+    return scheduleDay.includes(todayName) || 
+           normalizedDay.includes(todayName) ||
+           todayName.includes(scheduleDay.substring(0, 3));
   };
 
-  const getDayAbbrev = (day: string): string => {
-    const normalizedDay = dayMapping[day] || day;
-    return dayAbbreviation[normalizedDay] || day.substring(0, 3);
+  const getDayLabel = (day: string): string => {
+    return dayMapping[day] || day;
   };
-
-  const todayWorkout = getTodayWorkout();
 
   if (loading) {
     return (
       <AppShell>
-        <AppHeader title="Plano de Treino" />
+        <AppHeader title="Galeria de Treinos" />
         <AppContent className="pb-28 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -196,7 +170,7 @@ const Workout: React.FC = () => {
   if (!workoutPlan) {
     return (
       <AppShell>
-        <AppHeader title="Plano de Treino" />
+        <AppHeader title="Galeria de Treinos" />
         <AppContent className="pb-28">
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
@@ -204,7 +178,7 @@ const Workout: React.FC = () => {
             </div>
             
             <h2 className="text-2xl font-bold text-foreground mb-3">
-              Crie Seu Plano de Treino
+              Crie Sua Galeria de Treinos
             </h2>
             
             <p className="text-muted-foreground mb-8 max-w-sm">
@@ -242,65 +216,46 @@ const Workout: React.FC = () => {
     );
   }
 
-  // Show workout detail
+  // Exercise Detail View
   if (selectedDay) {
     return (
       <AppShell>
         <AppHeader 
-          title={selectedDay.focus} 
-          showBack 
-          onBack={() => setSelectedDay(null)} 
+          title={selectedDay.focus}
+          showBack
+          onBack={() => setSelectedDay(null)}
         />
         <AppContent className="pb-28">
+          {/* Header Info */}
           <div className="mb-6">
-            <span className="text-muted-foreground">{selectedDay.day}</span>
-            <h2 className="text-xl font-bold text-foreground">{selectedDay.focus}</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {selectedDay.exercises?.length || 0} exercícios
+            <p className="text-muted-foreground text-sm">{getDayLabel(selectedDay.day)}</p>
+            <h2 className="text-2xl font-bold text-foreground mt-1">{selectedDay.focus}</h2>
+            <p className="text-muted-foreground mt-2">
+              {selectedDay.exercises?.length || 0} exercícios • Toque para ver a demonstração
             </p>
           </div>
 
-          <div className="space-y-3">
+          {/* Exercises List */}
+          <div className="space-y-4">
             {selectedDay.exercises?.map((exercise, index) => (
-              <div
+              <ExerciseDetailCard 
                 key={index}
-                className="bg-card rounded-2xl p-4 shadow-card border border-border"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-foreground">{exercise.name}</h4>
-                    <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-                      <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                        {exercise.sets} séries
-                      </span>
-                      <span className="bg-muted px-2 py-0.5 rounded-full">
-                        {exercise.reps} reps
-                      </span>
-                      {exercise.rest && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {exercise.rest}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    {index + 1}
-                  </div>
-                </div>
-              </div>
+                exercise={exercise}
+                index={index}
+              />
             ))}
           </div>
 
+          {/* Recommendations */}
           {workoutPlan.recommendations && workoutPlan.recommendations.length > 0 && (
             <div className="mt-8">
-              <h3 className="font-semibold text-foreground mb-3">Dicas</h3>
+              <h3 className="font-semibold text-foreground mb-3">💡 Dicas para este treino</h3>
               <div className="bg-card rounded-2xl p-4 shadow-card border border-border">
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {workoutPlan.recommendations.slice(0, 3).map((rec, index) => (
                     <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className="text-primary">•</span>
-                      {rec}
+                      <span className="text-primary mt-0.5">•</span>
+                      <span>{rec}</span>
                     </li>
                   ))}
                 </ul>
@@ -313,129 +268,53 @@ const Workout: React.FC = () => {
     );
   }
 
-  const completedCount = weekDays.filter(d => d.completed).length;
-
+  // Gallery View
   return (
     <AppShell>
-      <AppHeader title="Plano de Treino" />
+      <AppHeader title="Galeria de Treinos" />
 
       <AppContent className="pb-28">
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-muted-foreground">Seu plano personalizado</p>
+          <div>
+            <h2 className="text-xl font-bold text-foreground">Seus Treinos</h2>
+            <p className="text-muted-foreground text-sm">Toque num treino para ver os exercícios</p>
+          </div>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={generateWorkoutPlan}
             disabled={generating}
             className="text-primary"
           >
             {generating ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
+              <RefreshCw className="w-5 h-5 animate-spin" />
             ) : (
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-5 h-5" />
             )}
           </Button>
         </div>
 
-        {/* Week Progress Card */}
-        <div className="bg-card rounded-2xl p-4 shadow-card border border-border mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-foreground">Progresso da Semana</span>
-            <span className="text-primary font-semibold">{completedCount}/7 treinos</span>
-          </div>
-          
-          <div className="flex justify-between">
-            {weekDays.map((day) => (
-              <div key={day.day} className="flex flex-col items-center gap-1">
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
-                    day.completed
-                      ? "bg-primary text-primary-foreground"
-                      : day.isToday
-                      ? "border-2 border-primary text-primary"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {day.completed ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    day.day
-                  )}
-                </div>
-                <span className={cn(
-                  "text-xs",
-                  day.isToday ? "text-primary font-semibold" : "text-muted-foreground"
-                )}>
-                  {day.label}
-                </span>
-              </div>
-            ))}
-          </div>
+        {/* Gallery Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {workoutPlan.weekly_schedule?.map((schedule, index) => (
+            <WorkoutGalleryCard
+              key={index}
+              title={schedule.focus}
+              exerciseCount={schedule.exercises?.length || 0}
+              isToday={isWorkoutToday(schedule)}
+              dayLabel={getDayLabel(schedule.day)}
+              onClick={() => setSelectedDay(schedule)}
+            />
+          ))}
         </div>
 
-        {/* Today's Workout Highlight */}
-        {todayWorkout && (
-          <div 
-            className="bg-primary rounded-2xl p-5 shadow-card mb-8 cursor-pointer active:scale-[0.98] transition-transform"
-            onClick={() => setSelectedDay(todayWorkout)}
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
-                <Play className="w-7 h-7 text-primary-foreground" fill="currentColor" />
-              </div>
-              <div className="flex-1">
-                <span className="text-primary-foreground/80 text-sm">Treino de Hoje</span>
-                <h3 className="text-xl font-bold text-primary-foreground">{todayWorkout.focus}</h3>
-                <div className="flex items-center gap-4 mt-1">
-                  <div className="flex items-center gap-1 text-primary-foreground/80">
-                    <Dumbbell className="w-4 h-4" />
-                    <span className="text-sm">{todayWorkout.exercises?.length || 0} exercícios</span>
-                  </div>
-                </div>
-              </div>
-              <ChevronRight className="w-6 h-6 text-primary-foreground/60" />
-            </div>
-          </div>
-        )}
-
-        {/* All Workouts List */}
-        <h3 className="font-semibold text-foreground mb-4">Todos os Treinos</h3>
-        
-        <div className="space-y-3">
-          {workoutPlan.weekly_schedule?.map((schedule, index) => {
-            const isToday = todayWorkout?.day === schedule.day;
-            return (
-              <div
-                key={index}
-                className="bg-card rounded-2xl p-4 shadow-card border border-border flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform"
-                onClick={() => setSelectedDay(schedule)}
-              >
-                <div className={cn(
-                  "w-12 h-12 rounded-xl flex items-center justify-center font-semibold text-sm",
-                  isToday ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                )}>
-                  {getDayAbbrev(schedule.day)}
-                </div>
-                
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-foreground">{schedule.focus}</h4>
-                    {isToday && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                        Hoje
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {schedule.exercises?.length || 0} exercícios
-                  </span>
-                </div>
-                
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </div>
-            );
-          })}
+        {/* Info Card */}
+        <div className="mt-8 bg-card rounded-2xl p-4 shadow-card border border-border">
+          <h3 className="font-semibold text-foreground mb-2">📹 Vídeos Demonstrativos</h3>
+          <p className="text-sm text-muted-foreground">
+            Em breve, cada exercício terá um vídeo demonstrativo para te ajudar a executar os movimentos corretamente.
+          </p>
         </div>
       </AppContent>
 
