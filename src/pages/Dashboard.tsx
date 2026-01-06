@@ -71,6 +71,7 @@ const StreakBadge: React.FC<StreakBadgeProps> = ({ count }) => {
 };
 
 interface UserProfile {
+  first_name: string | null;
   age: number | null;
   gender: string | null;
   height: number | null;
@@ -143,7 +144,7 @@ const Dashboard: React.FC = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("age, gender, height, weight, target_weight, starting_weight, activity_level, goal, nutrition_plan, workout_plan, current_streak, longest_streak, last_active_date")
+        .select("first_name, age, gender, height, weight, target_weight, starting_weight, activity_level, goal, nutrition_plan, workout_plan, current_streak, longest_streak, last_active_date")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -425,7 +426,9 @@ const Dashboard: React.FC = () => {
         <p className="text-sm text-muted-foreground capitalize">{today}</p>
         
         {/* Personalized Greeting */}
-        <h1 className="text-2xl font-bold text-foreground mt-1">Olá, Francisco!</h1>
+        <h1 className="text-2xl font-bold text-foreground mt-1">
+          Olá{profile?.first_name ? `, ${profile.first_name}` : ''}!
+        </h1>
         
         {/* Goal Status */}
         {profile?.weight && profile?.target_weight && (
