@@ -259,27 +259,21 @@ const ExerciseGallery: React.FC = () => {
 
               {/* Placeholder illustration */}
               <div className="flex flex-col items-center justify-center p-4">
-                {exercise.videoUrl ? (
-                  <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Play className="w-7 h-7 text-primary-foreground fill-current ml-1" />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-lg bg-muted-foreground/10 flex items-center justify-center">
-                    <svg viewBox="0 0 60 100" className="w-12 h-16 opacity-40">
-                      <ellipse cx="30" cy="12" rx="8" ry="10" fill="currentColor" />
-                      <rect x="27" y="22" width="6" height="6" fill="currentColor" />
-                      <path d="M18 28 L42 28 L44 55 L16 55 Z" fill="currentColor" />
-                      <ellipse cx="14" cy="32" rx="5" ry="4" fill="currentColor" />
-                      <ellipse cx="46" cy="32" rx="5" ry="4" fill="currentColor" />
-                      <path d="M9 36 L6 52 L10 52 L14 38 Z" fill="currentColor" />
-                      <path d="M6 52 L4 68 L9 68 L10 52 Z" fill="currentColor" />
-                      <path d="M51 36 L54 52 L50 52 L46 38 Z" fill="currentColor" />
-                      <path d="M54 52 L56 68 L51 68 L50 52 Z" fill="currentColor" />
-                      <path d="M16 55 L14 85 L22 85 L25 55 Z" fill="currentColor" />
-                      <path d="M44 55 L46 85 L38 85 L35 55 Z" fill="currentColor" />
-                    </svg>
-                  </div>
-                )}
+                <div className="w-16 h-16 rounded-lg bg-muted-foreground/10 flex items-center justify-center">
+                  <svg viewBox="0 0 60 100" className="w-12 h-16 opacity-40">
+                    <ellipse cx="30" cy="12" rx="8" ry="10" fill="currentColor" />
+                    <rect x="27" y="22" width="6" height="6" fill="currentColor" />
+                    <path d="M18 28 L42 28 L44 55 L16 55 Z" fill="currentColor" />
+                    <ellipse cx="14" cy="32" rx="5" ry="4" fill="currentColor" />
+                    <ellipse cx="46" cy="32" rx="5" ry="4" fill="currentColor" />
+                    <path d="M9 36 L6 52 L10 52 L14 38 Z" fill="currentColor" />
+                    <path d="M6 52 L4 68 L9 68 L10 52 Z" fill="currentColor" />
+                    <path d="M51 36 L54 52 L50 52 L46 38 Z" fill="currentColor" />
+                    <path d="M54 52 L56 68 L51 68 L50 52 Z" fill="currentColor" />
+                    <path d="M16 55 L14 85 L22 85 L25 55 Z" fill="currentColor" />
+                    <path d="M44 55 L46 85 L38 85 L35 55 Z" fill="currentColor" />
+                  </svg>
+                </div>
               </div>
             </div>
             
