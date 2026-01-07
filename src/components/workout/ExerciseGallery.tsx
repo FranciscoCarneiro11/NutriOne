@@ -234,7 +234,7 @@ const ExerciseGallery: React.FC = () => {
             className="bg-card rounded-2xl overflow-hidden border border-border shadow-card hover:shadow-fab transition-all active:scale-[0.98] text-left group"
           >
             {/* Thumbnail */}
-            <div className="aspect-square bg-gradient-to-br from-muted to-muted/30 relative flex items-center justify-center">
+            <div className="aspect-square bg-gradient-to-br from-muted to-muted/30 relative flex items-center justify-center overflow-hidden">
               {/* Bookmark icon */}
               <button 
                 className="absolute top-2 left-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center z-10"
@@ -257,8 +257,16 @@ const ExerciseGallery: React.FC = () => {
                 <HelpCircle className="w-4 h-4 text-white" />
               </button>
 
-              {/* Placeholder illustration */}
-              <div className="flex flex-col items-center justify-center p-4">
+              {/* Video thumbnail or placeholder */}
+              {exercise.videoUrl ? (
+                <video
+                  src={exercise.videoUrl}
+                  className="w-full h-full object-cover"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
                 <div className="w-16 h-16 rounded-lg bg-muted-foreground/10 flex items-center justify-center">
                   <svg viewBox="0 0 60 100" className="w-12 h-16 opacity-40">
                     <ellipse cx="30" cy="12" rx="8" ry="10" fill="currentColor" />
@@ -274,7 +282,7 @@ const ExerciseGallery: React.FC = () => {
                     <path d="M44 55 L46 85 L38 85 L35 55 Z" fill="currentColor" />
                   </svg>
                 </div>
-              </div>
+              )}
             </div>
             
             {/* Exercise info */}
