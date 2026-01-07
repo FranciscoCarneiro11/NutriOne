@@ -14,6 +14,7 @@ import posteriorImg from "@/assets/muscle-groups/posterior.png";
 import quadricepsImg from "@/assets/muscle-groups/quadriceps.png";
 import trapezioImg from "@/assets/muscle-groups/trapezio.png";
 import ombrosImg from "@/assets/muscle-groups/ombros.png";
+import todosImg from "@/assets/muscle-groups/todos.png";
 
 interface GalleryExercise {
   id: string;
@@ -101,7 +102,7 @@ exercisesByMuscle.todos = Object.entries(exercisesByMuscle)
   .flatMap(([_, exercises]) => exercises);
 
 const muscleGroups = [
-  { id: "todos", name: "Todos", highlightZone: "all", customImage: null },
+  { id: "todos", name: "Todos", highlightZone: "all", customImage: todosImg },
   { id: "peito", name: "Peito", highlightZone: "chest", customImage: peitoImg },
   { id: "costas", name: "Costas", highlightZone: "back", customImage: costasImg },
   { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: ombrosImg },
