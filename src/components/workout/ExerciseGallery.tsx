@@ -167,7 +167,7 @@ const ExerciseGallery: React.FC = () => {
                   : "border-border bg-card/50 hover:border-muted-foreground/50"
               )}
             >
-              <div className="w-10 h-12">
+              <div className="w-12 h-14 flex items-center justify-center">
                 {muscle.customImage ? (
                   <img 
                     src={muscle.customImage} 
