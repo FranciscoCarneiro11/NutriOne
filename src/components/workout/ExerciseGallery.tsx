@@ -185,7 +185,7 @@ const ExerciseGallery: React.FC = () => {
               )}
             >
               <div className={cn(
-                "w-20 h-20 rounded-2xl border-2 transition-all p-2 flex items-center justify-center",
+                "w-20 h-20 rounded-2xl border-2 transition-all p-2 flex items-center justify-center overflow-hidden",
                 selectedMuscle === muscle.id
                   ? "border-primary bg-primary/10 shadow-lg scale-105"
                   : "border-border bg-card/50 hover:border-muted-foreground/50 hover:bg-card"
@@ -195,8 +195,8 @@ const ExerciseGallery: React.FC = () => {
                     src={muscle.customImage} 
                     alt={muscle.name}
                     className={cn(
-                      "object-contain",
-                      muscle.id === "todos" ? "w-10 h-full" : "w-full h-full"
+                      "object-contain max-w-full max-h-full",
+                      muscle.id === "todos" ? "scale-150" : ""
                     )}
                   />
                 ) : (
