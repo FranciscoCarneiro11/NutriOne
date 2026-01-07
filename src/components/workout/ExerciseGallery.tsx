@@ -12,6 +12,7 @@ import bicepsImg from "@/assets/muscle-groups/biceps.png";
 import abdomenImg from "@/assets/muscle-groups/abdomen.png";
 import posteriorImg from "@/assets/muscle-groups/posterior.png";
 import quadricepsImg from "@/assets/muscle-groups/quadriceps.png";
+import trapezioImg from "@/assets/muscle-groups/trapezio.png";
 
 interface GalleryExercise {
   id: string;
@@ -84,6 +85,13 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     { id: "post-5", name: "Good Morning", muscleGroup: "Posterior" },
     { id: "post-6", name: "Cadeira Flexora", muscleGroup: "Posterior" },
   ],
+  trapezio: [
+    { id: "trap-1", name: "Encolhimento com Barra", muscleGroup: "Trapézio" },
+    { id: "trap-2", name: "Encolhimento com Halteres", muscleGroup: "Trapézio" },
+    { id: "trap-3", name: "Remada Alta", muscleGroup: "Trapézio" },
+    { id: "trap-4", name: "Face Pull", muscleGroup: "Trapézio" },
+    { id: "trap-5", name: "Elevação Posterior", muscleGroup: "Trapézio" },
+  ],
 };
 
 // Gerar lista de todos os exercícios
@@ -100,6 +108,7 @@ const muscleGroups = [
   { id: "triceps", name: "Tríceps", highlightZone: "triceps", customImage: tricepsImg },
   { id: "quadriceps", name: "Quadríceps", highlightZone: "legs", customImage: quadricepsImg },
   { id: "posterior", name: "Posterior", highlightZone: "hamstrings", customImage: posteriorImg },
+  { id: "trapezio", name: "Trapézio", highlightZone: "traps", customImage: trapezioImg },
   { id: "abdomen", name: "Abdômen", highlightZone: "abs", customImage: abdomenImg },
 ];
 
