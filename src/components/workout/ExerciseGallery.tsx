@@ -6,6 +6,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 // Imagens customizadas de grupos musculares
 import peitoImg from "@/assets/muscle-groups/peito.png";
+import costasImg from "@/assets/muscle-groups/costas.png";
 
 interface GalleryExercise {
   id: string;
@@ -82,7 +83,7 @@ exercisesByMuscle.todos = Object.entries(exercisesByMuscle)
 const muscleGroups = [
   { id: "todos", name: "Todos", highlightZone: "all", customImage: null },
   { id: "peito", name: "Peito", highlightZone: "chest", customImage: peitoImg },
-  { id: "costas", name: "Costas", highlightZone: "back", customImage: null },
+  { id: "costas", name: "Costas", highlightZone: "back", customImage: costasImg },
   { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: null },
   { id: "biceps", name: "Bíceps", highlightZone: "biceps", customImage: null },
   { id: "triceps", name: "Tríceps", highlightZone: "triceps", customImage: null },
