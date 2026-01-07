@@ -155,19 +155,21 @@ const ExerciseGallery: React.FC = () => {
     <div className="space-y-4">
       {/* Muscle Groups Horizontal Scroll */}
       <ScrollArea className="w-full">
-        <div className="flex gap-3 pb-3">
+        <div className="flex gap-4 pb-3 px-1">
           {muscleGroups.map((muscle) => (
             <button
               key={muscle.id}
               onClick={() => setSelectedMuscle(muscle.id)}
               className={cn(
-                "flex-shrink-0 w-16 h-20 rounded-xl border-2 transition-all p-1 flex flex-col items-center justify-center gap-1",
-                selectedMuscle === muscle.id
-                  ? "border-primary bg-card shadow-lg"
-                  : "border-border bg-card/50 hover:border-muted-foreground/50"
+                "flex-shrink-0 flex flex-col items-center gap-2 transition-all",
               )}
             >
-              <div className="w-12 h-14 flex items-center justify-center">
+              <div className={cn(
+                "w-16 h-16 rounded-2xl border-2 transition-all p-2 flex items-center justify-center",
+                selectedMuscle === muscle.id
+                  ? "border-primary bg-primary/10 shadow-lg scale-105"
+                  : "border-border bg-card/50 hover:border-muted-foreground/50 hover:bg-card"
+              )}>
                 {muscle.customImage ? (
                   <img 
                     src={muscle.customImage} 
@@ -182,8 +184,10 @@ const ExerciseGallery: React.FC = () => {
                 )}
               </div>
               <span className={cn(
-                "text-[10px] font-medium truncate w-full text-center",
-                selectedMuscle === muscle.id ? "text-foreground" : "text-muted-foreground"
+                "text-xs font-medium transition-colors",
+                selectedMuscle === muscle.id 
+                  ? "text-primary font-semibold" 
+                  : "text-muted-foreground"
               )}>
                 {muscle.name}
               </span>
