@@ -13,6 +13,7 @@ import abdomenImg from "@/assets/muscle-groups/abdomen.png";
 import posteriorImg from "@/assets/muscle-groups/posterior.png";
 import quadricepsImg from "@/assets/muscle-groups/quadriceps.png";
 import trapezioImg from "@/assets/muscle-groups/trapezio.png";
+import ombrosImg from "@/assets/muscle-groups/ombros.png";
 
 interface GalleryExercise {
   id: string;
@@ -103,7 +104,7 @@ const muscleGroups = [
   { id: "todos", name: "Todos", highlightZone: "all", customImage: null },
   { id: "peito", name: "Peito", highlightZone: "chest", customImage: peitoImg },
   { id: "costas", name: "Costas", highlightZone: "back", customImage: costasImg },
-  { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: null },
+  { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: ombrosImg },
   { id: "biceps", name: "Bíceps", highlightZone: "biceps", customImage: bicepsImg },
   { id: "triceps", name: "Tríceps", highlightZone: "triceps", customImage: tricepsImg },
   { id: "quadriceps", name: "Quadríceps", highlightZone: "legs", customImage: quadricepsImg },
