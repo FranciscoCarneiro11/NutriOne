@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
+// Imagens customizadas de grupos musculares
+import peitoImg from "@/assets/muscle-groups/peito.png";
+
 interface GalleryExercise {
   id: string;
   name: string;
@@ -77,14 +80,14 @@ exercisesByMuscle.todos = Object.entries(exercisesByMuscle)
   .flatMap(([_, exercises]) => exercises);
 
 const muscleGroups = [
-  { id: "todos", name: "Todos", highlightZone: "all" },
-  { id: "peito", name: "Peito", highlightZone: "chest" },
-  { id: "costas", name: "Costas", highlightZone: "back" },
-  { id: "ombros", name: "Ombros", highlightZone: "shoulders" },
-  { id: "biceps", name: "Bíceps", highlightZone: "biceps" },
-  { id: "triceps", name: "Tríceps", highlightZone: "triceps" },
-  { id: "pernas", name: "Pernas", highlightZone: "legs" },
-  { id: "abdomen", name: "Abdômen", highlightZone: "abs" },
+  { id: "todos", name: "Todos", highlightZone: "all", customImage: null },
+  { id: "peito", name: "Peito", highlightZone: "chest", customImage: peitoImg },
+  { id: "costas", name: "Costas", highlightZone: "back", customImage: null },
+  { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: null },
+  { id: "biceps", name: "Bíceps", highlightZone: "biceps", customImage: null },
+  { id: "triceps", name: "Tríceps", highlightZone: "triceps", customImage: null },
+  { id: "pernas", name: "Pernas", highlightZone: "legs", customImage: null },
+  { id: "abdomen", name: "Abdômen", highlightZone: "abs", customImage: null },
 ];
 
 // Componente de silhueta do corpo com destaque na zona selecionada
@@ -161,10 +164,18 @@ const ExerciseGallery: React.FC = () => {
               )}
             >
               <div className="w-10 h-12">
-                <BodySilhouette 
-                  zone={muscle.highlightZone} 
-                  isSelected={selectedMuscle === muscle.id} 
-                />
+                {muscle.customImage ? (
+                  <img 
+                    src={muscle.customImage} 
+                    alt={muscle.name}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <BodySilhouette 
+                    zone={muscle.highlightZone} 
+                    isSelected={selectedMuscle === muscle.id} 
+                  />
+                )}
               </div>
               <span className={cn(
                 "text-[10px] font-medium truncate w-full text-center",
