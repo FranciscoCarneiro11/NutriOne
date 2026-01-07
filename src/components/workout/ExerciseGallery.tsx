@@ -11,6 +11,7 @@ import tricepsImg from "@/assets/muscle-groups/triceps.png";
 import bicepsImg from "@/assets/muscle-groups/biceps.png";
 import abdomenImg from "@/assets/muscle-groups/abdomen.png";
 import posteriorImg from "@/assets/muscle-groups/posterior.png";
+import quadricepsImg from "@/assets/muscle-groups/quadriceps.png";
 
 interface GalleryExercise {
   id: string;
@@ -60,15 +61,13 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     { id: "triceps-4", name: "Mergulho", muscleGroup: "Tríceps" },
     { id: "triceps-5", name: "Kickback", muscleGroup: "Tríceps" },
   ],
-  pernas: [
-    { id: "legs-1", name: "Agachamento", muscleGroup: "Pernas" },
-    { id: "legs-2", name: "Leg Press", muscleGroup: "Pernas" },
-    { id: "legs-3", name: "Extensora", muscleGroup: "Pernas" },
-    { id: "legs-4", name: "Flexora", muscleGroup: "Pernas" },
-    { id: "legs-5", name: "Stiff", muscleGroup: "Pernas" },
-    { id: "legs-6", name: "Panturrilha", muscleGroup: "Pernas" },
-    { id: "legs-7", name: "Avanço", muscleGroup: "Pernas" },
-    { id: "legs-8", name: "Cadeira Adutora", muscleGroup: "Pernas" },
+  quadriceps: [
+    { id: "quad-1", name: "Agachamento", muscleGroup: "Quadríceps" },
+    { id: "quad-2", name: "Leg Press", muscleGroup: "Quadríceps" },
+    { id: "quad-3", name: "Extensora", muscleGroup: "Quadríceps" },
+    { id: "quad-4", name: "Agachamento Hack", muscleGroup: "Quadríceps" },
+    { id: "quad-5", name: "Avanço", muscleGroup: "Quadríceps" },
+    { id: "quad-6", name: "Agachamento Búlgaro", muscleGroup: "Quadríceps" },
   ],
   abdomen: [
     { id: "abs-1", name: "Abdominal Crunch", muscleGroup: "Abdômen" },
@@ -99,7 +98,7 @@ const muscleGroups = [
   { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: null },
   { id: "biceps", name: "Bíceps", highlightZone: "biceps", customImage: bicepsImg },
   { id: "triceps", name: "Tríceps", highlightZone: "triceps", customImage: tricepsImg },
-  { id: "pernas", name: "Pernas", highlightZone: "legs", customImage: null },
+  { id: "quadriceps", name: "Quadríceps", highlightZone: "legs", customImage: quadricepsImg },
   { id: "posterior", name: "Posterior", highlightZone: "hamstrings", customImage: posteriorImg },
   { id: "abdomen", name: "Abdômen", highlightZone: "abs", customImage: abdomenImg },
 ];
