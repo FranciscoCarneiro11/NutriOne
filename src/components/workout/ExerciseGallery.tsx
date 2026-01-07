@@ -10,6 +10,7 @@ import costasImg from "@/assets/muscle-groups/costas.png";
 import tricepsImg from "@/assets/muscle-groups/triceps.png";
 import bicepsImg from "@/assets/muscle-groups/biceps.png";
 import abdomenImg from "@/assets/muscle-groups/abdomen.png";
+import posteriorImg from "@/assets/muscle-groups/posterior.png";
 
 interface GalleryExercise {
   id: string;
@@ -76,6 +77,14 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     { id: "abs-4", name: "Abdominal Bicicleta", muscleGroup: "Abdômen" },
     { id: "abs-5", name: "Prancha Lateral", muscleGroup: "Abdômen" },
   ],
+  posterior: [
+    { id: "post-1", name: "Stiff", muscleGroup: "Posterior" },
+    { id: "post-2", name: "Mesa Flexora", muscleGroup: "Posterior" },
+    { id: "post-3", name: "Flexora Deitado", muscleGroup: "Posterior" },
+    { id: "post-4", name: "Levantamento Terra", muscleGroup: "Posterior" },
+    { id: "post-5", name: "Good Morning", muscleGroup: "Posterior" },
+    { id: "post-6", name: "Cadeira Flexora", muscleGroup: "Posterior" },
+  ],
 };
 
 // Gerar lista de todos os exercícios
@@ -91,6 +100,7 @@ const muscleGroups = [
   { id: "biceps", name: "Bíceps", highlightZone: "biceps", customImage: bicepsImg },
   { id: "triceps", name: "Tríceps", highlightZone: "triceps", customImage: tricepsImg },
   { id: "pernas", name: "Pernas", highlightZone: "legs", customImage: null },
+  { id: "posterior", name: "Posterior", highlightZone: "hamstrings", customImage: posteriorImg },
   { id: "abdomen", name: "Abdômen", highlightZone: "abs", customImage: abdomenImg },
 ];
 
