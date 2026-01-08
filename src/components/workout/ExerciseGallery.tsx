@@ -38,9 +38,9 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   ],
   costas: [
     { id: "back-1", name: "Pulldown", muscleGroup: "Costas", videoUrl: "/videos/pulldown.mp4" },
-    { id: "back-2", name: "Puxada Frontal", muscleGroup: "Costas" },
-    { id: "back-3", name: "Remada Curvada", muscleGroup: "Costas" },
-    { id: "back-4", name: "Remada Baixa", muscleGroup: "Costas" },
+    { id: "back-2", name: "Seated Wide-grip Row", muscleGroup: "Costas", videoUrl: "/videos/remada_aberta_sentado.mp4" },
+    { id: "back-3", name: "Puxada Frontal", muscleGroup: "Costas" },
+    { id: "back-4", name: "Remada Curvada", muscleGroup: "Costas" },
     { id: "back-5", name: "Barra Fixa", muscleGroup: "Costas" },
     { id: "back-6", name: "Remada Unilateral", muscleGroup: "Costas" },
   ],
