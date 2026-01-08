@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Bookmark, HelpCircle } from "lucide-react";
+import { Bookmark, HelpCircle, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 // Imagens customizadas de grupos musculares
 import peitoImg from "@/assets/muscle-groups/peito.png";
@@ -14,7 +15,7 @@ import posteriorImg from "@/assets/muscle-groups/posterior.png";
 import quadricepsImg from "@/assets/muscle-groups/quadriceps.png";
 import trapezioImg from "@/assets/muscle-groups/trapezio.png";
 import ombrosImg from "@/assets/muscle-groups/ombros.png";
-import todosImg from "@/assets/muscle-groups/todos.png";
+import todosImg from "@/assets/muscle-groups/todos.png"; // Will be used for favorites
 
 interface GalleryExercise {
   id: string;
@@ -26,7 +27,7 @@ interface GalleryExercise {
 
 // Dados estáticos de exercícios por grupo muscular
 const exercisesByMuscle: Record<string, GalleryExercise[]> = {
-  todos: [],
+  favoritos: [], // Will be populated dynamically
   peito: [
     { id: "chest-1", name: "Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_reto.mp4" },
     { id: "chest-2", name: "Dumbbell Incline Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4" },
@@ -100,13 +101,13 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   ],
 };
 
-// Gerar lista de todos os exercícios
-exercisesByMuscle.todos = Object.entries(exercisesByMuscle)
-  .filter(([key]) => key !== "todos")
+// Get all exercises for favorites lookup
+const allExercises = Object.entries(exercisesByMuscle)
+  .filter(([key]) => key !== "favoritos")
   .flatMap(([_, exercises]) => exercises);
 
 const muscleGroups = [
-  { id: "todos", name: "Todos", highlightZone: "all", customImage: todosImg },
+  { id: "favoritos", name: "Favoritos", highlightZone: "all", customImage: todosImg, isFavorites: true },
   { id: "peito", name: "Peito", highlightZone: "chest", customImage: peitoImg },
   { id: "costas", name: "Costas", highlightZone: "back", customImage: costasImg },
   { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: ombrosImg },
@@ -163,14 +164,49 @@ const BodySilhouette: React.FC<{ zone: string; isSelected: boolean }> = ({ zone,
 };
 
 const ExerciseGallery: React.FC = () => {
-  const [selectedMuscle, setSelectedMuscle] = useState<string>("todos");
+  const [selectedMuscle, setSelectedMuscle] = useState<string>("favoritos");
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    const loadFavorites = () => {
+      const favorites = JSON.parse(localStorage.getItem("favoriteExercises") || "[]");
+      setFavoriteIds(favorites);
+    };
+    loadFavorites();
+    
+    // Listen for storage changes
+    const handleStorageChange = () => loadFavorites();
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const toggleFavorite = (exerciseId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newFavorites = favoriteIds.includes(exerciseId)
+      ? favoriteIds.filter(id => id !== exerciseId)
+      : [...favoriteIds, exerciseId];
+    
+    localStorage.setItem("favoriteExercises", JSON.stringify(newFavorites));
+    setFavoriteIds(newFavorites);
+    
+    if (newFavorites.includes(exerciseId)) {
+      toast.success("Adicionado aos favoritos");
+    } else {
+      toast.success("Removido dos favoritos");
+    }
+  };
 
   const handleExerciseClick = (exercise: GalleryExercise) => {
     navigate(`/exercise/${exercise.id}`);
   };
 
-  const exercises = exercisesByMuscle[selectedMuscle] || [];
+  // Get exercises based on selection
+  const exercises = selectedMuscle === "favoritos"
+    ? allExercises.filter(ex => favoriteIds.includes(ex.id))
+    : (exercisesByMuscle[selectedMuscle] || []);
+    
   const selectedMuscleInfo = muscleGroups.find(m => m.id === selectedMuscle);
 
   return (
@@ -222,12 +258,23 @@ const ExerciseGallery: React.FC = () => {
       {/* Section Title */}
       <div className="flex items-center justify-between">
         <h3 className="text-base font-medium text-foreground">
-          {selectedMuscle === "todos" ? "Todos os exercícios" : `Exercícios de ${selectedMuscleInfo?.name}`}
+          {selectedMuscle === "favoritos" ? "Seus favoritos" : `Exercícios de ${selectedMuscleInfo?.name}`}
         </h3>
         <span className="text-sm text-muted-foreground">
           {exercises.length} exercícios
         </span>
       </div>
+
+      {/* Empty state for favorites */}
+      {selectedMuscle === "favoritos" && exercises.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <Heart className="w-12 h-12 text-muted-foreground/50 mb-4" />
+          <p className="text-muted-foreground">Nenhum exercício favorito ainda</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">
+            Toque no ícone de favorito nos exercícios para adicioná-los aqui
+          </p>
+        </div>
+      )}
 
       {/* Exercises Grid */}
       <div className="grid grid-cols-2 gap-3">
@@ -239,15 +286,15 @@ const ExerciseGallery: React.FC = () => {
           >
             {/* Thumbnail */}
             <div className="aspect-square bg-gradient-to-br from-muted to-muted/30 relative flex items-center justify-center overflow-hidden">
-              {/* Bookmark icon */}
+              {/* Bookmark/Favorite icon */}
               <button 
                 className="absolute top-2 left-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // TODO: Implement bookmark functionality
-                }}
+                onClick={(e) => toggleFavorite(exercise.id, e)}
               >
-                <Bookmark className="w-4 h-4 text-white" />
+                <Bookmark className={cn(
+                  "w-4 h-4 text-white",
+                  favoriteIds.includes(exercise.id) && "fill-white"
+                )} />
               </button>
               
               {/* Help icon */}
