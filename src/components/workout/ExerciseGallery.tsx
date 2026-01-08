@@ -46,10 +46,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   ],
   ombros: [
     { id: "shoulder-1", name: "Lateral Raise", muscleGroup: "Ombros", videoUrl: "/videos/elevacao_lateral.mp4" },
-    { id: "shoulder-2", name: "Desenvolvimento", muscleGroup: "Ombros" },
-    { id: "shoulder-3", name: "Elevação Frontal", muscleGroup: "Ombros" },
-    { id: "shoulder-4", name: "Crucifixo Inverso", muscleGroup: "Ombros" },
-    { id: "shoulder-5", name: "Encolhimento", muscleGroup: "Ombros" },
+    { id: "shoulder-2", name: "Seated Shoulder Press", muscleGroup: "Ombros", videoUrl: "/videos/shoulderpress.mp4" },
+    { id: "shoulder-3", name: "Desenvolvimento", muscleGroup: "Ombros" },
+    { id: "shoulder-4", name: "Elevação Frontal", muscleGroup: "Ombros" },
+    { id: "shoulder-5", name: "Crucifixo Inverso", muscleGroup: "Ombros" },
+    { id: "shoulder-6", name: "Encolhimento", muscleGroup: "Ombros" },
   ],
   biceps: [
     { id: "biceps-1", name: "Biceps Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_cabo.mp4" },
