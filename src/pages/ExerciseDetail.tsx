@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // Dados dos exercícios (mesma estrutura da galeria)
 const allExercises: Record<string, { name: string; muscleGroup: string; videoUrl?: string; description?: string }> = {
@@ -80,8 +81,59 @@ const allExercises: Record<string, { name: string; muscleGroup: string; videoUrl
 const ExerciseDetail: React.FC = () => {
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const navigate = useNavigate();
+  const [isFavorite, setIsFavorite] = useState(false);
   
   const exercise = exerciseId ? allExercises[exerciseId] : null;
+
+  // Load favorite status from localStorage
+  useEffect(() => {
+    if (exerciseId) {
+      const favorites = JSON.parse(localStorage.getItem("favoriteExercises") || "[]");
+      setIsFavorite(favorites.includes(exerciseId));
+    }
+  }, [exerciseId]);
+
+  const toggleFavorite = () => {
+    if (!exerciseId) return;
+    
+    const favorites = JSON.parse(localStorage.getItem("favoriteExercises") || "[]");
+    let newFavorites: string[];
+    
+    if (isFavorite) {
+      newFavorites = favorites.filter((id: string) => id !== exerciseId);
+      toast.success("Removido dos favoritos");
+    } else {
+      newFavorites = [...favorites, exerciseId];
+      toast.success("Adicionado aos favoritos");
+    }
+    
+    localStorage.setItem("favoriteExercises", JSON.stringify(newFavorites));
+    setIsFavorite(!isFavorite);
+  };
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: exercise?.name || "Exercício",
+      text: `Confira o exercício ${exercise?.name} - ${exercise?.muscleGroup}`,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copiado para a área de transferência!");
+      }
+    } catch (error) {
+      // User cancelled share or error occurred
+      if ((error as Error).name !== "AbortError") {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copiado para a área de transferência!");
+      }
+    }
+  };
 
   if (!exercise) {
     return (
@@ -140,10 +192,16 @@ const ExerciseDetail: React.FC = () => {
         
         {/* Action Buttons */}
         <div className="absolute top-4 right-4 flex gap-2">
-          <button className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors">
-            <Bookmark className="w-5 h-5" />
+          <button 
+            onClick={toggleFavorite}
+            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          >
+            <Bookmark className={`w-5 h-5 ${isFavorite ? "fill-white" : ""}`} />
           </button>
-          <button className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors">
+          <button 
+            onClick={handleShare}
+            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          >
             <Share2 className="w-5 h-5" />
           </button>
         </div>
