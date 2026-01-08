@@ -45,8 +45,8 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     { id: "back-6", name: "Remada Unilateral", muscleGroup: "Costas" },
   ],
   ombros: [
-    { id: "shoulder-1", name: "Desenvolvimento", muscleGroup: "Ombros" },
-    { id: "shoulder-2", name: "Elevação Lateral", muscleGroup: "Ombros" },
+    { id: "shoulder-1", name: "Lateral Raise", muscleGroup: "Ombros", videoUrl: "/videos/elevacao_lateral.mp4" },
+    { id: "shoulder-2", name: "Desenvolvimento", muscleGroup: "Ombros" },
     { id: "shoulder-3", name: "Elevação Frontal", muscleGroup: "Ombros" },
     { id: "shoulder-4", name: "Crucifixo Inverso", muscleGroup: "Ombros" },
     { id: "shoulder-5", name: "Encolhimento", muscleGroup: "Ombros" },
