@@ -2,37 +2,43 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Users, Star, Dumbbell, TrendingUp, Target, Flame } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
-const testimonials = [
-  {
-    text: "Perdi 5kg em apenas 3 semanas sem passar fome! O plano adapta-se mesmo à minha rotina.",
-    name: "Sofia M."
-  },
-  {
-    text: "Finalmente consegui organizar as minhas macros. A NutriOne mudou completamente o meu treino.",
-    name: "Tiago R."
-  },
-  {
-    text: "A melhor app de nutrição que já usei. Simples, direta e os resultados aparecem.",
-    name: "Ana P."
-  },
-  {
-    text: "Sinto-me com muito mais energia durante o dia. Recomendo a toda a gente!",
-    name: "Pedro S."
-  },
-  {
-    text: "O acompanhamento diário faz toda a diferença. Nunca foi tão fácil ser saudável.",
-    name: "Beatriz L."
-  }
-];
+const testimonials = {
+  pt: [
+    { text: "Perdi 5kg em apenas 3 semanas sem passar fome! O plano adapta-se mesmo à minha rotina.", name: "Sofia M." },
+    { text: "Finalmente consegui organizar as minhas macros. A NutriOne mudou completamente o meu treino.", name: "Tiago R." },
+    { text: "A melhor app de nutrição que já usei. Simples, direta e os resultados aparecem.", name: "Ana P." },
+    { text: "Sinto-me com muito mais energia durante o dia. Recomendo a toda a gente!", name: "Pedro S." },
+    { text: "O acompanhamento diário faz toda a diferença. Nunca foi tão fácil ser saudável.", name: "Beatriz L." }
+  ],
+  en: [
+    { text: "I lost 5kg in just 3 weeks without starving! The plan really adapts to my routine.", name: "Sophie M." },
+    { text: "I finally managed to organize my macros. NutriOne completely changed my training.", name: "James R." },
+    { text: "The best nutrition app I've ever used. Simple, direct, and the results show.", name: "Anna P." },
+    { text: "I feel so much more energetic during the day. I recommend it to everyone!", name: "Peter S." },
+    { text: "The daily tracking makes all the difference. It's never been easier to be healthy.", name: "Beth L." }
+  ],
+  es: [
+    { text: "¡Perdí 5kg en solo 3 semanas sin pasar hambre! El plan realmente se adapta a mi rutina.", name: "Sofía M." },
+    { text: "Finalmente logré organizar mis macros. NutriOne cambió completamente mi entrenamiento.", name: "Diego R." },
+    { text: "La mejor app de nutrición que he usado. Simple, directa y los resultados se notan.", name: "Ana P." },
+    { text: "¡Me siento con mucha más energía durante el día. Lo recomiendo a todos!", name: "Pedro S." },
+    { text: "El seguimiento diario hace toda la diferencia. Nunca fue tan fácil ser saludable.", name: "Beatriz L." }
+  ]
+};
 
 const Welcome: React.FC = () => {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
+
+  const currentTestimonials = testimonials[language];
 
   const stats = [
-    { icon: Users, value: "+1500k", label: "Usuários" },
-    { icon: Star, value: "+1200k", label: "Avaliações 5★" },
-    { icon: Dumbbell, value: "120+", label: "Exercícios" },
+    { icon: Users, value: "+1500k", label: t.welcome.stats.users },
+    { icon: Star, value: "+1200k", label: t.welcome.stats.reviews },
+    { icon: Dumbbell, value: "120+", label: t.welcome.stats.exercises },
   ];
 
   return (
@@ -41,20 +47,27 @@ const Welcome: React.FC = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-coral/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-coral/5 rounded-full blur-3xl pointer-events-none" />
       
+      {/* Header with Language Selector */}
+      <header className="absolute top-0 left-0 right-0 z-50 px-6 md:px-12 lg:px-16 py-4">
+        <div className="flex justify-end max-w-7xl mx-auto">
+          <LanguageSelector />
+        </div>
+      </header>
+      
       {/* Content Container */}
       <div className="flex-1 flex flex-col relative z-10 max-w-7xl mx-auto w-full">
         {/* Hero Section */}
-        <div className="flex-1 flex flex-col lg:flex-row lg:items-center lg:gap-12 px-6 md:px-12 lg:px-16 pt-12 lg:pt-0 pb-4">
+        <div className="flex-1 flex flex-col lg:flex-row lg:items-center lg:gap-12 px-6 md:px-12 lg:px-16 pt-16 lg:pt-0 pb-4">
           {/* Left Column - Text & Stats */}
           <div className="lg:flex-1 lg:max-w-xl">
             {/* Hero Typography */}
             <div className="text-center lg:text-left mb-6 lg:mb-10 animate-fade-in">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight mb-3 lg:mb-5">
-                <span className="text-coral">Transforme</span> o seu corpo<br />
-                e saúde com a <span className="text-coral">NutriOne</span>.
+                <span className="text-coral">{t.welcome.headline}</span> {t.welcome.headlineRest}<br />
+                <span className="text-coral">NutriOne</span>.
               </h1>
               <p className="text-slate-400 text-sm sm:text-base lg:text-lg max-w-sm lg:max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Junte-se a milhares de pessoas que já atingiram os seus objetivos com planos personalizados e IA.
+                {t.welcome.subheadline}
               </p>
             </div>
 
@@ -81,7 +94,7 @@ const Welcome: React.FC = () => {
                 onClick={() => navigate("/onboarding")}
                 className="shadow-[0_0_30px_hsl(30_100%_70%/0.4)] hover:shadow-[0_0_40px_hsl(30_100%_70%/0.6)] transition-shadow duration-300 min-w-[280px]"
               >
-                Começar Agora
+                {t.welcome.cta}
               </Button>
               
               <button
@@ -89,7 +102,7 @@ const Welcome: React.FC = () => {
                 onClick={() => navigate("/auth?login=true")}
                 className="block text-slate-500 text-sm font-medium hover:text-slate-300 transition-colors mt-5"
               >
-                Já tem uma conta? <span className="text-coral underline underline-offset-2">Entrar</span>
+                {t.welcome.login} <span className="text-coral underline underline-offset-2">{t.welcome.loginLink}</span>
               </button>
             </div>
           </div>
@@ -178,7 +191,7 @@ const Welcome: React.FC = () => {
         {/* Testimonials Marquee */}
         <div className="relative z-10 overflow-hidden py-4 mb-2">
           <div className="flex animate-marquee">
-            {[...testimonials, ...testimonials].map((testimonial, index) => (
+            {[...currentTestimonials, ...currentTestimonials].map((testimonial, index) => (
               <div
                 key={index}
                 className="flex-shrink-0 w-72 lg:w-80 mx-3 backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4"
@@ -206,7 +219,7 @@ const Welcome: React.FC = () => {
             onClick={() => navigate("/onboarding")}
             className="shadow-[0_0_30px_hsl(30_100%_70%/0.4)] hover:shadow-[0_0_40px_hsl(30_100%_70%/0.6)] transition-shadow duration-300"
           >
-            Começar Agora
+            {t.welcome.cta}
           </Button>
           
           <button
@@ -214,7 +227,7 @@ const Welcome: React.FC = () => {
             onClick={() => navigate("/auth?login=true")}
             className="w-full text-center text-slate-500 text-sm font-medium hover:text-slate-300 transition-colors mt-5"
           >
-            Já tem uma conta? <span className="text-coral underline underline-offset-2">Entrar</span>
+            {t.welcome.login} <span className="text-coral underline underline-offset-2">{t.welcome.loginLink}</span>
           </button>
         </div>
       </div>
