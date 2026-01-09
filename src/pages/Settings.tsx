@@ -5,12 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/hooks/useTheme";
 import { Moon, Ruler } from "lucide-react";
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme, isLoading: isThemeLoading } = useTheme();
   const [useMetric, setUseMetric] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,12 +22,11 @@ const Settings: React.FC = () => {
 
       const { data } = await supabase
         .from("profiles")
-        .select("dark_mode, use_metric")
+        .select("use_metric")
         .eq("user_id", user.id)
         .single();
 
       if (data) {
-        setDarkMode(data.dark_mode || false);
         setUseMetric(data.use_metric !== false);
       }
       setIsLoading(false);
@@ -59,14 +59,11 @@ const Settings: React.FC = () => {
   };
 
   const handleDarkModeChange = (checked: boolean) => {
-    setDarkMode(checked);
-    updateSetting("dark_mode", checked);
-    // Apply dark mode to document
-    if (checked) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    setTheme(checked ? "dark" : "light");
+    toast({
+      title: "Configuração salva",
+      description: "Suas preferências foram atualizadas.",
+    });
   };
 
   const handleMetricChange = (checked: boolean) => {
@@ -95,9 +92,9 @@ const Settings: React.FC = () => {
               </div>
               <Switch
                 id="dark-mode"
-                checked={darkMode}
+                checked={theme === "dark"}
                 onCheckedChange={handleDarkModeChange}
-                disabled={isLoading}
+                disabled={isThemeLoading}
               />
             </div>
           </div>

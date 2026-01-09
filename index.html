@@ -21,6 +21,16 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@NutriOneAI" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- Prevent flash of wrong theme by applying theme class immediately -->
+    <script>
+      (function() {
+        var theme = localStorage.getItem('nutrione-theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
 
   <body>
