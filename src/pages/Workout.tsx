@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { Sparkles, Dumbbell, RefreshCw } from "lucide-react";
@@ -52,7 +53,16 @@ type TabType = "treino" | "galeria";
 const Workout: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<TabType>("treino");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") === "gallery" ? "galeria" : "treino";
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+
+  // Clear the tab param after reading it to keep URL clean
+  useEffect(() => {
+    if (searchParams.get("tab")) {
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
   const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
