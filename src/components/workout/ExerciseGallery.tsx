@@ -82,7 +82,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   favoritos: [], // Will be populated dynamically
   peito: [
     { id: "chest-1", name: "Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_reto.mp4", thumbnailUrl: "/images/exercises/supino-reto.jpeg" },
-    { id: "chest-2", name: "Dumbbell Incline Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4" },
+    { id: "chest-2", name: "Dumbbell Incline Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4", thumbnailUrl: "/images/exercises/dumbbell-incline-bench-press.jpeg" },
     { id: "chest-3", name: "Supino Inclinado", muscleGroup: "Peito" },
     { id: "chest-4", name: "Crucifixo", muscleGroup: "Peito" },
     { id: "chest-5", name: "Flexão de Braço", muscleGroup: "Peito" },
