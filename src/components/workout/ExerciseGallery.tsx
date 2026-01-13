@@ -106,7 +106,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     { id: "shoulder-6", name: "Encolhimento", muscleGroup: "Ombros" },
   ],
   biceps: [
-    { id: "biceps-1", name: "Biceps Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_cabo.mp4" },
+    { id: "biceps-1", name: "Biceps Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_cabo.mp4", thumbnailUrl: "/images/exercises/biceps-curl.jpeg" },
     { id: "biceps-2", name: "Hammer Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_martelo.mp4" },
     { id: "biceps-3", name: "Rosca Direta", muscleGroup: "Bíceps" },
     { id: "biceps-4", name: "Rosca Alternada", muscleGroup: "Bíceps" },
