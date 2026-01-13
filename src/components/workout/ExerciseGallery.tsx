@@ -115,7 +115,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   ],
   triceps: [
     { id: "triceps-1", name: "Triceps Pushdown", muscleGroup: "Tríceps", videoUrl: "/videos/triceps_triangulo.mp4" },
-    { id: "triceps-2", name: "Seated Bench Extension", muscleGroup: "Tríceps", videoUrl: "/videos/triceps_frances.mp4" },
+    { id: "triceps-2", name: "Seated Bench Extension", muscleGroup: "Tríceps", videoUrl: "/videos/triceps_frances.mp4", thumbnailUrl: "/images/exercises/seated-bench-extension.jpeg" },
     { id: "triceps-3", name: "Tríceps Pulley", muscleGroup: "Tríceps" },
     { id: "triceps-4", name: "Tríceps Testa", muscleGroup: "Tríceps" },
     { id: "triceps-5", name: "Mergulho", muscleGroup: "Tríceps" },
