@@ -81,7 +81,7 @@ const VideoThumbnail: React.FC<{
 const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   favoritos: [], // Will be populated dynamically
   peito: [
-    { id: "chest-1", name: "Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_reto.mp4" },
+    { id: "chest-1", name: "Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_reto.mp4", thumbnailUrl: "/images/exercises/supino-reto.jpeg" },
     { id: "chest-2", name: "Dumbbell Incline Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4" },
     { id: "chest-3", name: "Supino Inclinado", muscleGroup: "Peito" },
     { id: "chest-4", name: "Crucifixo", muscleGroup: "Peito" },
@@ -360,8 +360,17 @@ const ExerciseGallery: React.FC = () => {
                 <HelpCircle className="w-4 h-4 text-white" />
               </button>
 
-              {/* Video thumbnail or placeholder with loading state */}
-              {exercise.videoUrl ? (
+              {/* Thumbnail image, video thumbnail or placeholder */}
+              {exercise.thumbnailUrl ? (
+                <img 
+                  src={exercise.thumbnailUrl} 
+                  alt={exercise.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : exercise.videoUrl ? (
                 <VideoThumbnail 
                   videoUrl={exercise.videoUrl} 
                   exerciseName={exercise.name} 
