@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
-import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight, Camera, Flame } from "lucide-react";
+import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight, Camera, Flame, TrendingUp, TrendingDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProfileData {
   first_name: string | null;
@@ -23,31 +24,51 @@ interface ProfileData {
   longest_streak: number | null;
 }
 
+interface WeightLog {
+  weight: number;
+  logged_at: string;
+}
+
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const fetchProfile = async () => {
-    if (!user) return;
+  // Fetch profile with React Query for real-time sync
+  const { data: profile, refetch: refetchProfile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("first_name, last_name, avatar_url, weight, height, target_weight, goal, starting_weight, created_at, active_days_count, current_streak, longest_streak")
+        .eq("user_id", user.id)
+        .single();
+      
+      if (error) throw error;
+      return data as ProfileData;
+    },
+    enabled: !!user,
+  });
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("first_name, last_name, avatar_url, weight, height, target_weight, goal, starting_weight, created_at, active_days_count, current_streak, longest_streak")
-      .eq("user_id", user.id)
-      .single();
-
-    if (!error && data) {
-      setProfile(data);
-    }
-  };
-
-  useEffect(() => {
-    fetchProfile();
-  }, [user]);
+  // Fetch weight logs to get the most recent weight
+  const { data: weightLogs } = useQuery({
+    queryKey: ["weight_logs", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("weight_logs")
+        .select("weight, logged_at")
+        .eq("user_id", user.id)
+        .order("logged_at", { ascending: true });
+      
+      if (error) throw error;
+      return (data || []) as WeightLog[];
+    },
+    enabled: !!user,
+  });
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -55,9 +76,7 @@ const Profile: React.FC = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Clear any local state
       localStorage.clear();
-      
       navigate("/auth", { replace: true });
     } catch (error: any) {
       toast({
@@ -76,20 +95,71 @@ const Profile: React.FC = () => {
 
   // Stats values
   const currentStreak = profile?.current_streak || 0;
-  const activeDays = profile?.active_days_count || 0;
 
-  const kgLost = profile?.starting_weight && profile?.weight
-    ? Math.max(0, profile.starting_weight - profile.weight)
-    : 0;
+  // Get starting weight (from profile) and most recent weight (from weight_logs or profile)
+  const startingWeight = profile?.starting_weight || profile?.weight || 0;
+  const mostRecentWeight = weightLogs && weightLogs.length > 0 
+    ? weightLogs[weightLogs.length - 1].weight 
+    : profile?.weight || 0;
+  const targetWeight = profile?.target_weight || 0;
+  const userGoal = profile?.goal || "weight-loss";
 
-  const goalProgress = profile?.starting_weight && profile?.weight && profile?.target_weight
-    ? (() => {
-        const totalToLose = profile.starting_weight - profile.target_weight;
-        if (totalToLose <= 0) return 100;
-        const lost = profile.starting_weight - profile.weight;
-        return Math.min(100, Math.max(0, Math.round((lost / totalToLose) * 100)));
-      })()
-    : 0;
+  // Calculate weight change (positive = gained, negative = lost)
+  const weightChange = mostRecentWeight - startingWeight;
+  const absoluteChange = Math.abs(weightChange);
+
+  // Determine if this is a gain or loss goal
+  const isLossGoal = userGoal === "weight-loss";
+  const isGainGoal = userGoal === "muscle" || userGoal === "fit";
+
+  // Format the weight progress display
+  const getWeightProgressDisplay = () => {
+    if (absoluteChange === 0) {
+      return { value: "0.0", label: isLossGoal ? "Perdidos" : "Ganhos", isPositive: true };
+    }
+
+    if (isLossGoal) {
+      // For weight loss: negative change is good (lost weight)
+      if (weightChange < 0) {
+        return { value: absoluteChange.toFixed(1), label: "Perdidos", isPositive: true };
+      } else {
+        return { value: `+${absoluteChange.toFixed(1)}`, label: "Ganhos", isPositive: false };
+      }
+    } else {
+      // For muscle gain: positive change is good (gained weight)
+      if (weightChange > 0) {
+        return { value: `+${absoluteChange.toFixed(1)}`, label: "Ganhos", isPositive: true };
+      } else {
+        return { value: absoluteChange.toFixed(1), label: "Perdidos", isPositive: false };
+      }
+    }
+  };
+
+  // Calculate goal progress percentage
+  const calculateGoalProgress = () => {
+    if (!startingWeight || !targetWeight || startingWeight === targetWeight) {
+      return 0;
+    }
+
+    const totalChangeNeeded = Math.abs(targetWeight - startingWeight);
+    
+    if (isLossGoal) {
+      // For weight loss: progress = weight lost / total to lose
+      const weightLost = startingWeight - mostRecentWeight;
+      if (weightLost <= 0) return 0;
+      const progress = (weightLost / totalChangeNeeded) * 100;
+      return Math.min(100, Math.max(0, Math.round(progress)));
+    } else {
+      // For muscle gain: progress = weight gained / total to gain
+      const weightGained = mostRecentWeight - startingWeight;
+      if (weightGained <= 0) return 0;
+      const progress = (weightGained / totalChangeNeeded) * 100;
+      return Math.min(100, Math.max(0, Math.round(progress)));
+    }
+  };
+
+  const weightProgressDisplay = getWeightProgressDisplay();
+  const goalProgress = calculateGoalProgress();
 
   const menuItems = [
     { icon: User, label: "Editar Perfil", action: () => setIsEditModalOpen(true) },
@@ -130,6 +200,7 @@ const Profile: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
+          {/* Streak Card */}
           <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-2xl p-4 text-center shadow-card border border-orange-500/20">
             <div className="flex items-center justify-center gap-1 mb-1">
               <Flame className="w-5 h-5 text-orange-500" />
@@ -137,11 +208,28 @@ const Profile: React.FC = () => {
             </div>
             <p className="text-xs text-muted-foreground">Sequência</p>
           </div>
-          <div className="bg-card rounded-2xl p-4 text-center shadow-card border border-border">
-            <p className="text-2xl font-bold text-primary">{kgLost.toFixed(1)}kg</p>
-            <p className="text-xs text-muted-foreground">Perdidos</p>
+
+          {/* Weight Progress Card */}
+          <div className={`rounded-2xl p-4 text-center shadow-card border ${
+            weightProgressDisplay.isPositive 
+              ? "bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20" 
+              : "bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/20"
+          }`}>
+            <div className="flex items-center justify-center gap-1 mb-1">
+              {isLossGoal ? (
+                <TrendingDown className={`w-4 h-4 ${weightProgressDisplay.isPositive ? "text-green-500" : "text-red-500"}`} />
+              ) : (
+                <TrendingUp className={`w-4 h-4 ${weightProgressDisplay.isPositive ? "text-green-500" : "text-red-500"}`} />
+              )}
+              <p className={`text-2xl font-bold ${weightProgressDisplay.isPositive ? "text-green-500" : "text-red-500"}`}>
+                {weightProgressDisplay.value}kg
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground">{weightProgressDisplay.label}</p>
           </div>
-          <div className="bg-card rounded-2xl p-4 text-center shadow-card border border-border">
+
+          {/* Goal Progress Card */}
+          <div className="bg-gradient-to-br from-primary/10 to-orange-500/10 rounded-2xl p-4 text-center shadow-card border border-primary/20">
             <p className="text-2xl font-bold text-primary">{goalProgress}%</p>
             <p className="text-xs text-muted-foreground">Meta</p>
           </div>
@@ -182,7 +270,7 @@ const Profile: React.FC = () => {
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         profile={profile}
-        onSave={fetchProfile}
+        onSave={() => refetchProfile()}
       />
 
       <BottomNavigation />
