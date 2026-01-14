@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import OpenAI from 'https://esm.sh/openai@4.20.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,29 +24,25 @@ serve(async (req) => {
       );
     }
 
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!lovableApiKey) {
-      console.error("LOVABLE_API_KEY not configured");
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openaiApiKey) {
+      console.error("OPENAI_API_KEY not configured");
       return new Response(
-        JSON.stringify({ error: "Lovable API key not configured" }),
+        JSON.stringify({ error: "OpenAI API key not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Analyzing food image with Gemini 2.5 Flash...");
+    const openai = new OpenAI({ apiKey: openaiApiKey });
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a nutrition expert AI. Analyze food images and provide accurate nutritional estimates.
+    console.log("Analyzing food image with OpenAI gpt-4o-mini...");
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a nutrition expert AI. Analyze food images and provide accurate nutritional estimates.
 Always respond with ONLY a valid JSON object in this exact format:
 {
   "title": "Name of the meal in Portuguese",
@@ -57,37 +54,27 @@ Always respond with ONLY a valid JSON object in this exact format:
   "items": ["ingredient 1 in Portuguese", "ingredient 2 in Portuguese", ...]
 }
 Do not include any text before or after the JSON. Only output the JSON object.`
-          },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Analyze this food image. Identify the meal name and estimate calories, protein, carbs, and fat. Determine if it\'s breakfast, lunch, dinner, or snack based on the food type.'
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`
-                }
+        },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: 'Analyze this food image. Identify the meal name and estimate calories, protein, carbs, and fat. Determine if it\'s breakfast, lunch, dinner, or snack based on the food type.'
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`
               }
-            ]
-          }
-        ],
-      }),
+            }
+          ]
+        }
+      ],
+      max_tokens: 1000,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Lovable AI API error:", response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: "Failed to analyze image", details: errorText }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const content = response.choices?.[0]?.message?.content;
 
     if (!content) {
       console.error("No content in AI response");
