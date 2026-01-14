@@ -23,6 +23,41 @@ interface ProfileData {
   workout_days: number;
 }
 
+// Get recommended training split based on frequency
+function getTrainingSplit(days: number): string {
+  switch (days) {
+    case 2:
+      return "Full Body (2x per week)";
+    case 3:
+      return "Full Body (3x) or Push/Pull/Legs (PPL)";
+    case 4:
+      return "Upper/Lower Split (2x each) or Push/Pull/Legs + Full Body";
+    case 5:
+      return "Push/Pull/Legs + Upper/Lower or 5-day Bro Split";
+    case 6:
+      return "Push/Pull/Legs x2 (each muscle group twice per week)";
+    case 7:
+      return "PPL x2 + Active Recovery or Daily specialized training";
+    default:
+      return "Full Body";
+  }
+}
+
+// Get day names for the schedule
+function getDayNames(numDays: number): string[] {
+  const allDays = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+  
+  if (numDays >= 7) return allDays;
+  
+  // Spread workout days evenly through the week
+  if (numDays === 6) return ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  if (numDays === 5) return ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
+  if (numDays === 4) return ["Segunda", "Terça", "Quinta", "Sexta"];
+  if (numDays === 3) return ["Segunda", "Quarta", "Sexta"];
+  if (numDays === 2) return ["Segunda", "Quinta"];
+  return ["Segunda"];
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -57,6 +92,14 @@ serve(async (req) => {
 
     const { profile } = await req.json() as { profile: ProfileData };
     
+    // Ensure workout_days is valid (default to 3 if not specified)
+    const workoutDays = Math.min(Math.max(profile.workout_days || 3, 1), 7);
+    const trainingSplit = getTrainingSplit(workoutDays);
+    const dayNames = getDayNames(workoutDays);
+    
+    console.log(`User selected ${workoutDays} workout days. Recommended split: ${trainingSplit}`);
+    console.log(`Days to generate: ${dayNames.join(", ")}`);
+    
     const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiApiKey) {
       console.error("OPENAI_API_KEY is not configured");
@@ -70,29 +113,52 @@ serve(async (req) => {
 
     const openai = new OpenAI({ apiKey: openaiApiKey });
 
-    // Optimized concise prompt for faster response
-    const systemPrompt = `You are a fitness AI. Return a compact JSON with nutrition_plan and workout_plan. Be concise.`;
+    // Strict prompt that enforces exact number of training days
+    const systemPrompt = `You are a professional personal trainer and nutritionist. Return ONLY valid JSON.
 
-    const userPrompt = `Create a fitness plan for:
-Gender: ${profile.gender || "not specified"}, Age: ${profile.age}, Height: ${profile.height}cm, Weight: ${profile.weight}kg, Target: ${profile.target_weight}kg
-Goal: ${profile.goal || "fitness"}, Activity: ${profile.activity_level || "moderate"}, Days: ${profile.workout_days}/week
-Focus: ${profile.body_zones?.join(", ") || "full body"}, Restrictions: ${profile.dietary_restrictions?.join(", ") || "none"}
+CRITICAL INSTRUCTION: You MUST generate EXACTLY ${workoutDays} workout sessions in weekly_schedule. Not more, not less. Exactly ${workoutDays} distinct training days.
 
-Return JSON:
+The days must be: ${dayNames.join(", ")}
+
+Recommended training split for ${workoutDays} days/week: ${trainingSplit}`;
+
+    const userPrompt = `Create a personalized fitness and nutrition plan:
+
+USER PROFILE:
+- Gender: ${profile.gender || "not specified"}
+- Age: ${profile.age} years
+- Height: ${profile.height} cm
+- Current Weight: ${profile.weight} kg
+- Target Weight: ${profile.target_weight} kg
+- Goal: ${profile.goal || "general fitness"}
+- Activity Level: ${profile.activity_level || "moderate"}
+- Body Zones to Focus: ${profile.body_zones?.join(", ") || "full body"}
+- Dietary Restrictions: ${profile.dietary_restrictions?.join(", ") || "none"}
+
+WORKOUT REQUIREMENTS:
+- MUST create EXACTLY ${workoutDays} workout sessions (no more, no less)
+- Days: ${dayNames.join(", ")}
+- Use training split: ${trainingSplit}
+- 4-5 exercises per session
+- Include sets, reps, and rest time
+
+Return this exact JSON structure:
 {
   "nutrition_plan": {
     "daily_calories": number,
     "macros": {"protein_g": number, "carbs_g": number, "fat_g": number},
-    "meals": [{"name": string, "time": string, "calories": number}],
-    "recommendations": [string, string]
+    "meals": [{"name": "string", "time": "HH:MM", "calories": number}],
+    "recommendations": ["tip1", "tip2"]
   },
   "workout_plan": {
-    "weekly_schedule": [{"day": string, "focus": string, "exercises": [{"name": string, "sets": number, "reps": string}]}],
-    "recommendations": [string, string]
+    "weekly_schedule": [
+      {"day": "${dayNames[0]}", "focus": "Muscle Group", "exercises": [{"name": "Exercise", "sets": 3, "reps": "10-12", "rest": "60s"}]}
+    ],
+    "recommendations": ["tip1", "tip2"]
   }
 }
 
-Keep meals to 4 per day, exercises to 4-5 per workout day. Be brief.`;
+REMEMBER: weekly_schedule MUST have exactly ${workoutDays} objects, one for each day: ${dayNames.join(", ")}`;
 
     console.log("Calling OpenAI gpt-4o-mini...");
     const startTime = Date.now();
@@ -106,13 +172,12 @@ Keep meals to 4 per day, exercises to 4-5 per workout day. Be brief.`;
           { role: "user", content: userPrompt },
         ],
         response_format: { type: "json_object" },
-        max_tokens: 2000,
+        max_tokens: 2500,
         temperature: 0.7,
       });
     } catch (openaiError: any) {
       console.error("OpenAI API error:", JSON.stringify(openaiError, null, 2));
       
-      // Extract detailed error info
       const status = openaiError?.status || openaiError?.response?.status || 500;
       const errorMessage = openaiError?.error?.message || openaiError?.message || "Unknown OpenAI error";
       const errorCode = openaiError?.error?.code || openaiError?.code || "unknown";
@@ -167,13 +232,28 @@ Keep meals to 4 per day, exercises to 4-5 per workout day. Be brief.`;
       );
     }
 
-    console.log("Plan generated successfully");
+    // Validate workout plan has correct number of days
+    const generatedDays = plan.workout_plan?.weekly_schedule?.length || 0;
+    console.log(`Generated ${generatedDays} workout days (expected ${workoutDays})`);
+    
+    if (generatedDays !== workoutDays) {
+      console.warn(`Day count mismatch: got ${generatedDays}, expected ${workoutDays}`);
+      // If AI didn't generate enough days, we still return what we got
+      // The frontend will display whatever is in weekly_schedule
+    }
+
+    console.log("Plan generated successfully with", generatedDays, "workout days");
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         nutrition_plan: plan.nutrition_plan,
-        workout_plan: plan.workout_plan
+        workout_plan: plan.workout_plan,
+        meta: {
+          requested_days: workoutDays,
+          generated_days: generatedDays,
+          training_split: trainingSplit
+        }
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
