@@ -53,7 +53,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         ) : (
           <Icon className={cn(
             "w-6 h-6 transition-colors",
-            selected ? "text-white" : "text-foreground"
+            selected ? "text-white" : "text-gray-900"
           )} />
         )}
       </div>
