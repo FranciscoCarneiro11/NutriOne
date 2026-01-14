@@ -508,9 +508,9 @@ const Dashboard: React.FC = () => {
         {profile?.weight && profile?.target_weight && (
           <p className="text-sm text-muted-foreground mt-1 mb-4">
             {profile.target_weight > profile.weight
-              ? `Faltam apenas ${profile.target_weight - profile.weight}kg para atingires o teu objetivo.`
+              ? `Faltam apenas ${(profile.target_weight - profile.weight).toFixed(1)}kg para atingires o teu objetivo.`
               : profile.target_weight < profile.weight
-              ? `Faltam apenas ${profile.weight - profile.target_weight}kg para atingires o teu objetivo.`
+              ? `Faltam apenas ${(profile.weight - profile.target_weight).toFixed(1)}kg para atingires o teu objetivo.`
               : "Parabéns! Atingiste o teu objetivo de peso!"
             }
           </p>
