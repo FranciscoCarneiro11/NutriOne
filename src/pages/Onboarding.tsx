@@ -73,6 +73,8 @@ const Onboarding: React.FC = () => {
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
   const [isAnimating, setIsAnimating] = useState(false);
   const [showAILoading, setShowAILoading] = useState(false);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
   const [generatedPlan, setGeneratedPlan] = useState<{ nutrition_plan: any; workout_plan: any } | null>(null);
 
   const [data, setData] = useState<OnboardingData>({
@@ -114,6 +116,8 @@ const Onboarding: React.FC = () => {
     } else {
       console.log("Onboarding complete:", data);
       setShowAILoading(true);
+      setIsGeneratingPlan(true);
+      setPlanError(null);
       
       // Generate plan using edge function
       try {
@@ -133,27 +137,24 @@ const Onboarding: React.FC = () => {
           workout_days: data.workoutDays,
         };
 
+        // Store profile in localStorage immediately (in case API fails)
+        localStorage.setItem("userProfile", JSON.stringify(profileData));
+
         const { data: planData, error } = await supabase.functions.invoke("generate-plan", {
           body: { profile: profileData },
         });
 
         if (error) {
           console.error("Error generating plan:", error);
-          toast({
-            title: "Erro ao gerar plano",
-            description: "Não foi possível gerar seu plano personalizado. Tente novamente.",
-            variant: "destructive",
-          });
+          setPlanError(error.message || "Não foi possível gerar seu plano personalizado.");
+          setIsGeneratingPlan(false);
           return;
         }
 
         if (planData?.error) {
           console.error("Plan generation error:", planData.error);
-          toast({
-            title: "Erro ao gerar plano",
-            description: planData.error,
-            variant: "destructive",
-          });
+          setPlanError(planData.error);
+          setIsGeneratingPlan(false);
           return;
         }
 
@@ -162,25 +163,22 @@ const Onboarding: React.FC = () => {
           workout_plan: planData.workout_plan,
         });
 
-        // Store profile and plan in localStorage for now (until auth is added)
-        localStorage.setItem("userProfile", JSON.stringify(profileData));
         localStorage.setItem("nutritionPlan", JSON.stringify(planData.nutrition_plan));
         localStorage.setItem("workoutPlan", JSON.stringify(planData.workout_plan));
 
         console.log("Plan generated successfully:", planData);
-      } catch (err) {
+        setIsGeneratingPlan(false);
+      } catch (err: any) {
         console.error("Failed to generate plan:", err);
-        toast({
-          title: "Erro",
-          description: "Ocorreu um erro ao processar seus dados.",
-          variant: "destructive",
-        });
+        setPlanError(err.message || "Ocorreu um erro ao processar seus dados.");
+        setIsGeneratingPlan(false);
       }
     }
   };
 
   const handleAILoadingComplete = () => {
-    // Redirect to auth page to capture user before showing dashboard
+    // Redirect to auth page even if plan generation failed
+    // User can regenerate plan later from dashboard
     navigate("/auth?trigger=save_plan", { state: { firstLoad: true, plan: generatedPlan } });
   };
 
@@ -482,7 +480,14 @@ const Onboarding: React.FC = () => {
 
   // Show Smart Loading Screen
   if (showAILoading) {
-    return <SmartLoadingScreen onComplete={handleAILoadingComplete} />;
+    return (
+      <SmartLoadingScreen 
+        onComplete={handleAILoadingComplete}
+        isLoading={isGeneratingPlan}
+        hasError={!!planError}
+        errorMessage={planError || undefined}
+      />
+    );
   }
 
   // Check if we're on the final step for dark theme
