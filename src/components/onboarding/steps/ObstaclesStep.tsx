@@ -68,7 +68,7 @@ export const ObstaclesStep: React.FC<ObstaclesStepProps> = ({
                   isSelected ? "bg-white/20" : "bg-white"
                 )}
               >
-                <span className={isSelected ? "text-white" : "text-foreground"}>
+                <span className={isSelected ? "text-white" : "text-gray-900"}>
                   {obstacle.icon}
                 </span>
               </div>

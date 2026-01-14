@@ -38,7 +38,7 @@ export const ProfessionalHelpStep: React.FC<ProfessionalHelpStepProps> = ({
             <Check
               className={cn(
                 "w-6 h-6",
-                value === true ? "text-white" : "text-foreground"
+                value === true ? "text-white" : "text-gray-900"
               )}
             />
           </div>
@@ -63,7 +63,7 @@ export const ProfessionalHelpStep: React.FC<ProfessionalHelpStepProps> = ({
             <X
               className={cn(
                 "w-6 h-6",
-                value === false ? "text-white" : "text-foreground"
+                value === false ? "text-white" : "text-gray-900"
               )}
             />
           </div>

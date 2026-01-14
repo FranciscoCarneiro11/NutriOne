@@ -59,7 +59,7 @@ export const ActivityLevelCard: React.FC<ActivityLevelCardProps> = ({
       )}>
         <Icon className={cn(
           "w-6 h-6",
-          selected ? "text-white" : "text-foreground"
+          selected ? "text-white" : "text-gray-900"
         )} />
       </div>
       
