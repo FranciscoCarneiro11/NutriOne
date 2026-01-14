@@ -113,52 +113,21 @@ serve(async (req) => {
 
     const openai = new OpenAI({ apiKey: openaiApiKey });
 
-    // Strict prompt that enforces exact number of training days
-    const systemPrompt = `You are a professional personal trainer and nutritionist. Return ONLY valid JSON.
+    // Optimized prompt for faster generation
+    const systemPrompt = `You are a fitness AI. Return ONLY valid JSON. Generate EXACTLY ${workoutDays} workout sessions for days: ${dayNames.join(", ")}. Split: ${trainingSplit}`;
 
-CRITICAL INSTRUCTION: You MUST generate EXACTLY ${workoutDays} workout sessions in weekly_schedule. Not more, not less. Exactly ${workoutDays} distinct training days.
+    const userPrompt = `Create fitness plan:
 
-The days must be: ${dayNames.join(", ")}
+PROFILE: ${profile.gender || "unspecified"}, ${profile.age}yo, ${profile.height}cm, ${profile.weight}kg→${profile.target_weight}kg, Goal: ${profile.goal || "fitness"}, Activity: ${profile.activity_level || "moderate"}
+Focus: ${profile.body_zones?.join(", ") || "full body"}, Diet: ${profile.dietary_restrictions?.join(", ") || "none"}
 
-Recommended training split for ${workoutDays} days/week: ${trainingSplit}`;
+REQUIREMENTS:
+- EXACTLY ${workoutDays} workout days: ${dayNames.join(", ")}
+- 4-5 exercises per day
+- Split: ${trainingSplit}
 
-    const userPrompt = `Create a personalized fitness and nutrition plan:
-
-USER PROFILE:
-- Gender: ${profile.gender || "not specified"}
-- Age: ${profile.age} years
-- Height: ${profile.height} cm
-- Current Weight: ${profile.weight} kg
-- Target Weight: ${profile.target_weight} kg
-- Goal: ${profile.goal || "general fitness"}
-- Activity Level: ${profile.activity_level || "moderate"}
-- Body Zones to Focus: ${profile.body_zones?.join(", ") || "full body"}
-- Dietary Restrictions: ${profile.dietary_restrictions?.join(", ") || "none"}
-
-WORKOUT REQUIREMENTS:
-- MUST create EXACTLY ${workoutDays} workout sessions (no more, no less)
-- Days: ${dayNames.join(", ")}
-- Use training split: ${trainingSplit}
-- 4-5 exercises per session
-- Include sets, reps, and rest time
-
-Return this exact JSON structure:
-{
-  "nutrition_plan": {
-    "daily_calories": number,
-    "macros": {"protein_g": number, "carbs_g": number, "fat_g": number},
-    "meals": [{"name": "string", "time": "HH:MM", "calories": number}],
-    "recommendations": ["tip1", "tip2"]
-  },
-  "workout_plan": {
-    "weekly_schedule": [
-      {"day": "${dayNames[0]}", "focus": "Muscle Group", "exercises": [{"name": "Exercise", "sets": 3, "reps": "10-12", "rest": "60s"}]}
-    ],
-    "recommendations": ["tip1", "tip2"]
-  }
-}
-
-REMEMBER: weekly_schedule MUST have exactly ${workoutDays} objects, one for each day: ${dayNames.join(", ")}`;
+Return JSON:
+{"nutrition_plan":{"daily_calories":number,"macros":{"protein_g":number,"carbs_g":number,"fat_g":number},"meals":[{"name":"string","time":"HH:MM","calories":number}],"recommendations":["tip1"]},"workout_plan":{"weekly_schedule":[{"day":"${dayNames[0]}","focus":"Group","exercises":[{"name":"Exercise","sets":3,"reps":"10-12","rest":"60s"}]}],"recommendations":["tip1"]}}`;
 
     console.log("Calling OpenAI gpt-4o-mini...");
     const startTime = Date.now();

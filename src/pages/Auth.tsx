@@ -26,9 +26,8 @@ const Auth: React.FC = () => {
 
   useEffect(() => {
     const profile = localStorage.getItem("userProfile");
-    const nutritionPlan = localStorage.getItem("nutritionPlan");
-    const workoutPlan = localStorage.getItem("workoutPlan");
-    const hasPending = !!(profile && nutritionPlan && workoutPlan);
+    const pendingGeneration = localStorage.getItem("pendingPlanGeneration");
+    const hasPending = !!(profile && pendingGeneration);
     setHasPendingPlan(hasPending);
     
     // Default to login mode if coming from Welcome page OR if no pending plan
@@ -59,16 +58,13 @@ const Auth: React.FC = () => {
 
   const handlePostAuth = async (userId: string) => {
     const profileData = localStorage.getItem("userProfile");
-    const nutritionPlan = localStorage.getItem("nutritionPlan");
-    const workoutPlan = localStorage.getItem("workoutPlan");
+    const pendingGeneration = localStorage.getItem("pendingPlanGeneration");
 
-    if (profileData && nutritionPlan && workoutPlan) {
+    if (profileData && pendingGeneration) {
       try {
         const profile = JSON.parse(profileData);
-        const nutrition = JSON.parse(nutritionPlan);
-        const workout = JSON.parse(workoutPlan);
 
-        // Insert profile data into Supabase
+        // 1. Save profile data FIRST (without plans)
         const { error: profileError } = await supabase
           .from("profiles")
           .upsert({
@@ -78,6 +74,7 @@ const Auth: React.FC = () => {
             age: profile.age,
             height: profile.height,
             weight: profile.weight,
+            starting_weight: profile.starting_weight || profile.weight,
             target_weight: profile.target_weight,
             professional_help: profile.professional_help,
             goal: profile.goal,
@@ -86,8 +83,6 @@ const Auth: React.FC = () => {
             activity_level: profile.activity_level,
             dietary_restrictions: profile.dietary_restrictions,
             workout_days: profile.workout_days,
-            nutrition_plan: nutrition,
-            workout_plan: workout,
           }, { onConflict: 'user_id' });
 
         if (profileError) {
@@ -98,22 +93,78 @@ const Auth: React.FC = () => {
             variant: "destructive",
           });
         } else {
-          // Clear localStorage after successful save
+          // 2. Save initial weight to weight_logs
+          const today = new Date().toISOString().split('T')[0];
+          const { error: weightError } = await supabase
+            .from("weight_logs")
+            .upsert({
+              user_id: userId,
+              weight: profile.weight,
+              logged_at: today,
+            }, { onConflict: 'user_id,logged_at', ignoreDuplicates: true });
+          
+          if (weightError) {
+            console.warn("Could not log initial weight:", weightError.message);
+          }
+
+          // 3. Clear localStorage and mark plan generation as pending
           localStorage.removeItem("userProfile");
-          localStorage.removeItem("nutritionPlan");
-          localStorage.removeItem("workoutPlan");
+          localStorage.removeItem("pendingPlanGeneration");
+          localStorage.setItem("planGenerationInProgress", "true");
           
           toast({
-            title: "Bem-vindo!",
-            description: "Seu plano personalizado foi salvo com sucesso.",
+            title: "Conta criada!",
+            description: "Gerando seu plano personalizado em segundo plano...",
           });
+
+          // 4. Navigate to dashboard IMMEDIATELY (don't wait for AI)
+          navigate("/dashboard", { replace: true });
+
+          // 5. Trigger background plan generation (fire and forget)
+          triggerBackgroundPlanGeneration(profile);
         }
       } catch (err) {
         console.error("Error processing post-auth:", err);
+        navigate("/dashboard", { replace: true });
       }
+    } else {
+      navigate("/dashboard", { replace: true });
     }
+  };
 
-    navigate("/dashboard", { replace: true });
+  const triggerBackgroundPlanGeneration = async (profile: any) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-plan", {
+        body: { profile },
+      });
+
+      if (error || data?.error) {
+        console.error("Background plan generation failed:", error || data?.error);
+        localStorage.setItem("planGenerationFailed", "true");
+        localStorage.removeItem("planGenerationInProgress");
+        return;
+      }
+
+      // Get current user and save plans to profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && data?.nutrition_plan && data?.workout_plan) {
+        await supabase
+          .from("profiles")
+          .update({
+            nutrition_plan: data.nutrition_plan,
+            workout_plan: data.workout_plan,
+          })
+          .eq("user_id", user.id);
+      }
+
+      localStorage.removeItem("planGenerationInProgress");
+      localStorage.removeItem("planGenerationFailed");
+      console.log("Background plan generation completed successfully");
+    } catch (err) {
+      console.error("Background plan generation error:", err);
+      localStorage.setItem("planGenerationFailed", "true");
+      localStorage.removeItem("planGenerationInProgress");
+    }
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {

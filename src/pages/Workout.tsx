@@ -67,6 +67,8 @@ const Workout: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [selectedDay, setSelectedDay] = useState<DaySchedule | null>(null);
+  const [isBackgroundGenerating, setIsBackgroundGenerating] = useState(false);
+  const [hasPlanError, setHasPlanError] = useState(false);
 
   const today = new Date();
   const dayOfWeek = today.getDay();
@@ -74,11 +76,26 @@ const Workout: React.FC = () => {
 
   const weekDayNames = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
+  // Check for background generation status
+  useEffect(() => {
+    const checkBackgroundGeneration = () => {
+      const inProgress = localStorage.getItem("planGenerationInProgress") === "true";
+      const failed = localStorage.getItem("planGenerationFailed") === "true";
+      setIsBackgroundGenerating(inProgress);
+      setHasPlanError(failed);
+    };
+
+    checkBackgroundGeneration();
+    // Poll for updates while generating
+    const interval = setInterval(checkBackgroundGeneration, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (user) {
       fetchWorkoutPlan();
     }
-  }, [user]);
+  }, [user, isBackgroundGenerating]);
 
   const fetchWorkoutPlan = async () => {
     try {
@@ -93,6 +110,8 @@ const Workout: React.FC = () => {
       
       if (data?.workout_plan) {
         setWorkoutPlan(data.workout_plan as unknown as WorkoutPlan);
+        setHasPlanError(false);
+        localStorage.removeItem("planGenerationFailed");
       }
     } catch (error) {
       console.error("Error fetching workout plan:", error);
@@ -104,6 +123,7 @@ const Workout: React.FC = () => {
   const generateWorkoutPlan = async () => {
     try {
       setGenerating(true);
+      setHasPlanError(false);
       
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -119,6 +139,10 @@ const Workout: React.FC = () => {
 
       if (error) throw error;
 
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
       if (data?.workout_plan) {
         const { error: updateError } = await supabase
           .from("profiles")
@@ -131,16 +155,18 @@ const Workout: React.FC = () => {
         if (updateError) throw updateError;
 
         setWorkoutPlan(data.workout_plan);
+        localStorage.removeItem("planGenerationFailed");
         toast({
           title: "Plano criado!",
           description: "Seu plano de treino personalizado foi gerado com sucesso.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating workout plan:", error);
+      setHasPlanError(true);
       toast({
         title: "Erro",
-        description: "Não foi possível gerar o plano de treino. Tente novamente.",
+        description: error?.message || "Não foi possível gerar o plano de treino. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -266,19 +292,41 @@ const Workout: React.FC = () => {
         {activeTab === "treino" ? (
           // "Seu Treino" Content
           <>
-            {!workoutPlan ? (
-              // No workout plan - show generation prompt
+            {isBackgroundGenerating ? (
+              // Background generation in progress
+              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                  <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+                
+                <h2 className="text-2xl font-bold text-foreground mb-3">
+                  Gerando seu plano personalizado...
+                </h2>
+                
+                <p className="text-muted-foreground mb-4 max-w-sm">
+                  Nosso IA está criando um plano de treino sob medida para você. Isso pode levar alguns segundos.
+                </p>
+
+                <p className="text-sm text-muted-foreground animate-pulse">
+                  Aguarde enquanto processamos seus dados...
+                </p>
+              </div>
+            ) : !workoutPlan ? (
+              // No workout plan - show generation prompt (with retry if failed)
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                   <Dumbbell className="w-12 h-12 text-primary" />
                 </div>
                 
                 <h2 className="text-2xl font-bold text-foreground mb-3">
-                  Crie Seu Treino Personalizado
+                  {hasPlanError ? "Erro ao gerar plano" : "Crie Seu Treino Personalizado"}
                 </h2>
                 
                 <p className="text-muted-foreground mb-8 max-w-sm">
-                  Nossa IA vai criar um plano de treino personalizado baseado nas suas informações, objetivos e preferências.
+                  {hasPlanError 
+                    ? "Houve um problema ao gerar seu plano. Clique abaixo para tentar novamente."
+                    : "Nossa IA vai criar um plano de treino personalizado baseado nas suas informações, objetivos e preferências."
+                  }
                 </p>
 
                 <Button
@@ -291,6 +339,11 @@ const Workout: React.FC = () => {
                     <>
                       <RefreshCw className="w-5 h-5 animate-spin" />
                       Gerando plano...
+                    </>
+                  ) : hasPlanError ? (
+                    <>
+                      <RefreshCw className="w-5 h-5" />
+                      Tentar novamente
                     </>
                   ) : (
                     <>

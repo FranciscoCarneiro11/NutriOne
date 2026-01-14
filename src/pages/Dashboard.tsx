@@ -133,6 +133,29 @@ const Dashboard: React.FC = () => {
   const [showStreakLostModal, setShowStreakLostModal] = useState(false);
   const [lostStreak, setLostStreak] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
+  const [isBackgroundGenerating, setIsBackgroundGenerating] = useState(false);
+
+  // Poll for background generation completion
+  useEffect(() => {
+    const checkBackgroundGeneration = () => {
+      const inProgress = localStorage.getItem("planGenerationInProgress") === "true";
+      setIsBackgroundGenerating(inProgress);
+      
+      // If generation just completed, refresh data
+      if (!inProgress && isBackgroundGenerating) {
+        queryClient.invalidateQueries({ queryKey: ["meals"] });
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+        toast({
+          title: "Plano gerado!",
+          description: "Seu plano personalizado está pronto.",
+        });
+      }
+    };
+
+    checkBackgroundGeneration();
+    const interval = setInterval(checkBackgroundGeneration, 2000);
+    return () => clearInterval(interval);
+  }, [isBackgroundGenerating, queryClient]);
 
   const todayDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 

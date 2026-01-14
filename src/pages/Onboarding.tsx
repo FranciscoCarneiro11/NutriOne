@@ -22,11 +22,9 @@ import {
   MultiplierStep,
   ObstaclesStep,
   SocialProofStep,
-  SmartLoadingScreen,
   type Obstacle,
 } from "@/components/onboarding/steps";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 type Goal = "weight-loss" | "muscle" | "fit" | "flexibility";
@@ -72,10 +70,6 @@ const Onboarding: React.FC = () => {
   const [step, setStep] = useState(1);
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
   const [isAnimating, setIsAnimating] = useState(false);
-  const [showAILoading, setShowAILoading] = useState(false);
-  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
-  const [planError, setPlanError] = useState<string | null>(null);
-  const [generatedPlan, setGeneratedPlan] = useState<{ nutrition_plan: any; workout_plan: any } | null>(null);
 
   const [data, setData] = useState<OnboardingData>({
     previousExperience: null,
@@ -115,71 +109,33 @@ const Onboarding: React.FC = () => {
       animateTransition("left", () => setStep(step + 1));
     } else {
       console.log("Onboarding complete:", data);
-      setShowAILoading(true);
-      setIsGeneratingPlan(true);
-      setPlanError(null);
       
-      // Generate plan using edge function
-      try {
-        const profileData = {
-          previous_experience: data.previousExperience,
-          gender: data.gender,
-          age: data.age,
-          height: data.height,
-          weight: data.weight,
-          target_weight: data.targetWeight,
-          professional_help: data.professionalHelp,
-          goal: data.goal,
-          obstacles: data.obstacles,
-          body_zones: data.bodyZones,
-          activity_level: data.activityLevel,
-          dietary_restrictions: data.dietaryRestrictions,
-          workout_days: data.workoutDays,
-        };
+      // Store quiz data in localStorage and redirect to auth
+      // AI generation will happen AFTER account creation as background task
+      const profileData = {
+        previous_experience: data.previousExperience,
+        gender: data.gender,
+        age: data.age,
+        height: data.height,
+        weight: data.weight,
+        starting_weight: data.weight, // Save starting weight
+        target_weight: data.targetWeight,
+        professional_help: data.professionalHelp,
+        goal: data.goal,
+        obstacles: data.obstacles,
+        body_zones: data.bodyZones,
+        activity_level: data.activityLevel,
+        dietary_restrictions: data.dietaryRestrictions,
+        workout_days: data.workoutDays,
+      };
 
-        // Store profile in localStorage immediately (in case API fails)
-        localStorage.setItem("userProfile", JSON.stringify(profileData));
-
-        const { data: planData, error } = await supabase.functions.invoke("generate-plan", {
-          body: { profile: profileData },
-        });
-
-        if (error) {
-          console.error("Error generating plan:", error);
-          setPlanError(error.message || "Não foi possível gerar seu plano personalizado.");
-          setIsGeneratingPlan(false);
-          return;
-        }
-
-        if (planData?.error) {
-          console.error("Plan generation error:", planData.error);
-          setPlanError(planData.error);
-          setIsGeneratingPlan(false);
-          return;
-        }
-
-        setGeneratedPlan({
-          nutrition_plan: planData.nutrition_plan,
-          workout_plan: planData.workout_plan,
-        });
-
-        localStorage.setItem("nutritionPlan", JSON.stringify(planData.nutrition_plan));
-        localStorage.setItem("workoutPlan", JSON.stringify(planData.workout_plan));
-
-        console.log("Plan generated successfully:", planData);
-        setIsGeneratingPlan(false);
-      } catch (err: any) {
-        console.error("Failed to generate plan:", err);
-        setPlanError(err.message || "Ocorreu um erro ao processar seus dados.");
-        setIsGeneratingPlan(false);
-      }
+      // Store profile in localStorage - plan will be generated after auth
+      localStorage.setItem("userProfile", JSON.stringify(profileData));
+      localStorage.setItem("pendingPlanGeneration", "true");
+      
+      // Redirect directly to auth page without waiting for AI
+      navigate("/auth?trigger=create_account");
     }
-  };
-
-  const handleAILoadingComplete = () => {
-    // Redirect to auth page even if plan generation failed
-    // User can regenerate plan later from dashboard
-    navigate("/auth?trigger=save_plan", { state: { firstLoad: true, plan: generatedPlan } });
   };
 
   const canProceed = () => {
@@ -477,18 +433,6 @@ const Onboarding: React.FC = () => {
         return null;
     }
   };
-
-  // Show Smart Loading Screen
-  if (showAILoading) {
-    return (
-      <SmartLoadingScreen 
-        onComplete={handleAILoadingComplete}
-        isLoading={isGeneratingPlan}
-        hasError={!!planError}
-        errorMessage={planError || undefined}
-      />
-    );
-  }
 
   // Check if we're on the final step for dark theme
   const isFinalStep = step === totalSteps;

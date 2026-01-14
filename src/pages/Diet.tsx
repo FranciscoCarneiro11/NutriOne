@@ -303,9 +303,32 @@ const Diet: React.FC = () => {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [mealPrefillData, setMealPrefillData] = useState<MealPrefillData | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [isBackgroundGenerating, setIsBackgroundGenerating] = useState(false);
+  const [hasPlanError, setHasPlanError] = useState(false);
 
   const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
   const [selectedDate, setSelectedDate] = useState(todayStr);
+
+  // Check for background generation status
+  useEffect(() => {
+    const checkBackgroundGeneration = () => {
+      const inProgress = localStorage.getItem("planGenerationInProgress") === "true";
+      const failed = localStorage.getItem("planGenerationFailed") === "true";
+      setIsBackgroundGenerating(inProgress);
+      setHasPlanError(failed);
+    };
+
+    checkBackgroundGeneration();
+    // Poll for updates while generating
+    const interval = setInterval(() => {
+      checkBackgroundGeneration();
+      // Refetch meals if background generation completed
+      if (!isBackgroundGenerating) {
+        queryClient.invalidateQueries({ queryKey: ["meals"] });
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isBackgroundGenerating, queryClient]);
 
   // Generate dynamic week days based on current date
   const weekDays = useMemo<WeekDay[]>(() => {
@@ -597,20 +620,58 @@ const Diet: React.FC = () => {
           )}
         </div>
         
-        {isLoading ? (
+        {isBackgroundGenerating ? (
+          // Background generation in progress
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Gerando seu plano alimentar...</h3>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Nosso IA está criando refeições personalizadas para você. Isso pode levar alguns segundos.
+            </p>
+          </div>
+        ) : isLoading ? (
           <div className="py-8 text-center text-muted-foreground">
             Carregando...
           </div>
         ) : meals.length === 0 ? (
-          <div className="py-8 text-center bg-muted/30 rounded-2xl">
-            <p className="text-muted-foreground">Nenhuma refeição registada</p>
-            {isViewingToday && (
-              <button 
-                className="text-primary text-sm font-medium mt-2"
-                onClick={() => setIsAddMealOpen(true)}
-              >
-                Adicionar sua primeira refeição
-              </button>
+          <div className="py-8 text-center bg-muted/30 rounded-2xl px-4">
+            {hasPlanError ? (
+              <>
+                <p className="text-muted-foreground mb-3">Erro ao gerar seu plano alimentar</p>
+                <Button 
+                  onClick={handleGenerateMealPlan}
+                  disabled={isGeneratingPlan}
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                >
+                  {isGeneratingPlan ? (
+                    <>
+                      <Sparkles className="w-4 h-4 animate-spin" />
+                      Gerando...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Tentar novamente
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-muted-foreground">Nenhuma refeição registada</p>
+                {isViewingToday && (
+                  <button 
+                    className="text-primary text-sm font-medium mt-2"
+                    onClick={() => setIsAddMealOpen(true)}
+                  >
+                    Adicionar sua primeira refeição
+                  </button>
+                )}
+              </>
             )}
           </div>
         ) : (
