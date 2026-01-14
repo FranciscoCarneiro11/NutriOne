@@ -28,14 +28,15 @@ serve(async (req) => {
     if (!openaiApiKey) {
       console.error("OPENAI_API_KEY is not configured");
       return new Response(
-        JSON.stringify({ error: "AI service not configured" }),
+        JSON.stringify({ error: "AI service not configured. Please add OPENAI_API_KEY." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    console.log("OpenAI API key found, length:", openaiApiKey.length);
+
     const openai = new OpenAI({ apiKey: openaiApiKey });
 
-    // Get user from authorization header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -59,7 +60,8 @@ serve(async (req) => {
       );
     }
 
-    // Fetch user profile
+    console.log("Authenticated user:", user.id);
+
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("age, gender, weight, height, target_weight, activity_level, goal, dietary_restrictions")
@@ -76,7 +78,7 @@ serve(async (req) => {
 
     const { daysToGenerate = 7 } = await req.json().catch(() => ({}));
 
-    // Calculate target calories based on profile
+    // Calculate target calories
     const bmr = profile.gender === "male"
       ? 10 * profile.weight + 6.25 * profile.height - 5 * profile.age + 5
       : 10 * profile.weight + 6.25 * profile.height - 5 * profile.age - 161;
@@ -95,42 +97,20 @@ serve(async (req) => {
 
     const restrictions = profile.dietary_restrictions?.join(", ") || "nenhuma";
 
-    const systemPrompt = `Você é um nutricionista especializado em criar planos alimentares personalizados. 
-Gere planos de refeições saudáveis, variados e práticos para a cultura brasileira.
-Sempre retorne APENAS um JSON válido, sem markdown ou texto adicional.`;
+    // Optimized concise prompt
+    const systemPrompt = `Você é um nutricionista brasileiro. Retorne APENAS JSON válido, sem markdown.`;
 
-    const userPrompt = `Crie um plano alimentar para ${daysToGenerate} dias para uma pessoa com as seguintes características:
-- Idade: ${profile.age} anos
-- Gênero: ${profile.gender === "male" ? "masculino" : "feminino"}
-- Peso atual: ${profile.weight}kg
-- Altura: ${profile.height}cm
-- Peso alvo: ${profile.target_weight || profile.weight}kg
-- Nível de atividade: ${profile.activity_level}
-- Objetivo: ${profile.goal === "weight-loss" ? "perda de peso" : profile.goal === "muscle" ? "ganho muscular" : "manutenção"}
-- Restrições alimentares: ${restrictions}
-- Calorias diárias alvo: ${targetCalories}kcal
+    const userPrompt = `Crie ${daysToGenerate} dias de refeições (${targetCalories}kcal/dia).
+Perfil: ${profile.gender === "male" ? "M" : "F"}, ${profile.age}a, ${profile.weight}kg, ${profile.goal === "weight-loss" ? "emagrecer" : profile.goal === "muscle" ? "ganhar massa" : "manter"}
+Restrições: ${restrictions}
 
-Retorne APENAS um JSON no seguinte formato (sem markdown):
-{
-  "meals": [
-    {
-      "day": 1,
-      "meal_type": "breakfast",
-      "title": "Nome da refeição",
-      "time": "07:30",
-      "calories": 400,
-      "protein": 25,
-      "carbs": 45,
-      "fat": 12,
-      "items": ["item1", "item2", "item3"]
-    }
-  ]
-}
+JSON formato:
+{"meals":[{"day":1,"meal_type":"breakfast","title":"Nome","time":"07:30","calories":400,"protein":25,"carbs":45,"fat":12,"items":["item1","item2"]}]}
 
-Inclua 4 refeições por dia: café da manhã (breakfast), almoço (lunch), jantar (dinner) e lanche (snack).
-Varie os pratos entre os dias. Use ingredientes comuns no Brasil.`;
+4 refeições/dia: breakfast, lunch, dinner, snack. Ingredientes brasileiros. Seja conciso.`;
 
-    console.log("Calling OpenAI gpt-4o-mini for meal plan generation...");
+    console.log("Calling OpenAI gpt-4o-mini for meal plan...");
+    const startTime = Date.now();
 
     let response;
     try {
@@ -140,44 +120,63 @@ Varie os pratos entre os dias. Use ingredientes comuns no Brasil.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 4000,
+        max_tokens: 3000,
+        temperature: 0.7,
       });
     } catch (openaiError: any) {
-      console.error("OpenAI API error:", openaiError);
-      const status = openaiError?.status || 500;
-      const message = openaiError?.message || "OpenAI API error";
-      const code = openaiError?.code || "unknown";
+      console.error("OpenAI API error:", JSON.stringify(openaiError, null, 2));
+      
+      const status = openaiError?.status || openaiError?.response?.status || 500;
+      const errorMessage = openaiError?.error?.message || openaiError?.message || "Unknown OpenAI error";
+      const errorCode = openaiError?.error?.code || openaiError?.code || "unknown";
+      
+      let userFriendlyMessage = `OpenAI Error: ${errorMessage}`;
+      if (status === 401) {
+        userFriendlyMessage = "Invalid API key. Please check your OPENAI_API_KEY.";
+      } else if (status === 429) {
+        userFriendlyMessage = "Rate limit exceeded or insufficient credits. Please try again later.";
+      } else if (status === 500) {
+        userFriendlyMessage = "OpenAI service error. Please try again.";
+      }
+      
       return new Response(
         JSON.stringify({ 
-          error: `OpenAI Error (${status}): ${message}`,
-          code: code,
-          details: openaiError?.error?.message || message
+          error: userFriendlyMessage,
+          code: errorCode,
+          status: status
         }),
-        { status: status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: status >= 400 && status < 600 ? status : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const elapsed = Date.now() - startTime;
+    console.log(`OpenAI response received in ${elapsed}ms`);
 
     const content = response.choices?.[0]?.message?.content;
 
     if (!content) {
       console.error("No content in AI response");
       return new Response(
-        JSON.stringify({ error: "Resposta vazia da IA" }),
+        JSON.stringify({ error: "AI returned empty response" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("AI response received, parsing...");
+    console.log("Parsing meal plan...");
 
-    // Parse the JSON response (remove any potential markdown)
     let mealPlan;
     try {
       const jsonStr = content.replace(/```json\n?|\n?```/g, "").trim();
       mealPlan = JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError, content);
+    } catch (parseError: any) {
+      console.error("JSON parse error:", parseError.message);
+      console.error("Raw content (first 500 chars):", content.substring(0, 500));
       return new Response(
-        JSON.stringify({ error: "Erro ao processar resposta da IA", rawContent: content.substring(0, 200) }),
+        JSON.stringify({ 
+          error: "Failed to parse AI response as JSON",
+          details: parseError.message,
+          preview: content.substring(0, 200)
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -204,7 +203,7 @@ Varie os pratos entre os dias. Use ingredientes comuns no Brasil.`;
 
     console.log(`Inserting ${mealsToInsert.length} meals...`);
 
-    // Delete existing future meals for the user before inserting new ones
+    // Delete existing future meals
     const todayStr = today.toISOString().split("T")[0];
     await supabase
       .from("meals")
@@ -220,7 +219,7 @@ Varie os pratos entre os dias. Use ingredientes comuns no Brasil.`;
     if (insertError) {
       console.error("Insert error:", insertError);
       return new Response(
-        JSON.stringify({ error: "Erro ao salvar plano alimentar" }),
+        JSON.stringify({ error: "Failed to save meal plan to database" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -230,17 +229,18 @@ Varie os pratos entre os dias. Use ingredientes comuns no Brasil.`;
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Plano alimentar gerado para ${daysToGenerate} dias!`,
+        message: `Meal plan generated for ${daysToGenerate} days!`,
         mealsCount: mealsToInsert.length 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {
-    console.error("Unexpected error:", error);
+    console.error("Unexpected error:", error.message);
+    console.error("Stack:", error.stack?.substring(0, 500));
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Erro inesperado",
-        stack: error?.stack?.substring(0, 300)
+        error: error.message || "Unexpected server error",
+        type: "server_error"
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

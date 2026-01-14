@@ -29,7 +29,6 @@ serve(async (req) => {
   }
 
   try {
-    // Validate authentication
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       console.error("No authorization header provided");
@@ -39,7 +38,6 @@ serve(async (req) => {
       );
     }
 
-    // Create Supabase client and verify the user
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -61,43 +59,43 @@ serve(async (req) => {
     
     const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiApiKey) {
-      throw new Error("OPENAI_API_KEY is not configured");
+      console.error("OPENAI_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "AI service not configured. Please add OPENAI_API_KEY." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    console.log("OpenAI API key found, length:", openaiApiKey.length);
 
     const openai = new OpenAI({ apiKey: openaiApiKey });
 
-    const systemPrompt = `You are a professional nutritionist and personal trainer. Generate a personalized fitness and nutrition plan based on the user's profile data. Return a JSON object with two keys: "nutrition_plan" and "workout_plan".
+    // Optimized concise prompt for faster response
+    const systemPrompt = `You are a fitness AI. Return a compact JSON with nutrition_plan and workout_plan. Be concise.`;
 
-The nutrition_plan should include:
-- daily_calories: number
-- macros: { protein_g: number, carbs_g: number, fat_g: number }
-- meals: array of { name: string, time: string, calories: number, description: string }
-- recommendations: array of strings with dietary tips
+    const userPrompt = `Create a fitness plan for:
+Gender: ${profile.gender || "not specified"}, Age: ${profile.age}, Height: ${profile.height}cm, Weight: ${profile.weight}kg, Target: ${profile.target_weight}kg
+Goal: ${profile.goal || "fitness"}, Activity: ${profile.activity_level || "moderate"}, Days: ${profile.workout_days}/week
+Focus: ${profile.body_zones?.join(", ") || "full body"}, Restrictions: ${profile.dietary_restrictions?.join(", ") || "none"}
 
-The workout_plan should include:
-- weekly_schedule: array of { day: string, focus: string, exercises: array of { name: string, sets: number, reps: string, rest: string } }
-- recommendations: array of strings with workout tips
+Return JSON:
+{
+  "nutrition_plan": {
+    "daily_calories": number,
+    "macros": {"protein_g": number, "carbs_g": number, "fat_g": number},
+    "meals": [{"name": string, "time": string, "calories": number}],
+    "recommendations": [string, string]
+  },
+  "workout_plan": {
+    "weekly_schedule": [{"day": string, "focus": string, "exercises": [{"name": string, "sets": number, "reps": string}]}],
+    "recommendations": [string, string]
+  }
+}
 
-Be realistic and base recommendations on the user's goals, activity level, and restrictions.`;
+Keep meals to 4 per day, exercises to 4-5 per workout day. Be brief.`;
 
-    const userPrompt = `Generate a personalized plan for this user:
-- Gender: ${profile.gender || "not specified"}
-- Age: ${profile.age} years
-- Height: ${profile.height} cm
-- Current Weight: ${profile.weight} kg
-- Target Weight: ${profile.target_weight} kg
-- Goal: ${profile.goal || "general fitness"}
-- Activity Level: ${profile.activity_level || "moderate"}
-- Workout Days Available: ${profile.workout_days} days/week
-- Body Zones to Focus: ${profile.body_zones?.join(", ") || "full body"}
-- Obstacles: ${profile.obstacles?.join(", ") || "none mentioned"}
-- Dietary Restrictions: ${profile.dietary_restrictions?.join(", ") || "none"}
-- Has Professional Help: ${profile.professional_help ? "Yes" : "No"}
-- Previous App Experience: ${profile.previous_experience ? "Yes" : "No"}
-
-Please generate a complete, practical plan in JSON format.`;
-
-    console.log("Calling OpenAI gpt-4o-mini to generate plan for user:", user.id);
+    console.log("Calling OpenAI gpt-4o-mini...");
+    const startTime = Date.now();
 
     let response;
     try {
@@ -108,45 +106,68 @@ Please generate a complete, practical plan in JSON format.`;
           { role: "user", content: userPrompt },
         ],
         response_format: { type: "json_object" },
-        max_tokens: 4000,
+        max_tokens: 2000,
+        temperature: 0.7,
       });
     } catch (openaiError: any) {
-      console.error("OpenAI API error:", openaiError);
-      const status = openaiError?.status || 500;
-      const message = openaiError?.message || "OpenAI API error";
-      const code = openaiError?.code || "unknown";
+      console.error("OpenAI API error:", JSON.stringify(openaiError, null, 2));
+      
+      // Extract detailed error info
+      const status = openaiError?.status || openaiError?.response?.status || 500;
+      const errorMessage = openaiError?.error?.message || openaiError?.message || "Unknown OpenAI error";
+      const errorCode = openaiError?.error?.code || openaiError?.code || "unknown";
+      
+      let userFriendlyMessage = `OpenAI Error: ${errorMessage}`;
+      if (status === 401) {
+        userFriendlyMessage = "Invalid API key. Please check your OPENAI_API_KEY.";
+      } else if (status === 429) {
+        userFriendlyMessage = "Rate limit exceeded or insufficient credits. Please try again later.";
+      } else if (status === 500) {
+        userFriendlyMessage = "OpenAI service error. Please try again.";
+      }
+      
       return new Response(
         JSON.stringify({ 
-          error: `OpenAI Error (${status}): ${message}`,
-          code: code,
-          details: openaiError?.error?.message || message
+          error: userFriendlyMessage,
+          code: errorCode,
+          status: status
         }),
-        { status: status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: status >= 400 && status < 600 ? status : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const elapsed = Date.now() - startTime;
+    console.log(`OpenAI response received in ${elapsed}ms`);
 
     const planText = response.choices?.[0]?.message?.content;
     
     if (!planText) {
       console.error("No content in OpenAI response");
       return new Response(
-        JSON.stringify({ error: "No plan generated from AI - empty response" }),
+        JSON.stringify({ error: "AI returned empty response" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("AI response received, parsing plan...");
+    console.log("Parsing plan...");
 
     let plan;
     try {
       plan = JSON.parse(planText);
-    } catch (e) {
-      console.error("Failed to parse AI response as JSON:", planText);
+    } catch (parseError: any) {
+      console.error("JSON parse error:", parseError.message);
+      console.error("Raw content (first 500 chars):", planText.substring(0, 500));
       return new Response(
-        JSON.stringify({ error: "Failed to parse generated plan", rawContent: planText.substring(0, 200) }),
+        JSON.stringify({ 
+          error: "Failed to parse AI response as JSON",
+          details: parseError.message,
+          preview: planText.substring(0, 200)
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("Plan generated successfully");
 
     return new Response(
       JSON.stringify({ 
@@ -158,11 +179,12 @@ Please generate a complete, practical plan in JSON format.`;
     );
 
   } catch (error: any) {
-    console.error("Error in generate-plan function:", error);
+    console.error("Unexpected error in generate-plan:", error.message);
+    console.error("Stack:", error.stack?.substring(0, 500));
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error",
-        stack: error?.stack?.substring(0, 300)
+        error: error.message || "Unexpected server error",
+        type: "server_error"
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
