@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Clock, Play, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getExerciseMedia } from "@/data/exerciseVideos";
 
 interface Exercise {
   name: string;
@@ -21,7 +22,16 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
 }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
-  const hasVideo = !!exercise.videoUrl;
+  // Get video from the centralized database if not provided
+  const exerciseMedia = useMemo(() => {
+    if (exercise.videoUrl) {
+      return { videoUrl: exercise.videoUrl };
+    }
+    return getExerciseMedia(exercise.name);
+  }, [exercise.name, exercise.videoUrl]);
+
+  const videoUrl = exerciseMedia?.videoUrl;
+  const hasVideo = !!videoUrl;
 
   return (
     <>
@@ -90,7 +100,7 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
       </div>
 
       {/* Video Modal */}
-      {isVideoOpen && exercise.videoUrl && (
+      {isVideoOpen && videoUrl && (
         <div 
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
           onClick={() => setIsVideoOpen(false)}
@@ -108,9 +118,10 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
             
             <div className="aspect-video bg-black">
               <video 
-                src={exercise.videoUrl}
+                src={videoUrl}
                 controls
                 autoPlay
+                loop
                 className="w-full h-full object-contain"
               />
             </div>
