@@ -31,7 +31,9 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
   }, [exercise.name, exercise.videoUrl]);
 
   const videoUrl = exerciseMedia?.videoUrl;
+  const thumbnailUrl = exerciseMedia?.thumbnailUrl;
   const hasVideo = !!videoUrl;
+  const hasThumbnail = !!thumbnailUrl;
 
   return (
     <>
@@ -45,13 +47,29 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
           {/* Video Thumbnail / Play Button */}
           <div 
             className={cn(
-              "relative w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0",
+              "relative w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden",
               "bg-gradient-to-br from-muted to-muted/50",
               hasVideo && "cursor-pointer hover:opacity-80"
             )}
             onClick={() => hasVideo && setIsVideoOpen(true)}
           >
-            {hasVideo ? (
+            {hasThumbnail ? (
+              <>
+                <img 
+                  src={thumbnailUrl} 
+                  alt={exercise.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                {hasVideo && (
+                  <>
+                    <div className="absolute inset-0 bg-black/30 rounded-xl" />
+                    <div className="relative w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                      <Play className="w-5 h-5 text-primary ml-0.5" fill="currentColor" />
+                    </div>
+                  </>
+                )}
+              </>
+            ) : hasVideo ? (
               <>
                 <div className="absolute inset-0 bg-black/20 rounded-xl" />
                 <div className="relative w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
