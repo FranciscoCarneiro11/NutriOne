@@ -498,7 +498,7 @@ const ExerciseGallery: React.FC = () => {
               </button>
 
               {/* Thumbnail image, video thumbnail or placeholder */}
-              {exercise.thumbnailUrl ? <img src={exercise.thumbnailUrl} alt={exercise.name} className="w-full h-full object-cover object-top sm:object-center" onError={e => {
+              {exercise.thumbnailUrl ? <img src={exercise.thumbnailUrl} alt={exercise.name} className="w-full h-full object-cover object-center" onError={e => {
             e.currentTarget.style.display = 'none';
           }} /> : exercise.videoUrl ? <VideoThumbnail videoUrl={exercise.videoUrl} exerciseName={exercise.name} /> : <ExercisePlaceholder name={exercise.name} />}
             </div>
