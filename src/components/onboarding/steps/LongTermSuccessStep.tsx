@@ -103,8 +103,8 @@ export const LongTermSuccessStep: React.FC<LongTermSuccessStepProps> = ({
         </div>
 
         {/* Stats */}
-        <p className="text-center text-muted-foreground mt-6 text-sm">
-          Usuários do {appName} alcançam <strong className="text-foreground">90% de progresso</strong> em apenas 4 semanas
+        <p className="text-center text-gray-900 mt-6 text-sm">
+          Usuários do {appName} alcançam <strong className="text-primary">90% de progresso</strong> em apenas 4 semanas
         </p>
       </div>
     </div>
