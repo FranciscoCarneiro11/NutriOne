@@ -149,10 +149,10 @@ export const WeightSlider: React.FC<WeightSliderProps> = ({
 
       {/* Goal Info Card */}
       <div className="mt-8 w-full p-4 bg-coral-light rounded-2xl">
-        <h4 className="font-semibold text-foreground mb-1">Objetivo razoável</h4>
-        <p className="text-sm text-muted-foreground">
-          Você vai perder 11% do seu peso. Há evidências científicas de que algumas condições
-          relacionadas à obesidade melhoram com uma perda de peso igual ou superior a 10%.
+        <h4 className="font-semibold text-gray-900 mb-1">Objetivo razoável</h4>
+        <p className="text-sm text-gray-900">
+          Você vai perder <span className="text-primary font-semibold">11%</span> do seu peso. Há evidências científicas de que algumas condições
+          relacionadas à obesidade melhoram com uma perda de peso igual ou superior a <span className="text-primary font-semibold">10%</span>.
         </p>
       </div>
     </div>
