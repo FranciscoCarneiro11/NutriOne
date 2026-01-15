@@ -27,157 +27,357 @@ interface GalleryExercise {
 }
 
 // Placeholder component for when video fails to load
-const ExercisePlaceholder: React.FC<{ name: string }> = ({ name }) => (
-  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+const ExercisePlaceholder: React.FC<{
+  name: string;
+}> = ({
+  name
+}) => <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted to-muted/50">
     <Dumbbell className="w-10 h-10 text-muted-foreground/40 mb-2" />
     <span className="text-xs text-muted-foreground/60 text-center px-2 line-clamp-2">
       {name}
     </span>
-  </div>
-);
+  </div>;
 
 // Video thumbnail with loading state and error fallback
-const VideoThumbnail: React.FC<{ 
-  videoUrl: string; 
+const VideoThumbnail: React.FC<{
+  videoUrl: string;
   exerciseName: string;
-}> = ({ videoUrl, exerciseName }) => {
+}> = ({
+  videoUrl,
+  exerciseName
+}) => {
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
-
   const handleLoadedData = useCallback(() => {
     setStatus('loaded');
   }, []);
-
   const handleError = useCallback(() => {
     console.warn(`Failed to load video: ${videoUrl}`);
     setStatus('error');
   }, [videoUrl]);
-
   if (status === 'error') {
     return <ExercisePlaceholder name={exerciseName} />;
   }
-
-  return (
-    <>
-      {status === 'loading' && (
-        <Skeleton className="absolute inset-0 w-full h-full" />
-      )}
-      <video
-        src={videoUrl}
-        className={cn(
-          "w-full h-full object-cover transition-opacity duration-300",
-          status === 'loading' ? 'opacity-0' : 'opacity-100'
-        )}
-        muted
-        playsInline
-        preload="metadata"
-        onLoadedData={handleLoadedData}
-        onError={handleError}
-      />
-    </>
-  );
+  return <>
+      {status === 'loading' && <Skeleton className="absolute inset-0 w-full h-full" />}
+      <video src={videoUrl} className={cn("w-full h-full object-cover transition-opacity duration-300", status === 'loading' ? 'opacity-0' : 'opacity-100')} muted playsInline preload="metadata" onLoadedData={handleLoadedData} onError={handleError} />
+    </>;
 };
 
 // Dados estáticos de exercícios por grupo muscular
 const exercisesByMuscle: Record<string, GalleryExercise[]> = {
-  favoritos: [], // Will be populated dynamically
-  peito: [
-    { id: "chest-1", name: "Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_reto.mp4", thumbnailUrl: "/images/exercises/supino-reto.jpeg" },
-    { id: "chest-2", name: "Dumbbell Incline Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4", thumbnailUrl: "/images/exercises/dumbbell-incline-bench-press.jpeg" },
-    { id: "chest-3", name: "Supino Inclinado", muscleGroup: "Peito" },
-    { id: "chest-4", name: "Crucifixo", muscleGroup: "Peito" },
-    { id: "chest-5", name: "Flexão de Braço", muscleGroup: "Peito" },
-    { id: "chest-6", name: "Crossover", muscleGroup: "Peito" },
-    { id: "chest-7", name: "Fly na Máquina", muscleGroup: "Peito" },
-  ],
-  costas: [
-    { id: "back-1", name: "Pulldown", muscleGroup: "Costas", videoUrl: "/videos/pulldown.mp4", thumbnailUrl: "/images/exercises/pulldown.jpeg" },
-    { id: "back-2", name: "Seated Wide-grip Row", muscleGroup: "Costas", videoUrl: "/videos/remada_aberta_sentado.mp4", thumbnailUrl: "/images/exercises/seated-wide-grip-row.jpeg" },
-    { id: "back-3", name: "Puxada Frontal", muscleGroup: "Costas" },
-    { id: "back-4", name: "Remada Curvada", muscleGroup: "Costas" },
-    { id: "back-5", name: "Barra Fixa", muscleGroup: "Costas" },
-    { id: "back-6", name: "Remada Unilateral", muscleGroup: "Costas" },
-  ],
-  ombros: [
-    { id: "shoulder-1", name: "Lateral Raise", muscleGroup: "Ombros", videoUrl: "/videos/elevacao_lateral.mp4", thumbnailUrl: "/images/exercises/lateral-raise.jpeg" },
-    { id: "shoulder-2", name: "Seated Shoulder Press", muscleGroup: "Ombros", videoUrl: "/videos/shoulderpress.mp4", thumbnailUrl: "/images/exercises/seated-shoulder-press.jpeg" },
-    { id: "shoulder-3", name: "Desenvolvimento", muscleGroup: "Ombros" },
-    { id: "shoulder-4", name: "Elevação Frontal", muscleGroup: "Ombros" },
-    { id: "shoulder-5", name: "Crucifixo Inverso", muscleGroup: "Ombros" },
-    { id: "shoulder-6", name: "Encolhimento", muscleGroup: "Ombros" },
-  ],
-  biceps: [
-    { id: "biceps-1", name: "Biceps Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_cabo.mp4", thumbnailUrl: "/images/exercises/biceps-curl.jpeg" },
-    { id: "biceps-2", name: "Hammer Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_martelo.mp4", thumbnailUrl: "/images/exercises/hammer-curl.jpeg" },
-    { id: "biceps-3", name: "Rosca Direta", muscleGroup: "Bíceps" },
-    { id: "biceps-4", name: "Rosca Alternada", muscleGroup: "Bíceps" },
-    { id: "biceps-5", name: "Rosca Concentrada", muscleGroup: "Bíceps" },
-    { id: "biceps-6", name: "Rosca Scott", muscleGroup: "Bíceps" },
-  ],
-  triceps: [
-    { id: "triceps-1", name: "Triceps Pushdown", muscleGroup: "Tríceps", videoUrl: "/videos/triceps_triangulo.mp4", thumbnailUrl: "/images/exercises/triceps-pushdown.jpeg" },
-    { id: "triceps-2", name: "Seated Bench Extension", muscleGroup: "Tríceps", videoUrl: "/videos/triceps_frances.mp4", thumbnailUrl: "/images/exercises/seated-bench-extension.jpeg" },
-    { id: "triceps-3", name: "Tríceps Pulley", muscleGroup: "Tríceps" },
-    { id: "triceps-4", name: "Tríceps Testa", muscleGroup: "Tríceps" },
-    { id: "triceps-5", name: "Mergulho", muscleGroup: "Tríceps" },
-    { id: "triceps-6", name: "Kickback", muscleGroup: "Tríceps" },
-  ],
-  quadriceps: [
-    { id: "quad-1", name: "Lever Leg Extension", muscleGroup: "Quadríceps", videoUrl: "/videos/cadeira_extensora.mp4", thumbnailUrl: "/images/exercises/leg-extension.jpeg" },
-    { id: "quad-2", name: "Agachamento", muscleGroup: "Quadríceps" },
-    { id: "quad-3", name: "Leg Press", muscleGroup: "Quadríceps" },
-    { id: "quad-4", name: "Agachamento Hack", muscleGroup: "Quadríceps" },
-    { id: "quad-5", name: "Avanço", muscleGroup: "Quadríceps" },
-    { id: "quad-6", name: "Agachamento Búlgaro", muscleGroup: "Quadríceps" },
-  ],
-  abdomen: [
-    { id: "abs-1", name: "Abdominal Crunch", muscleGroup: "Abdômen" },
-    { id: "abs-2", name: "Prancha", muscleGroup: "Abdômen" },
-    { id: "abs-3", name: "Elevação de Pernas", muscleGroup: "Abdômen" },
-    { id: "abs-4", name: "Abdominal Bicicleta", muscleGroup: "Abdômen" },
-    { id: "abs-5", name: "Prancha Lateral", muscleGroup: "Abdômen" },
-  ],
-  posterior: [
-    { id: "post-1", name: "Stiff", muscleGroup: "Posterior" },
-    { id: "post-2", name: "Mesa Flexora", muscleGroup: "Posterior" },
-    { id: "post-3", name: "Flexora Deitado", muscleGroup: "Posterior" },
-    { id: "post-4", name: "Levantamento Terra", muscleGroup: "Posterior" },
-    { id: "post-5", name: "Good Morning", muscleGroup: "Posterior" },
-    { id: "post-6", name: "Cadeira Flexora", muscleGroup: "Posterior" },
-  ],
-  trapezio: [
-    { id: "trap-1", name: "Encolhimento com Barra", muscleGroup: "Trapézio" },
-    { id: "trap-2", name: "Encolhimento com Halteres", muscleGroup: "Trapézio" },
-    { id: "trap-3", name: "Remada Alta", muscleGroup: "Trapézio" },
-    { id: "trap-4", name: "Face Pull", muscleGroup: "Trapézio" },
-    { id: "trap-5", name: "Elevação Posterior", muscleGroup: "Trapézio" },
-  ],
+  favoritos: [],
+  // Will be populated dynamically
+  peito: [{
+    id: "chest-1",
+    name: "Bench Press",
+    muscleGroup: "Peito",
+    videoUrl: "/videos/supino_reto.mp4",
+    thumbnailUrl: "/images/exercises/supino-reto.jpeg"
+  }, {
+    id: "chest-2",
+    name: "Dumbbell Incline Bench Press",
+    muscleGroup: "Peito",
+    videoUrl: "/videos/supino_inclinado_com_halter.mp4",
+    thumbnailUrl: "/images/exercises/dumbbell-incline-bench-press.jpeg"
+  }, {
+    id: "chest-3",
+    name: "Supino Inclinado",
+    muscleGroup: "Peito"
+  }, {
+    id: "chest-4",
+    name: "Crucifixo",
+    muscleGroup: "Peito"
+  }, {
+    id: "chest-5",
+    name: "Flexão de Braço",
+    muscleGroup: "Peito"
+  }, {
+    id: "chest-6",
+    name: "Crossover",
+    muscleGroup: "Peito"
+  }, {
+    id: "chest-7",
+    name: "Fly na Máquina",
+    muscleGroup: "Peito"
+  }],
+  costas: [{
+    id: "back-1",
+    name: "Pulldown",
+    muscleGroup: "Costas",
+    videoUrl: "/videos/pulldown.mp4",
+    thumbnailUrl: "/images/exercises/pulldown.jpeg"
+  }, {
+    id: "back-2",
+    name: "Seated Wide-grip Row",
+    muscleGroup: "Costas",
+    videoUrl: "/videos/remada_aberta_sentado.mp4",
+    thumbnailUrl: "/images/exercises/seated-wide-grip-row.jpeg"
+  }, {
+    id: "back-3",
+    name: "Puxada Frontal",
+    muscleGroup: "Costas"
+  }, {
+    id: "back-4",
+    name: "Remada Curvada",
+    muscleGroup: "Costas"
+  }, {
+    id: "back-5",
+    name: "Barra Fixa",
+    muscleGroup: "Costas"
+  }, {
+    id: "back-6",
+    name: "Remada Unilateral",
+    muscleGroup: "Costas"
+  }],
+  ombros: [{
+    id: "shoulder-1",
+    name: "Lateral Raise",
+    muscleGroup: "Ombros",
+    videoUrl: "/videos/elevacao_lateral.mp4",
+    thumbnailUrl: "/images/exercises/lateral-raise.jpeg"
+  }, {
+    id: "shoulder-2",
+    name: "Seated Shoulder Press",
+    muscleGroup: "Ombros",
+    videoUrl: "/videos/shoulderpress.mp4",
+    thumbnailUrl: "/images/exercises/seated-shoulder-press.jpeg"
+  }, {
+    id: "shoulder-3",
+    name: "Desenvolvimento",
+    muscleGroup: "Ombros"
+  }, {
+    id: "shoulder-4",
+    name: "Elevação Frontal",
+    muscleGroup: "Ombros"
+  }, {
+    id: "shoulder-5",
+    name: "Crucifixo Inverso",
+    muscleGroup: "Ombros"
+  }, {
+    id: "shoulder-6",
+    name: "Encolhimento",
+    muscleGroup: "Ombros"
+  }],
+  biceps: [{
+    id: "biceps-1",
+    name: "Biceps Curl",
+    muscleGroup: "Bíceps",
+    videoUrl: "/videos/biceps_cabo.mp4",
+    thumbnailUrl: "/images/exercises/biceps-curl.jpeg"
+  }, {
+    id: "biceps-2",
+    name: "Hammer Curl",
+    muscleGroup: "Bíceps",
+    videoUrl: "/videos/biceps_martelo.mp4",
+    thumbnailUrl: "/images/exercises/hammer-curl.jpeg"
+  }, {
+    id: "biceps-3",
+    name: "Rosca Direta",
+    muscleGroup: "Bíceps"
+  }, {
+    id: "biceps-4",
+    name: "Rosca Alternada",
+    muscleGroup: "Bíceps"
+  }, {
+    id: "biceps-5",
+    name: "Rosca Concentrada",
+    muscleGroup: "Bíceps"
+  }, {
+    id: "biceps-6",
+    name: "Rosca Scott",
+    muscleGroup: "Bíceps"
+  }],
+  triceps: [{
+    id: "triceps-1",
+    name: "Triceps Pushdown",
+    muscleGroup: "Tríceps",
+    videoUrl: "/videos/triceps_triangulo.mp4",
+    thumbnailUrl: "/images/exercises/triceps-pushdown.jpeg"
+  }, {
+    id: "triceps-2",
+    name: "Seated Bench Extension",
+    muscleGroup: "Tríceps",
+    videoUrl: "/videos/triceps_frances.mp4",
+    thumbnailUrl: "/images/exercises/seated-bench-extension.jpeg"
+  }, {
+    id: "triceps-3",
+    name: "Tríceps Pulley",
+    muscleGroup: "Tríceps"
+  }, {
+    id: "triceps-4",
+    name: "Tríceps Testa",
+    muscleGroup: "Tríceps"
+  }, {
+    id: "triceps-5",
+    name: "Mergulho",
+    muscleGroup: "Tríceps"
+  }, {
+    id: "triceps-6",
+    name: "Kickback",
+    muscleGroup: "Tríceps"
+  }],
+  quadriceps: [{
+    id: "quad-1",
+    name: "Lever Leg Extension",
+    muscleGroup: "Quadríceps",
+    videoUrl: "/videos/cadeira_extensora.mp4",
+    thumbnailUrl: "/images/exercises/leg-extension.jpeg"
+  }, {
+    id: "quad-2",
+    name: "Agachamento",
+    muscleGroup: "Quadríceps"
+  }, {
+    id: "quad-3",
+    name: "Leg Press",
+    muscleGroup: "Quadríceps"
+  }, {
+    id: "quad-4",
+    name: "Agachamento Hack",
+    muscleGroup: "Quadríceps"
+  }, {
+    id: "quad-5",
+    name: "Avanço",
+    muscleGroup: "Quadríceps"
+  }, {
+    id: "quad-6",
+    name: "Agachamento Búlgaro",
+    muscleGroup: "Quadríceps"
+  }],
+  abdomen: [{
+    id: "abs-1",
+    name: "Abdominal Crunch",
+    muscleGroup: "Abdômen"
+  }, {
+    id: "abs-2",
+    name: "Prancha",
+    muscleGroup: "Abdômen"
+  }, {
+    id: "abs-3",
+    name: "Elevação de Pernas",
+    muscleGroup: "Abdômen"
+  }, {
+    id: "abs-4",
+    name: "Abdominal Bicicleta",
+    muscleGroup: "Abdômen"
+  }, {
+    id: "abs-5",
+    name: "Prancha Lateral",
+    muscleGroup: "Abdômen"
+  }],
+  posterior: [{
+    id: "post-1",
+    name: "Stiff",
+    muscleGroup: "Posterior"
+  }, {
+    id: "post-2",
+    name: "Mesa Flexora",
+    muscleGroup: "Posterior"
+  }, {
+    id: "post-3",
+    name: "Flexora Deitado",
+    muscleGroup: "Posterior"
+  }, {
+    id: "post-4",
+    name: "Levantamento Terra",
+    muscleGroup: "Posterior"
+  }, {
+    id: "post-5",
+    name: "Good Morning",
+    muscleGroup: "Posterior"
+  }, {
+    id: "post-6",
+    name: "Cadeira Flexora",
+    muscleGroup: "Posterior"
+  }],
+  trapezio: [{
+    id: "trap-1",
+    name: "Encolhimento com Barra",
+    muscleGroup: "Trapézio"
+  }, {
+    id: "trap-2",
+    name: "Encolhimento com Halteres",
+    muscleGroup: "Trapézio"
+  }, {
+    id: "trap-3",
+    name: "Remada Alta",
+    muscleGroup: "Trapézio"
+  }, {
+    id: "trap-4",
+    name: "Face Pull",
+    muscleGroup: "Trapézio"
+  }, {
+    id: "trap-5",
+    name: "Elevação Posterior",
+    muscleGroup: "Trapézio"
+  }]
 };
 
 // Get all exercises for favorites lookup
-const allExercises = Object.entries(exercisesByMuscle)
-  .filter(([key]) => key !== "favoritos")
-  .flatMap(([_, exercises]) => exercises);
-
-const muscleGroups = [
-  { id: "favoritos", name: "Favoritos", highlightZone: "all", customImage: todosImg, isFavorites: true },
-  { id: "peito", name: "Peito", highlightZone: "chest", customImage: peitoImg },
-  { id: "costas", name: "Costas", highlightZone: "back", customImage: costasImg },
-  { id: "ombros", name: "Ombros", highlightZone: "shoulders", customImage: ombrosImg },
-  { id: "biceps", name: "Bíceps", highlightZone: "biceps", customImage: bicepsImg },
-  { id: "triceps", name: "Tríceps", highlightZone: "triceps", customImage: tricepsImg },
-  { id: "quadriceps", name: "Quadríceps", highlightZone: "legs", customImage: quadricepsImg },
-  { id: "posterior", name: "Posterior", highlightZone: "hamstrings", customImage: posteriorImg },
-  { id: "trapezio", name: "Trapézio", highlightZone: "traps", customImage: trapezioImg },
-  { id: "abdomen", name: "Abdômen", highlightZone: "abs", customImage: abdomenImg },
-];
+const allExercises = Object.entries(exercisesByMuscle).filter(([key]) => key !== "favoritos").flatMap(([_, exercises]) => exercises);
+const muscleGroups = [{
+  id: "favoritos",
+  name: "Favoritos",
+  highlightZone: "all",
+  customImage: todosImg,
+  isFavorites: true
+}, {
+  id: "peito",
+  name: "Peito",
+  highlightZone: "chest",
+  customImage: peitoImg
+}, {
+  id: "costas",
+  name: "Costas",
+  highlightZone: "back",
+  customImage: costasImg
+}, {
+  id: "ombros",
+  name: "Ombros",
+  highlightZone: "shoulders",
+  customImage: ombrosImg
+}, {
+  id: "biceps",
+  name: "Bíceps",
+  highlightZone: "biceps",
+  customImage: bicepsImg
+}, {
+  id: "triceps",
+  name: "Tríceps",
+  highlightZone: "triceps",
+  customImage: tricepsImg
+}, {
+  id: "quadriceps",
+  name: "Quadríceps",
+  highlightZone: "legs",
+  customImage: quadricepsImg
+}, {
+  id: "posterior",
+  name: "Posterior",
+  highlightZone: "hamstrings",
+  customImage: posteriorImg
+}, {
+  id: "trapezio",
+  name: "Trapézio",
+  highlightZone: "traps",
+  customImage: trapezioImg
+}, {
+  id: "abdomen",
+  name: "Abdômen",
+  highlightZone: "abs",
+  customImage: abdomenImg
+}];
 
 // Componente de silhueta do corpo com destaque na zona selecionada
-const BodySilhouette: React.FC<{ zone: string; isSelected: boolean }> = ({ zone, isSelected }) => {
+const BodySilhouette: React.FC<{
+  zone: string;
+  isSelected: boolean;
+}> = ({
+  zone,
+  isSelected
+}) => {
   const getHighlightColor = () => isSelected ? "#ef4444" : "#6b7280";
   const baseColor = isSelected ? "#ffffff" : "#9ca3af";
-  
-  return (
-    <svg viewBox="0 0 60 100" className="w-full h-full">
+  return <svg viewBox="0 0 60 100" className="w-full h-full">
       {/* Cabeça */}
       <ellipse cx="30" cy="12" rx="8" ry="10" fill={baseColor} />
       
@@ -185,12 +385,7 @@ const BodySilhouette: React.FC<{ zone: string; isSelected: boolean }> = ({ zone,
       <rect x="27" y="22" width="6" height="6" fill={baseColor} />
       
       {/* Torso */}
-      <path
-        d={zone === "chest" || zone === "all" 
-          ? "M18 28 L42 28 L44 55 L16 55 Z" 
-          : "M18 28 L42 28 L44 55 L16 55 Z"}
-        fill={zone === "chest" || zone === "abs" || zone === "all" ? getHighlightColor() : baseColor}
-      />
+      <path d={zone === "chest" || zone === "all" ? "M18 28 L42 28 L44 55 L16 55 Z" : "M18 28 L42 28 L44 55 L16 55 Z"} fill={zone === "chest" || zone === "abs" || zone === "all" ? getHighlightColor() : baseColor} />
       
       {/* Ombros */}
       <ellipse cx="14" cy="32" rx="5" ry="4" fill={zone === "shoulders" || zone === "all" ? getHighlightColor() : baseColor} />
@@ -211,10 +406,8 @@ const BodySilhouette: React.FC<{ zone: string; isSelected: boolean }> = ({ zone,
       {/* Pés */}
       <ellipse cx="18" cy="90" rx="5" ry="4" fill={baseColor} />
       <ellipse cx="42" cy="90" rx="5" ry="4" fill={baseColor} />
-    </svg>
-  );
+    </svg>;
 };
-
 const ExerciseGallery: React.FC = () => {
   const [selectedMuscle, setSelectedMuscle] = useState<string>("favoritos");
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
@@ -227,82 +420,42 @@ const ExerciseGallery: React.FC = () => {
       setFavoriteIds(favorites);
     };
     loadFavorites();
-    
+
     // Listen for storage changes
     const handleStorageChange = () => loadFavorites();
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-
   const toggleFavorite = (exerciseId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const newFavorites = favoriteIds.includes(exerciseId)
-      ? favoriteIds.filter(id => id !== exerciseId)
-      : [...favoriteIds, exerciseId];
-    
+    const newFavorites = favoriteIds.includes(exerciseId) ? favoriteIds.filter(id => id !== exerciseId) : [...favoriteIds, exerciseId];
     localStorage.setItem("favoriteExercises", JSON.stringify(newFavorites));
     setFavoriteIds(newFavorites);
-    
     if (newFavorites.includes(exerciseId)) {
       toast.success("Adicionado aos favoritos");
     } else {
       toast.success("Removido dos favoritos");
     }
   };
-
   const handleExerciseClick = (exercise: GalleryExercise) => {
     navigate(`/exercise/${exercise.id}`);
   };
 
   // Get exercises based on selection
-  const exercises = selectedMuscle === "favoritos"
-    ? allExercises.filter(ex => favoriteIds.includes(ex.id))
-    : (exercisesByMuscle[selectedMuscle] || []);
-    
+  const exercises = selectedMuscle === "favoritos" ? allExercises.filter(ex => favoriteIds.includes(ex.id)) : exercisesByMuscle[selectedMuscle] || [];
   const selectedMuscleInfo = muscleGroups.find(m => m.id === selectedMuscle);
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       {/* Muscle Groups Horizontal Scroll */}
       <ScrollArea className="w-full">
         <div className="flex gap-4 pb-3 px-1">
-          {muscleGroups.map((muscle) => (
-            <button
-              key={muscle.id}
-              onClick={() => setSelectedMuscle(muscle.id)}
-              className={cn(
-                "flex-shrink-0 flex flex-col items-center gap-2 transition-all",
-              )}
-            >
-              <div className={cn(
-                "w-20 h-20 rounded-2xl border-2 transition-all p-2 flex items-center justify-center",
-                selectedMuscle === muscle.id
-                  ? "border-primary bg-primary/10 shadow-lg scale-105"
-                  : "border-border bg-card/50 hover:border-muted-foreground/50 hover:bg-card"
-              )}>
-                {muscle.customImage ? (
-                  <img 
-                    src={muscle.customImage} 
-                    alt={muscle.name}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <BodySilhouette 
-                    zone={muscle.highlightZone} 
-                    isSelected={selectedMuscle === muscle.id} 
-                  />
-                )}
+          {muscleGroups.map(muscle => <button key={muscle.id} onClick={() => setSelectedMuscle(muscle.id)} className={cn("flex-shrink-0 flex flex-col items-center gap-2 transition-all")}>
+              <div className={cn("w-20 h-20 transition-all p-2 flex items-center justify-center border rounded-lg", selectedMuscle === muscle.id ? "border-primary bg-primary/10 shadow-lg scale-105" : "border-border bg-card/50 hover:border-muted-foreground/50 hover:bg-card")}>
+                {muscle.customImage ? <img src={muscle.customImage} alt={muscle.name} className="w-full h-full object-contain" /> : <BodySilhouette zone={muscle.highlightZone} isSelected={selectedMuscle === muscle.id} />}
               </div>
-              <span className={cn(
-                "text-xs font-medium transition-colors",
-                selectedMuscle === muscle.id 
-                  ? "text-primary font-semibold" 
-                  : "text-muted-foreground"
-              )}>
+              <span className={cn("text-xs font-medium transition-colors", selectedMuscle === muscle.id ? "text-primary font-semibold" : "text-muted-foreground")}>
                 {muscle.name}
               </span>
-            </button>
-          ))}
+            </button>)}
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
@@ -318,66 +471,36 @@ const ExerciseGallery: React.FC = () => {
       </div>
 
       {/* Empty state for favorites */}
-      {selectedMuscle === "favoritos" && exercises.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
+      {selectedMuscle === "favoritos" && exercises.length === 0 && <div className="flex flex-col items-center justify-center py-12 text-center">
           <Heart className="w-12 h-12 text-muted-foreground/50 mb-4" />
           <p className="text-muted-foreground">Nenhum exercício favorito ainda</p>
           <p className="text-sm text-muted-foreground/70 mt-1">
             Toque no ícone de favorito nos exercícios para adicioná-los aqui
           </p>
-        </div>
-      )}
+        </div>}
 
       {/* Exercises Grid */}
       <div className="grid grid-cols-2 gap-3">
-        {exercises.map((exercise) => (
-          <button
-            key={exercise.id}
-            onClick={() => handleExerciseClick(exercise)}
-            className="bg-card rounded-2xl overflow-hidden border border-border shadow-card hover:shadow-fab transition-all active:scale-[0.98] text-left group"
-          >
+        {exercises.map(exercise => <button key={exercise.id} onClick={() => handleExerciseClick(exercise)} className="bg-card rounded-2xl overflow-hidden border border-border shadow-card hover:shadow-fab transition-all active:scale-[0.98] text-left group">
             {/* Thumbnail */}
             <div className="aspect-square bg-gradient-to-br from-muted to-muted/30 relative flex items-center justify-center overflow-hidden">
               {/* Bookmark/Favorite icon */}
-              <button 
-                className="absolute top-2 left-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center z-10"
-                onClick={(e) => toggleFavorite(exercise.id, e)}
-              >
-                <Bookmark className={cn(
-                  "w-4 h-4 text-white",
-                  favoriteIds.includes(exercise.id) && "fill-white"
-                )} />
+              <button className="absolute top-2 left-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center z-10" onClick={e => toggleFavorite(exercise.id, e)}>
+                <Bookmark className={cn("w-4 h-4 text-white", favoriteIds.includes(exercise.id) && "fill-white")} />
               </button>
               
               {/* Help icon */}
-              <button 
-                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleExerciseClick(exercise);
-                }}
-              >
+              <button className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center z-10" onClick={e => {
+            e.stopPropagation();
+            handleExerciseClick(exercise);
+          }}>
                 <HelpCircle className="w-4 h-4 text-white" />
               </button>
 
               {/* Thumbnail image, video thumbnail or placeholder */}
-              {exercise.thumbnailUrl ? (
-                <img 
-                  src={exercise.thumbnailUrl} 
-                  alt={exercise.name}
-                  className="w-full h-full object-cover object-center"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              ) : exercise.videoUrl ? (
-                <VideoThumbnail 
-                  videoUrl={exercise.videoUrl} 
-                  exerciseName={exercise.name} 
-                />
-              ) : (
-                <ExercisePlaceholder name={exercise.name} />
-              )}
+              {exercise.thumbnailUrl ? <img src={exercise.thumbnailUrl} alt={exercise.name} className="w-full h-full object-cover object-center" onError={e => {
+            e.currentTarget.style.display = 'none';
+          }} /> : exercise.videoUrl ? <VideoThumbnail videoUrl={exercise.videoUrl} exerciseName={exercise.name} /> : <ExercisePlaceholder name={exercise.name} />}
             </div>
             
             {/* Exercise info */}
@@ -389,12 +512,9 @@ const ExerciseGallery: React.FC = () => {
                 {exercise.muscleGroup}
               </p>
             </div>
-          </button>
-        ))}
+          </button>)}
       </div>
 
-    </div>
-  );
+    </div>;
 };
-
 export default ExerciseGallery;
