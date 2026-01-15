@@ -365,7 +365,7 @@ const ExerciseGallery: React.FC = () => {
                 <img 
                   src={exercise.thumbnailUrl} 
                   alt={exercise.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-center"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
