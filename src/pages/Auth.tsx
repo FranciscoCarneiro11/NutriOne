@@ -23,12 +23,14 @@ const Auth: React.FC = () => {
 
   // Check for pending quiz data and set login mode
   const [isLogin, setIsLogin] = useState(loginParam === "true");
+  const [hasQuizData, setHasQuizData] = useState(false);
 
   useEffect(() => {
     const profile = localStorage.getItem("userProfile");
     const pendingGeneration = localStorage.getItem("pendingPlanGeneration");
     const hasPending = !!(profile && pendingGeneration);
     setHasPendingPlan(hasPending);
+    setHasQuizData(hasPending);
     
     // Default to login mode if coming from Welcome page OR if no pending plan
     if (loginParam === "true" || !hasPending) {
@@ -169,6 +171,18 @@ const Auth: React.FC = () => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Block signup without quiz data
+    if (!isLogin && !hasQuizData) {
+      toast({
+        title: "Complete o questionário primeiro",
+        description: "Para criar sua conta, você precisa responder o questionário para personalizarmos seu plano.",
+        variant: "destructive",
+      });
+      navigate("/welcome");
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -206,6 +220,17 @@ const Auth: React.FC = () => {
   };
 
   const handleGoogleAuth = async () => {
+    // Block signup without quiz data (only if not in login mode)
+    if (!isLogin && !hasQuizData) {
+      toast({
+        title: "Complete o questionário primeiro",
+        description: "Para criar sua conta, você precisa responder o questionário para personalizarmos seu plano.",
+        variant: "destructive",
+      });
+      navigate("/welcome");
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -358,7 +383,19 @@ const Auth: React.FC = () => {
           {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              if (isLogin && !hasQuizData) {
+                // User wants to create account but hasn't completed quiz
+                toast({
+                  title: "Complete o questionário primeiro",
+                  description: "Para criar sua conta, você precisa responder o questionário para personalizarmos seu plano.",
+                  variant: "destructive",
+                });
+                navigate("/welcome");
+                return;
+              }
+              setIsLogin(!isLogin);
+            }}
             className="text-primary font-semibold hover:underline"
           >
             {isLogin ? "Criar conta" : "Entrar"}
