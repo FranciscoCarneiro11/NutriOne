@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from "react";
-import { Clock, Play, X } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { Clock, Play, X, Dumbbell, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getExerciseMedia } from "@/data/exerciseVideos";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Exercise {
   name: string;
@@ -21,6 +23,10 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
   index,
 }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [weight, setWeight] = useState<string>("");
+  const [lastWeight, setLastWeight] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   // Get video from the centralized database if not provided
   const exerciseMedia = useMemo(() => {
@@ -34,6 +40,77 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
   const thumbnailUrl = exerciseMedia?.thumbnailUrl;
   const hasVideo = !!videoUrl;
   const hasThumbnail = !!thumbnailUrl;
+
+  // Fetch last used weight for this exercise
+  useEffect(() => {
+    const fetchLastWeight = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('exercise_weights')
+        .select('weight')
+        .eq('user_id', user.id)
+        .eq('exercise_name', exercise.name)
+        .single();
+
+      if (data && !error) {
+        setLastWeight(data.weight);
+        setWeight(data.weight.toString());
+      }
+    };
+
+    fetchLastWeight();
+  }, [exercise.name]);
+
+  const handleSaveWeight = async () => {
+    if (!weight || isNaN(parseFloat(weight))) {
+      toast({
+        title: "Peso inválido",
+        description: "Por favor, insira um peso válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para salvar o peso.",
+        variant: "destructive",
+      });
+      setIsSaving(false);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('exercise_weights')
+      .upsert({
+        user_id: user.id,
+        exercise_name: exercise.name,
+        weight: parseFloat(weight),
+      }, {
+        onConflict: 'user_id,exercise_name'
+      });
+
+    if (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar o peso.",
+        variant: "destructive",
+      });
+    } else {
+      setLastWeight(parseFloat(weight));
+      toast({
+        title: "Peso salvo!",
+        description: `${weight}kg registrado para ${exercise.name}`,
+      });
+    }
+    setIsSaving(false);
+  };
 
   return (
     <>
@@ -103,6 +180,39 @@ const ExerciseDetailCard: React.FC<ExerciseDetailCardProps> = ({
                 </span>
               )}
             </div>
+
+            {/* Weight Input Section */}
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2 py-1.5 flex-1">
+                <Dumbbell className="w-4 h-4 text-muted-foreground" />
+                <input
+                  type="number"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder={lastWeight ? `Último: ${lastWeight}kg` : "Peso (kg)"}
+                  className="bg-transparent border-none text-sm w-full focus:outline-none text-foreground placeholder:text-muted-foreground"
+                />
+                <span className="text-xs text-muted-foreground">kg</span>
+              </div>
+              <button
+                onClick={handleSaveWeight}
+                disabled={isSaving || !weight}
+                className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  weight 
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </div>
+
+            {lastWeight && (
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Último peso registrado: <span className="font-medium text-foreground">{lastWeight}kg</span>
+              </p>
+            )}
 
             {hasVideo && (
               <button 
