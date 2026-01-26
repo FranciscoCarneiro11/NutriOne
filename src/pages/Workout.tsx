@@ -280,10 +280,15 @@ const Workout: React.FC = () => {
 
   return (
     <AppShell>
-      <AppHeader title="Treino" />
+      {/* Fixed Top Header - Always visible, navigates to dashboard */}
+      <AppHeader 
+        title="Treino" 
+        showBack 
+        onBack={() => navigate("/dashboard")}
+      />
 
       <AppContent className="pb-28">
-        {/* Tab Switcher */}
+        {/* Tab Switcher - Below header, always visible */}
         <div className="bg-card rounded-full p-1 flex gap-1 mb-6 border border-border shadow-card">
           <TabButton tab="treino" label="Seu Treino" />
           <TabButton tab="galeria" label="Galeria" />
