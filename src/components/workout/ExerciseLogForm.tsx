@@ -18,7 +18,7 @@ interface SetEntry {
 
 interface HistoryEntry {
   date: string;
-  sets: { weight: number | null; setNumber: number }[];
+  sets: { id: string; weight: number | null; setNumber: number }[];
 }
 
 const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
@@ -46,7 +46,7 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
 
     if (data && !error) {
       // Group logs by date
-      const grouped: Record<string, { weight: number | null; setNumber: number }[]> = {};
+      const grouped: Record<string, { id: string; weight: number | null; setNumber: number }[]> = {};
       
       data.forEach((log) => {
         const date = new Date(log.created_at).toLocaleDateString('pt-BR', {
@@ -59,6 +59,7 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
           grouped[date] = [];
         }
         grouped[date].push({
+          id: log.id,
           weight: log.weight,
           setNumber: log.sets_completed
         });
@@ -100,6 +101,22 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
       setNumber: i + 1
     }));
     setSets(newSets);
+  };
+
+  const deleteHistoryEntry = async (entry: HistoryEntry) => {
+    const ids = entry.sets.map(s => s.id);
+    
+    const { error } = await supabase
+      .from('exercise_logs')
+      .delete()
+      .in('id', ids);
+
+    if (error) {
+      toast.error("Erro ao apagar treino");
+    } else {
+      toast.success("Treino apagado!");
+      fetchHistory();
+    }
   };
 
   const updateSetWeight = (index: number, weight: string) => {
@@ -212,7 +229,16 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
         <div className="bg-muted/30 rounded-lg p-3 space-y-3 max-h-48 overflow-y-auto">
           {history.map((entry, idx) => (
             <div key={idx} className="border-b border-border/50 last:border-0 pb-2 last:pb-0">
-              <div className="text-sm text-muted-foreground mb-1">{entry.date}</div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm text-muted-foreground">{entry.date}</span>
+                <button
+                  onClick={() => deleteHistoryEntry(entry)}
+                  className="text-xs text-destructive hover:text-destructive/80 flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  Apagar
+                </button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {entry.sets.map((set, setIdx) => (
                   <span key={setIdx} className="text-sm bg-background px-2 py-1 rounded font-medium">
