@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Dumbbell, Check, History, Minus, Plus } from "lucide-react";
+import { Dumbbell, Check, History, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -9,21 +10,23 @@ interface ExerciseLogFormProps {
   exerciseName: string;
 }
 
-interface ExerciseLog {
-  id: string;
-  sets_completed: number;
-  weight: number | null;
-  created_at: string;
-  session_date?: string;
+interface SetEntry {
+  id?: string;
+  weight: string;
+  setNumber: number;
+}
+
+interface HistoryEntry {
+  date: string;
+  sets: { weight: number | null; setNumber: number }[];
 }
 
 const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
-  const [setsCompleted, setSetsCompleted] = useState(0);
-  const [weight, setWeight] = useState("");
+  const [sets, setSets] = useState<SetEntry[]>([{ weight: "", setNumber: 1 }]);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastLog, setLastLog] = useState<ExerciseLog | null>(null);
-  const [history, setHistory] = useState<ExerciseLog[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [lastWorkout, setLastWorkout] = useState<HistoryEntry | null>(null);
 
   useEffect(() => {
     fetchHistory();
@@ -39,23 +42,74 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
       .eq('user_id', user.id)
       .eq('exercise_name', exerciseName)
       .order('created_at', { ascending: false })
-      .limit(10);
+      .limit(50);
 
     if (data && !error) {
-      setHistory(data);
-      if (data.length > 0) {
-        setLastLog(data[0]);
-        // Pre-fill with last values
-        setSetsCompleted(data[0].sets_completed);
-        if (data[0].weight) {
-          setWeight(data[0].weight.toString());
+      // Group logs by date
+      const grouped: Record<string, { weight: number | null; setNumber: number }[]> = {};
+      
+      data.forEach((log) => {
+        const date = new Date(log.created_at).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: '2-digit'
+        });
+        
+        if (!grouped[date]) {
+          grouped[date] = [];
+        }
+        grouped[date].push({
+          weight: log.weight,
+          setNumber: log.sets_completed
+        });
+      });
+
+      // Convert to array and sort sets by setNumber
+      const historyArray: HistoryEntry[] = Object.entries(grouped).map(([date, sets]) => ({
+        date,
+        sets: sets.sort((a, b) => a.setNumber - b.setNumber)
+      }));
+
+      setHistory(historyArray);
+      
+      if (historyArray.length > 0) {
+        setLastWorkout(historyArray[0]);
+        // Pre-fill with last workout's sets
+        const prefillSets = historyArray[0].sets.map((s, idx) => ({
+          weight: s.weight?.toString() || "",
+          setNumber: idx + 1
+        }));
+        if (prefillSets.length > 0) {
+          setSets(prefillSets);
         }
       }
     }
   };
 
+  const addSet = () => {
+    setSets([...sets, { weight: "", setNumber: sets.length + 1 }]);
+  };
+
+  const removeSet = (index: number) => {
+    if (sets.length === 1) {
+      toast.error("Precisa ter pelo menos 1 série");
+      return;
+    }
+    const newSets = sets.filter((_, i) => i !== index).map((s, i) => ({
+      ...s,
+      setNumber: i + 1
+    }));
+    setSets(newSets);
+  };
+
+  const updateSetWeight = (index: number, weight: string) => {
+    const newSets = [...sets];
+    newSets[index] = { ...newSets[index], weight };
+    setSets(newSets);
+  };
+
   const handleSave = async () => {
-    if (setsCompleted === 0) {
+    if (sets.length === 0) {
       toast.error("Adicione pelo menos 1 série");
       return;
     }
@@ -69,7 +123,7 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
       return;
     }
 
-    // First, get or create today's session
+    // Get or create today's session
     const today = new Date().toISOString().split('T')[0];
     
     let { data: session } = await supabase
@@ -98,16 +152,18 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
       session = newSession;
     }
 
-    // Now save the exercise log
+    // Save each set as a separate log entry
+    const logsToInsert = sets.map((set) => ({
+      session_id: session.id,
+      user_id: user.id,
+      exercise_name: exerciseName,
+      sets_completed: set.setNumber,
+      weight: set.weight ? parseFloat(set.weight) : null,
+    }));
+
     const { error } = await supabase
       .from('exercise_logs')
-      .insert({
-        session_id: session.id,
-        user_id: user.id,
-        exercise_name: exerciseName,
-        sets_completed: setsCompleted,
-        weight: weight ? parseFloat(weight) : null,
-      });
+      .insert(logsToInsert);
 
     if (error) {
       toast.error("Erro ao salvar");
@@ -116,15 +172,6 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
       fetchHistory();
     }
     setIsSaving(false);
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: '2-digit',
-      year: '2-digit'
-    });
   };
 
   return (
@@ -146,27 +193,33 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
       </div>
 
       {/* Last workout indicator */}
-      {lastLog && !showHistory && (
+      {lastWorkout && !showHistory && (
         <div className="bg-muted/50 rounded-lg px-3 py-2 text-sm">
-          <span className="text-muted-foreground">Último treino: </span>
+          <span className="text-muted-foreground">Último treino ({lastWorkout.date}): </span>
           <span className="text-foreground font-medium">
-            {lastLog.sets_completed} séries
-            {lastLog.weight && ` • ${lastLog.weight}kg`}
+            {lastWorkout.sets.length} séries
+            {lastWorkout.sets.some(s => s.weight) && (
+              <span className="text-primary ml-1">
+                ({lastWorkout.sets.map(s => s.weight ? `${s.weight}kg` : '-').join(' | ')})
+              </span>
+            )}
           </span>
-          <span className="text-muted-foreground"> em {formatDate(lastLog.created_at)}</span>
         </div>
       )}
 
       {/* History panel */}
       {showHistory && (
-        <div className="bg-muted/30 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
-          {history.map((log) => (
-            <div key={log.id} className="flex items-center justify-between text-sm py-1.5 border-b border-border/50 last:border-0">
-              <span className="text-muted-foreground">{formatDate(log.created_at)}</span>
-              <span className="font-medium text-foreground">
-                {log.sets_completed} séries
-                {log.weight && <span className="text-primary ml-2">{log.weight}kg</span>}
-              </span>
+        <div className="bg-muted/30 rounded-lg p-3 space-y-3 max-h-48 overflow-y-auto">
+          {history.map((entry, idx) => (
+            <div key={idx} className="border-b border-border/50 last:border-0 pb-2 last:pb-0">
+              <div className="text-sm text-muted-foreground mb-1">{entry.date}</div>
+              <div className="flex flex-wrap gap-2">
+                {entry.sets.map((set, setIdx) => (
+                  <span key={setIdx} className="text-sm bg-background px-2 py-1 rounded font-medium">
+                    S{set.setNumber}: {set.weight ? `${set.weight}kg` : '-'}
+                  </span>
+                ))}
+              </div>
             </div>
           ))}
           {history.length === 0 && (
@@ -177,51 +230,50 @@ const ExerciseLogForm: React.FC<ExerciseLogFormProps> = ({ exerciseName }) => {
         </div>
       )}
 
-      {/* Input fields */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Sets counter */}
+      {/* Sets list */}
+      <div className="space-y-2">
+        <label className="text-sm text-muted-foreground">Séries</label>
         <div className="space-y-2">
-          <label className="text-sm text-muted-foreground">Séries feitas</label>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSetsCompleted(Math.max(0, setsCompleted - 1))}
-              className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 transition-colors"
-            >
-              <Minus className="w-4 h-4" />
-            </button>
-            <span className="flex-1 text-center text-2xl font-bold text-foreground">
-              {setsCompleted}
-            </span>
-            <button
-              onClick={() => setSetsCompleted(setsCompleted + 1)}
-              className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
+          {sets.map((set, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <span className="text-sm font-medium text-muted-foreground w-8">
+                {set.setNumber}ª
+              </span>
+              <div className="flex-1 flex items-center gap-1.5 bg-muted/50 rounded-lg px-3 py-2">
+                <Dumbbell className="w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  value={set.weight}
+                  onChange={(e) => updateSetWeight(index, e.target.value)}
+                  placeholder="0"
+                  className="bg-transparent border-none text-base font-semibold h-auto p-0 focus-visible:ring-0"
+                />
+                <span className="text-sm text-muted-foreground">kg</span>
+              </div>
+              <button
+                onClick={() => removeSet(index)}
+                className="w-8 h-8 rounded-lg bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
         </div>
 
-        {/* Weight input */}
-        <div className="space-y-2">
-          <label className="text-sm text-muted-foreground">Peso (kg)</label>
-          <div className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-3 py-2 h-10">
-            <Dumbbell className="w-4 h-4 text-muted-foreground" />
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              placeholder="0"
-              className="bg-transparent border-none text-lg font-semibold w-full focus:outline-none text-foreground placeholder:text-muted-foreground"
-            />
-            <span className="text-sm text-muted-foreground">kg</span>
-          </div>
-        </div>
+        {/* Add set button */}
+        <button
+          onClick={addSet}
+          className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Adicionar série
+        </button>
       </div>
 
       {/* Save button */}
       <Button
         onClick={handleSave}
-        disabled={isSaving || setsCompleted === 0}
+        disabled={isSaving || sets.length === 0}
         className="w-full"
       >
         {isSaving ? (
