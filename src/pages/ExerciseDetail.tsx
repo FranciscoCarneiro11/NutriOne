@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import ExerciseLogForm from "@/components/workout/ExerciseLogForm";
 
 // Dados dos exercícios (mesma estrutura da galeria)
 const allExercises: Record<string, { name: string; muscleGroup: string; videoUrl?: string; description?: string }> = {
@@ -149,7 +150,7 @@ const ExerciseDetail: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-6">
       {/* Video Section */}
       <div className="relative aspect-video bg-black">
         {exercise.videoUrl ? (
@@ -218,6 +219,9 @@ const ExerciseDetail: React.FC = () => {
             {exercise.name}
           </h1>
         </div>
+
+        {/* Exercise Log Form */}
+        <ExerciseLogForm exerciseName={exercise.name} />
 
         {/* Description */}
         {exercise.description && (

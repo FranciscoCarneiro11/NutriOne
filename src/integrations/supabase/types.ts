@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      exercise_logs: {
+        Row: {
+          created_at: string
+          exercise_name: string
+          id: string
+          notes: string | null
+          session_id: string
+          sets_completed: number
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          session_id: string
+          sets_completed?: number
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          session_id?: string
+          sets_completed?: number
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercise_weights: {
         Row: {
           created_at: string
@@ -248,6 +292,36 @@ export type Database = {
           logged_at?: string
           user_id?: string
           weight?: number
+        }
+        Relationships: []
+      }
+      workout_sessions: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          id: string
+          session_date: string
+          updated_at: string
+          user_id: string
+          workout_name: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          session_date?: string
+          updated_at?: string
+          user_id: string
+          workout_name?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          session_date?: string
+          updated_at?: string
+          user_id?: string
+          workout_name?: string | null
         }
         Relationships: []
       }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
-import { Sparkles, Dumbbell, RefreshCw } from "lucide-react";
+import { Sparkles, Dumbbell, RefreshCw, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -53,6 +53,7 @@ type TabType = "treino" | "galeria";
 const Workout: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") === "gallery" ? "galeria" : "treino";
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
@@ -368,19 +369,29 @@ const Workout: React.FC = () => {
                     <h2 className="text-xl font-bold text-foreground">Seus Treinos</h2>
                     <p className="text-muted-foreground text-sm">Toque num treino para ver os exercícios</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={generateWorkoutPlan}
-                    disabled={generating}
-                    className="text-primary"
-                  >
-                    {generating ? (
-                      <RefreshCw className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <RefreshCw className="w-5 h-5" />
-                    )}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigate("/workout-history")}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <History className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={generateWorkoutPlan}
+                      disabled={generating}
+                      className="text-primary"
+                    >
+                      {generating ? (
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-5 h-5" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Gallery Grid */}
