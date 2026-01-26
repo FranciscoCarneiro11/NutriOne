@@ -141,7 +141,7 @@ const ExerciseDetail: React.FC = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">Exercício não encontrado</p>
-          <Button onClick={() => navigate("/workout?tab=gallery")} className="mt-4">
+          <Button onClick={() => navigate(-1)} className="mt-4">
             Voltar
           </Button>
         </div>
@@ -185,7 +185,7 @@ const ExerciseDetail: React.FC = () => {
         
         {/* Back Button */}
         <button
-          onClick={() => navigate("/workout?tab=gallery")}
+          onClick={() => navigate(-1)}
           className="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
