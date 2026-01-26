@@ -1,13 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 
 const Privacy: React.FC = () => {
-  const navigate = useNavigate();
-
   return (
     <AppShell>
-      <AppHeader title="Privacidade" showBack onBack={() => navigate("/profile")} />
+      <AppHeader title="Privacidade" showBack />
 
       <AppContent className="pb-8">
         <div className="space-y-6">

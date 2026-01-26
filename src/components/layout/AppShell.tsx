@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
@@ -52,6 +53,22 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   showBack,
   onBack,
 }) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      // Check if there's browser history to go back to
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        // Fallback to dashboard if no history
+        navigate("/dashboard");
+      }
+    }
+  };
+
   return (
     <header
       className={cn(
@@ -60,9 +77,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       )}
     >
       <div className="w-12 flex justify-start">
-        {showBack && onBack ? (
+        {showBack ? (
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
