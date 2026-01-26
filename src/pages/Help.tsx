@@ -1,11 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { MessageCircle, Mail, FileText } from "lucide-react";
 
 const Help: React.FC = () => {
-  const navigate = useNavigate();
-
   const helpItems = [
     {
       icon: FileText,
@@ -26,7 +23,7 @@ const Help: React.FC = () => {
 
   return (
     <AppShell>
-      <AppHeader title="Ajuda & Suporte" showBack onBack={() => navigate("/profile")} />
+      <AppHeader title="Ajuda & Suporte" showBack />
 
       <AppContent className="pb-8">
         <div className="space-y-4 mb-8">

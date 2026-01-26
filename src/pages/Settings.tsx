@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -9,7 +8,6 @@ import { useTheme } from "@/hooks/useTheme";
 import { Moon, Ruler } from "lucide-react";
 
 const Settings: React.FC = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, setTheme, isLoading: isThemeLoading } = useTheme();
   const [useMetric, setUseMetric] = useState(true);
@@ -73,7 +71,7 @@ const Settings: React.FC = () => {
 
   return (
     <AppShell>
-      <AppHeader title="Configurações" showBack onBack={() => navigate("/profile")} />
+      <AppHeader title="Configurações" showBack />
 
       <AppContent className="pb-8">
         <div className="space-y-4">

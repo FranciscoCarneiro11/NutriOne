@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -8,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Bell } from "lucide-react";
 
 const Notifications: React.FC = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
@@ -60,7 +58,7 @@ const Notifications: React.FC = () => {
 
   return (
     <AppShell>
-      <AppHeader title="Notificações" showBack onBack={() => navigate("/profile")} />
+      <AppHeader title="Notificações" showBack />
 
       <AppContent className="pb-8">
         <div className="space-y-4">
