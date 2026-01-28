@@ -97,19 +97,19 @@ serve(async (req) => {
 
     const restrictions = profile.dietary_restrictions?.join(", ") || "nenhuma";
 
-    // Professional sports nutritionist system prompt
-    const systemPrompt = `Você é um nutricionista esportivo profissional especializado em composição corporal, inspirado em metodologias práticas de musculação brasileira e evidências científicas (USDA, EFSA, OMS).
+    // Traditional & Global Sports Nutritionist system prompt
+    const systemPrompt = `Você é um Nutricionista Esportivo TRADICIONAL, PRÁTICO e BASEADO EM EVIDÊNCIAS. Seu objetivo é criar planos alimentares SIMPLES, ACESSÍVEIS e UNIVERSAIS. Evite qualquer alimento incomum, regional ou "gourmet".
 
-REGRAS OBRIGATÓRIAS:
-- NUNCA crie planos genéricos
-- PRIORIZE alimentos simples, comuns e baratos (acessíveis)
-- NÃO prescreva suplementos ou medicamentos
-- USE fórmulas reconhecidas como Mifflin-St Jeor para cálculos
+REGRAS ESTRITAS (NÃO QUEBRE):
+- NUNCA crie dietas genéricas ou exóticas
+- USE APENAS alimentos universais: Ovos, frango, carne bovina magra, peixes comuns (atum/tilápia), iogurte, leite, arroz, batata, aveia, pão simples, macarrão, azeite, manteiga, amendoim, alface, tomate, cenoura, brócolis, banana, maçã e laranja
+- SEM suplementos, medicamentos ou "superfoods" caros
+- USE a fórmula Mifflin-St Jeor para todos os cálculos calóricos
 - O plano deve parecer algo que um nutricionista experiente realmente prescreveria
 
 ESTILO NUTRICIONAL:
 - Foco em praticidade e adesão a longo prazo
-- Ingredientes brasileiros fáceis de encontrar
+- Ingredientes universais fáceis de encontrar em qualquer lugar
 - Preparações simples que qualquer pessoa consegue fazer
 - Distribuição equilibrada de macros ao longo do dia
 
@@ -119,13 +119,7 @@ ESTRUTURA DAS REFEIÇÕES:
 - Lanche: proteína + carboidrato de fácil digestão
 - Jantar: proteína + carboidrato moderado + vegetais
 
-EXEMPLOS DE ALIMENTOS ACESSÍVEIS:
-- Proteínas: ovos, frango, carne moída, sardinha, atum, queijo cottage
-- Carbos: arroz, batata, pão integral, aveia, banana, mandioca
-- Gorduras: azeite, amendoim, abacate
-- Vegetais: alface, tomate, cenoura, brócolis, abobrinha
-
-Retorne APENAS JSON válido, sem markdown ou texto adicional.`;
+Retorne APENAS JSON válido, sem markdown, texto introdutório ou conclusivo.`;
 
     const goalText = profile.goal === "weight-loss" ? "emagrecer e definir" 
       : profile.goal === "muscle" ? "ganhar massa muscular" 
@@ -155,14 +149,14 @@ DISTRIBUIÇÃO DE MACROS RECOMENDADA:
 
 REQUISITOS:
 - 4 refeições por dia: breakfast (Café da manhã), lunch (Almoço), snack (Lanche), dinner (Jantar)
+- USE APENAS alimentos universais listados nas regras
 - Variar ingredientes entre os dias para evitar monotonia
-- Horários realistas para rotina brasileira
-- Incluir lista de itens específicos em cada refeição
+- Horários realistas para rotina comum
 
 FORMATO JSON OBRIGATÓRIO:
 {
   "daily_calories": ${targetCalories},
-  "macronutrients": {
+  "macros": {
     "protein": "${Math.round(profile.weight * (profile.goal === "muscle" ? 2.0 : 1.6))}g",
     "carbs": "${Math.round((targetCalories * 0.45) / 4)}g",
     "fats": "${Math.round((targetCalories * 0.25) / 9)}g"
@@ -171,18 +165,21 @@ FORMATO JSON OBRIGATÓRIO:
     {
       "day": 1,
       "meal_type": "breakfast",
+      "name": "Refeição 1",
       "title": "Café da Manhã Proteico",
+      "description": "Ex: 3 ovos cozidos e 1 banana com aveia.",
       "time": "07:00",
       "calories": 450,
       "protein": 30,
       "carbs": 45,
       "fat": 15,
-      "items": ["3 ovos mexidos", "2 fatias pão integral", "1 banana", "café sem açúcar"]
+      "macros": "P: 30g | C: 45g | G: 15g",
+      "items": ["3 ovos cozidos", "1 banana", "40g aveia", "café sem açúcar"]
     }
   ],
-  "substitutions": "Pode trocar frango por peixe, arroz por batata, etc.",
-  "shopping_list": "Lista de compras semanal econômica",
-  "final_tips": "Dicas práticas de adesão ao plano"
+  "substitutions": "Lista de trocas simples e equivalentes.",
+  "shopping_list": "Lista de compras universal e barata.",
+  "final_tips": "Dicas práticas de adesão e consistência."
 }`;
 
     console.log("Calling OpenAI gpt-4o-mini for meal plan...");
