@@ -59,17 +59,45 @@ const Workout: React.FC = () => {
   // Read tab from URL, defaulting to "treino"
   const tabParam = searchParams.get("tab");
   const activeTab: TabType = tabParam === "galeria" ? "galeria" : "treino";
+  
+  // Read selected day index from URL for persistence
+  const dayParam = searchParams.get("day");
 
   // Function to change tabs while preserving URL state for back navigation
   const setActiveTab = (tab: TabType) => {
+    // Clear day when switching tabs
     setSearchParams({ tab }, { replace: true });
   };
+  
   const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<DaySchedule | null>(null);
   const [isBackgroundGenerating, setIsBackgroundGenerating] = useState(false);
   const [hasPlanError, setHasPlanError] = useState(false);
+  
+  // Derive selectedDay from URL param and workoutPlan
+  const selectedDay: DaySchedule | null = React.useMemo(() => {
+    if (dayParam !== null && workoutPlan?.weekly_schedule) {
+      const dayIndex = parseInt(dayParam, 10);
+      if (!isNaN(dayIndex) && dayIndex >= 0 && dayIndex < workoutPlan.weekly_schedule.length) {
+        return workoutPlan.weekly_schedule[dayIndex];
+      }
+    }
+    return null;
+  }, [dayParam, workoutPlan]);
+
+  // Function to select a day (updates URL for back navigation support)
+  const selectDay = (schedule: DaySchedule) => {
+    const dayIndex = workoutPlan?.weekly_schedule?.indexOf(schedule);
+    if (dayIndex !== undefined && dayIndex >= 0) {
+      setSearchParams({ tab: "treino", day: dayIndex.toString() });
+    }
+  };
+
+  // Function to go back from day view to main list
+  const clearSelectedDay = () => {
+    setSearchParams({ tab: "treino" }, { replace: true });
+  };
 
   const today = new Date();
   const dayOfWeek = today.getDay();
@@ -198,7 +226,7 @@ const Workout: React.FC = () => {
     <button
       onClick={() => {
         setActiveTab(tab);
-        setSelectedDay(null); // Reset selected day when switching tabs
+        // Day state is cleared automatically since we change tab param without day param
       }}
       className={cn(
         "flex-1 py-3 px-6 rounded-full font-semibold text-sm transition-all",
@@ -233,7 +261,7 @@ const Workout: React.FC = () => {
         <AppHeader 
           title={selectedDay.focus}
           showBack
-          onBack={() => setSelectedDay(null)}
+          onBack={clearSelectedDay}
         />
         <AppContent className="pb-28">
           {/* Header Info */}
@@ -408,7 +436,7 @@ const Workout: React.FC = () => {
                       exerciseCount={schedule.exercises?.length || 0}
                       isToday={isWorkoutToday(schedule)}
                       dayLabel={getDayLabel(schedule.day)}
-                      onClick={() => setSelectedDay(schedule)}
+                      onClick={() => selectDay(schedule)}
                     />
                   ))}
                 </div>
