@@ -482,45 +482,63 @@ const Diet: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ["meals", selectedDate] });
   }, [queryClient, selectedDate]);
 
+  const [retryCount, setRetryCount] = useState(0);
+
   const handleGenerateMealPlan = async () => {
     setIsGeneratingPlan(true);
+    setHasPlanError(false);
+    
     try {
       const { data, error } = await supabase.functions.invoke('generate-meal-plan', {
-        body: { daysToGenerate: 7 },
+        body: { daysToGenerate: 3 }, // Reduced to 3 days to prevent timeout
       });
 
       if (error) {
         console.error("Edge function error:", error);
+        
+        // Friendly retry message instead of red error
+        if (retryCount < 2) {
+          setRetryCount(prev => prev + 1);
+          toast({
+            title: "Tentando novamente...",
+            description: "A IA está processando. Por favor aguarde.",
+          });
+          // Auto-retry after 2 seconds
+          setTimeout(() => handleGenerateMealPlan(), 2000);
+          return;
+        }
+        
+        setHasPlanError(true);
         toast({
-          title: "Erro",
-          description: error.message || "Não foi possível gerar o plano",
-          variant: "destructive",
+          title: "Não foi possível gerar",
+          description: "Tente novamente em alguns segundos.",
         });
         return;
       }
 
       if (data?.error) {
+        setHasPlanError(true);
         toast({
-          title: "Erro",
+          title: "Tente novamente",
           description: data.error,
-          variant: "destructive",
         });
         return;
       }
 
+      setRetryCount(0);
       toast({
         title: "Sucesso!",
-        description: data?.message || "Plano alimentar gerado com sucesso!",
+        description: data?.message || "Plano alimentar gerado!",
       });
 
       // Refresh meals
       queryClient.invalidateQueries({ queryKey: ["meals"] });
     } catch (err: any) {
       console.error("Failed to generate meal plan:", err);
+      setHasPlanError(true);
       toast({
-        title: "Erro",
-        description: err?.message || "Ocorreu um erro inesperado. Tente novamente.",
-        variant: "destructive",
+        title: "Tente novamente",
+        description: "Ocorreu um erro. Clique para tentar novamente.",
       });
     } finally {
       setIsGeneratingPlan(false);
@@ -691,7 +709,7 @@ const Diet: React.FC = () => {
           </div>
         )}
 
-        {/* Regenerate Weekly Plan Button */}
+        {/* Regenerate Plan Button */}
         <div className="mt-8">
           <Button
             onClick={handleGenerateMealPlan}
@@ -700,8 +718,13 @@ const Diet: React.FC = () => {
             size="lg"
           >
             <Sparkles className={cn("w-5 h-5 mr-2", isGeneratingPlan && "animate-spin")} />
-            {isGeneratingPlan ? "A gerar plano..." : "Regenerar Plano Semanal"}
+            {isGeneratingPlan ? "A gerar... (até 30s)" : "Regenerar Plano (3 dias)"}
           </Button>
+          {isGeneratingPlan && (
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              A IA está a criar o seu plano personalizado. Aguarde...
+            </p>
+          )}
         </div>
       </AppContent>
 

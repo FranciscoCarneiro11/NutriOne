@@ -76,7 +76,9 @@ serve(async (req) => {
       );
     }
 
-    const { daysToGenerate = 7 } = await req.json().catch(() => ({}));
+    // Limit to 3 days to prevent token truncation and timeout issues
+    const { daysToGenerate = 3 } = await req.json().catch(() => ({}));
+    const safeDays = Math.min(daysToGenerate, 3); // Cap at 3 to prevent JSON truncation
 
     // Calculate target calories
     const bmr = profile.gender === "male"
@@ -125,61 +127,29 @@ Retorne APENAS JSON válido, sem markdown, texto introdutório ou conclusivo.`;
       : profile.goal === "muscle" ? "ganhar massa muscular" 
       : "manter peso e saúde";
 
-    const userPrompt = `Crie um plano alimentar TOTALMENTE PERSONALIZADO para ${daysToGenerate} dias.
+    const userPrompt = `Crie um plano alimentar para ${safeDays} dias.
 
-DADOS DO USUÁRIO:
-- Sexo: ${profile.gender === "male" ? "Masculino" : "Feminino"}
-- Idade: ${profile.age} anos
-- Peso: ${profile.weight}kg
-- Altura: ${profile.height}cm
-- Peso meta: ${profile.target_weight || profile.weight}kg
-- Objetivo: ${goalText}
-- Nível de atividade: ${profile.activity_level}
-- Restrições alimentares: ${restrictions}
+DADOS: Sexo: ${profile.gender === "male" ? "M" : "F"}, ${profile.age} anos, ${profile.weight}kg, ${profile.height}cm, Meta: ${goalText}, Atividade: ${profile.activity_level}, Restrições: ${restrictions}
 
-CÁLCULOS (Mifflin-St Jeor):
-- TMB: ${Math.round(bmr)} kcal
-- TDEE: ${Math.round(tdee)} kcal
-- Meta calórica diária: ${targetCalories} kcal
+Meta calórica: ${targetCalories} kcal/dia
+Macros: P: ${Math.round(profile.weight * (profile.goal === "muscle" ? 2.0 : 1.6))}g | C: ${Math.round((targetCalories * 0.45) / 4)}g | G: ${Math.round((targetCalories * 0.25) / 9)}g
 
-DISTRIBUIÇÃO DE MACROS RECOMENDADA:
-- Proteína: ${Math.round(profile.weight * (profile.goal === "muscle" ? 2.0 : 1.6))}g (${profile.goal === "muscle" ? "2.0" : "1.6"}g/kg)
-- Carboidratos: ${Math.round((targetCalories * 0.45) / 4)}g (~45% das calorias)
-- Gorduras: ${Math.round((targetCalories * 0.25) / 9)}g (~25% das calorias)
+GERE EXATAMENTE ${safeDays * 4} refeições (${safeDays} dias x 4 refeições: breakfast, lunch, snack, dinner).
+Use APENAS: ovos, frango, carne, peixe, arroz, batata, aveia, pão, azeite, amendoim, frutas e vegetais comuns.
 
-REQUISITOS:
-- 4 refeições por dia: breakfast (Café da manhã), lunch (Almoço), snack (Lanche), dinner (Jantar)
-- USE APENAS alimentos universais listados nas regras
-- Variar ingredientes entre os dias para evitar monotonia
-- Horários realistas para rotina comum
-
-FORMATO JSON OBRIGATÓRIO:
+RETORNE APENAS JSON (sem texto adicional):
 {
   "daily_calories": ${targetCalories},
-  "macros": {
-    "protein": "${Math.round(profile.weight * (profile.goal === "muscle" ? 2.0 : 1.6))}g",
-    "carbs": "${Math.round((targetCalories * 0.45) / 4)}g",
-    "fats": "${Math.round((targetCalories * 0.25) / 9)}g"
-  },
+  "macros": {"protein": "Xg", "carbs": "Xg", "fats": "Xg"},
   "meals": [
-    {
-      "day": 1,
-      "meal_type": "breakfast",
-      "name": "Refeição 1",
-      "title": "Café da Manhã Proteico",
-      "description": "Ex: 3 ovos cozidos e 1 banana com aveia.",
-      "time": "07:00",
-      "calories": 450,
-      "protein": 30,
-      "carbs": 45,
-      "fat": 15,
-      "macros": "P: 30g | C: 45g | G: 15g",
-      "items": ["3 ovos cozidos", "1 banana", "40g aveia", "café sem açúcar"]
-    }
+    {"day": 1, "meal_type": "breakfast", "title": "Titulo", "time": "07:00", "calories": 450, "protein": 30, "carbs": 45, "fat": 15, "items": ["item1", "item2"]},
+    {"day": 1, "meal_type": "lunch", "title": "Titulo", "time": "12:00", "calories": 600, "protein": 40, "carbs": 60, "fat": 20, "items": ["item1", "item2"]},
+    {"day": 1, "meal_type": "snack", "title": "Titulo", "time": "16:00", "calories": 300, "protein": 20, "carbs": 30, "fat": 10, "items": ["item1", "item2"]},
+    {"day": 1, "meal_type": "dinner", "title": "Titulo", "time": "20:00", "calories": 500, "protein": 35, "carbs": 45, "fat": 18, "items": ["item1", "item2"]}
   ],
-  "substitutions": "Lista de trocas simples e equivalentes.",
-  "shopping_list": "Lista de compras universal e barata.",
-  "final_tips": "Dicas práticas de adesão e consistência."
+  "substitutions": "Trocas simples",
+  "shopping_list": "Lista curta",
+  "final_tips": "Dicas breves"
 }`;
 
     console.log("Calling OpenAI gpt-4o-mini for meal plan...");
@@ -194,7 +164,7 @@ FORMATO JSON OBRIGATÓRIO:
           { role: "user", content: userPrompt },
         ],
         response_format: { type: "json_object" },
-        max_tokens: 4000, // Increased for more detailed meal plans
+        max_tokens: 2500, // Reduced to ensure complete JSON output
         temperature: 0.7,
       });
     } catch (openaiError: any) {
@@ -255,22 +225,31 @@ FORMATO JSON OBRIGATÓRIO:
       );
     }
 
+    // Validate meals array exists
+    if (!mealPlan.meals || !Array.isArray(mealPlan.meals) || mealPlan.meals.length === 0) {
+      console.error("Invalid meal plan structure:", JSON.stringify(mealPlan).substring(0, 500));
+      return new Response(
+        JSON.stringify({ error: "Plano inválido gerado. Tente novamente." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Calculate dates for each day
     const today = new Date();
     const mealsToInsert = mealPlan.meals.map((meal: any) => {
       const date = new Date(today);
-      date.setDate(today.getDate() + (meal.day - 1));
+      date.setDate(today.getDate() + ((meal.day || 1) - 1));
       return {
         user_id: user.id,
         date: date.toISOString().split("T")[0],
-        meal_type: meal.meal_type,
-        title: meal.title,
-        time: meal.time,
-        calories: meal.calories,
-        protein: meal.protein,
-        carbs: meal.carbs,
-        fat: meal.fat,
-        items: meal.items,
+        meal_type: meal.meal_type || "snack",
+        title: meal.title || "Refeição",
+        time: meal.time || "12:00",
+        calories: meal.calories || 400,
+        protein: meal.protein || 25,
+        carbs: meal.carbs || 40,
+        fat: meal.fat || 15,
+        items: Array.isArray(meal.items) ? meal.items : [],
         completed: false,
       };
     });
@@ -293,33 +272,18 @@ FORMATO JSON OBRIGATÓRIO:
     if (insertError) {
       console.error("Insert error:", insertError);
       return new Response(
-        JSON.stringify({ error: "Failed to save meal plan to database" }),
+        JSON.stringify({ error: "Erro ao salvar plano. Tente novamente." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     console.log("Meal plan saved successfully");
 
-    // Log additional plan metadata for debugging
-    console.log("Plan metadata:", {
-      daily_calories: mealPlan.daily_calories,
-      macronutrients: mealPlan.macronutrients,
-      has_substitutions: !!mealPlan.substitutions,
-      has_shopping_list: !!mealPlan.shopping_list
-    });
-
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Plano alimentar gerado para ${daysToGenerate} dias!`,
-        mealsCount: mealsToInsert.length,
-        meta: {
-          daily_calories: mealPlan.daily_calories || targetCalories,
-          macronutrients: mealPlan.macronutrients || null,
-          substitutions: mealPlan.substitutions || null,
-          shopping_list: mealPlan.shopping_list || null,
-          final_tips: mealPlan.final_tips || null
-        }
+        message: `Plano alimentar gerado para ${safeDays} dias!`,
+        mealsCount: mealsToInsert.length
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
