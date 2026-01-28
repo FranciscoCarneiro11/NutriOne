@@ -97,17 +97,93 @@ serve(async (req) => {
 
     const restrictions = profile.dietary_restrictions?.join(", ") || "nenhuma";
 
-    // Optimized concise prompt
-    const systemPrompt = `Você é um nutricionista brasileiro. Retorne APENAS JSON válido, sem markdown.`;
+    // Professional sports nutritionist system prompt
+    const systemPrompt = `Você é um nutricionista esportivo profissional especializado em composição corporal, inspirado em metodologias práticas de musculação brasileira e evidências científicas (USDA, EFSA, OMS).
 
-    const userPrompt = `Crie ${daysToGenerate} dias de refeições (${targetCalories}kcal/dia).
-Perfil: ${profile.gender === "male" ? "M" : "F"}, ${profile.age}a, ${profile.weight}kg, ${profile.goal === "weight-loss" ? "emagrecer" : profile.goal === "muscle" ? "ganhar massa" : "manter"}
-Restrições: ${restrictions}
+REGRAS OBRIGATÓRIAS:
+- NUNCA crie planos genéricos
+- PRIORIZE alimentos simples, comuns e baratos (acessíveis)
+- NÃO prescreva suplementos ou medicamentos
+- USE fórmulas reconhecidas como Mifflin-St Jeor para cálculos
+- O plano deve parecer algo que um nutricionista experiente realmente prescreveria
 
-JSON formato:
-{"meals":[{"day":1,"meal_type":"breakfast","title":"Nome","time":"07:30","calories":400,"protein":25,"carbs":45,"fat":12,"items":["item1","item2"]}]}
+ESTILO NUTRICIONAL:
+- Foco em praticidade e adesão a longo prazo
+- Ingredientes brasileiros fáceis de encontrar
+- Preparações simples que qualquer pessoa consegue fazer
+- Distribuição equilibrada de macros ao longo do dia
 
-4 refeições/dia: breakfast, lunch, dinner, snack. Ingredientes brasileiros. Seja conciso.`;
+ESTRUTURA DAS REFEIÇÕES:
+- Café da manhã: proteína + carboidrato complexo + fruta
+- Almoço: proteína magra + arroz/batata + legumes + salada
+- Lanche: proteína + carboidrato de fácil digestão
+- Jantar: proteína + carboidrato moderado + vegetais
+
+EXEMPLOS DE ALIMENTOS ACESSÍVEIS:
+- Proteínas: ovos, frango, carne moída, sardinha, atum, queijo cottage
+- Carbos: arroz, batata, pão integral, aveia, banana, mandioca
+- Gorduras: azeite, amendoim, abacate
+- Vegetais: alface, tomate, cenoura, brócolis, abobrinha
+
+Retorne APENAS JSON válido, sem markdown ou texto adicional.`;
+
+    const goalText = profile.goal === "weight-loss" ? "emagrecer e definir" 
+      : profile.goal === "muscle" ? "ganhar massa muscular" 
+      : "manter peso e saúde";
+
+    const userPrompt = `Crie um plano alimentar TOTALMENTE PERSONALIZADO para ${daysToGenerate} dias.
+
+DADOS DO USUÁRIO:
+- Sexo: ${profile.gender === "male" ? "Masculino" : "Feminino"}
+- Idade: ${profile.age} anos
+- Peso: ${profile.weight}kg
+- Altura: ${profile.height}cm
+- Peso meta: ${profile.target_weight || profile.weight}kg
+- Objetivo: ${goalText}
+- Nível de atividade: ${profile.activity_level}
+- Restrições alimentares: ${restrictions}
+
+CÁLCULOS (Mifflin-St Jeor):
+- TMB: ${Math.round(bmr)} kcal
+- TDEE: ${Math.round(tdee)} kcal
+- Meta calórica diária: ${targetCalories} kcal
+
+DISTRIBUIÇÃO DE MACROS RECOMENDADA:
+- Proteína: ${Math.round(profile.weight * (profile.goal === "muscle" ? 2.0 : 1.6))}g (${profile.goal === "muscle" ? "2.0" : "1.6"}g/kg)
+- Carboidratos: ${Math.round((targetCalories * 0.45) / 4)}g (~45% das calorias)
+- Gorduras: ${Math.round((targetCalories * 0.25) / 9)}g (~25% das calorias)
+
+REQUISITOS:
+- 4 refeições por dia: breakfast (Café da manhã), lunch (Almoço), snack (Lanche), dinner (Jantar)
+- Variar ingredientes entre os dias para evitar monotonia
+- Horários realistas para rotina brasileira
+- Incluir lista de itens específicos em cada refeição
+
+FORMATO JSON OBRIGATÓRIO:
+{
+  "daily_calories": ${targetCalories},
+  "macronutrients": {
+    "protein": "${Math.round(profile.weight * (profile.goal === "muscle" ? 2.0 : 1.6))}g",
+    "carbs": "${Math.round((targetCalories * 0.45) / 4)}g",
+    "fats": "${Math.round((targetCalories * 0.25) / 9)}g"
+  },
+  "meals": [
+    {
+      "day": 1,
+      "meal_type": "breakfast",
+      "title": "Café da Manhã Proteico",
+      "time": "07:00",
+      "calories": 450,
+      "protein": 30,
+      "carbs": 45,
+      "fat": 15,
+      "items": ["3 ovos mexidos", "2 fatias pão integral", "1 banana", "café sem açúcar"]
+    }
+  ],
+  "substitutions": "Pode trocar frango por peixe, arroz por batata, etc.",
+  "shopping_list": "Lista de compras semanal econômica",
+  "final_tips": "Dicas práticas de adesão ao plano"
+}`;
 
     console.log("Calling OpenAI gpt-4o-mini for meal plan...");
     const startTime = Date.now();
@@ -120,7 +196,8 @@ JSON formato:
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 3000,
+        response_format: { type: "json_object" },
+        max_tokens: 4000, // Increased for more detailed meal plans
         temperature: 0.7,
       });
     } catch (openaiError: any) {
@@ -226,11 +303,26 @@ JSON formato:
 
     console.log("Meal plan saved successfully");
 
+    // Log additional plan metadata for debugging
+    console.log("Plan metadata:", {
+      daily_calories: mealPlan.daily_calories,
+      macronutrients: mealPlan.macronutrients,
+      has_substitutions: !!mealPlan.substitutions,
+      has_shopping_list: !!mealPlan.shopping_list
+    });
+
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Meal plan generated for ${daysToGenerate} days!`,
-        mealsCount: mealsToInsert.length 
+        message: `Plano alimentar gerado para ${daysToGenerate} dias!`,
+        mealsCount: mealsToInsert.length,
+        meta: {
+          daily_calories: mealPlan.daily_calories || targetCalories,
+          macronutrients: mealPlan.macronutrients || null,
+          substitutions: mealPlan.substitutions || null,
+          shopping_list: mealPlan.shopping_list || null,
+          final_tips: mealPlan.final_tips || null
+        }
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
