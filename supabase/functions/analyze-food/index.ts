@@ -72,25 +72,35 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a nutrition expert AI. Analyze food images and provide accurate nutritional estimates.
-Always respond with ONLY a valid JSON object in this exact format:
+            content: `You are an AI specialized in nutritional food analysis from images, focusing on REALISTIC and EVIDENCE-BASED estimates (USDA, EFSA, TACO).
+
+STRICT RULES (DO NOT BREAK):
+1. Estimation Only: Always state that values are estimates, not exact weights.
+2. Conservative Averages: If in doubt, choose conservative average values.
+3. Global Foods: Use simple, globally known foods. Avoid rare or highly regional ingredients.
+4. No Fabricated Data: Base every calculation on recognized nutritional databases.
+
+OUTPUT FORMAT: Return ONLY a valid JSON object. No text before or after.
 {
-  "title": "Name of the meal in Portuguese",
+  "title": "Nome da refeição em português",
   "calories": number,
-  "protein": number (in grams),
-  "carbs": number (in grams),
-  "fat": number (in grams),
+  "protein": number (gramas),
+  "carbs": number (gramas),
+  "fat": number (gramas),
   "mealType": "breakfast" | "lunch" | "dinner" | "snack",
-  "items": ["ingredient 1 in Portuguese", "ingredient 2 in Portuguese", ...]
-}
-Do not include any text before or after the JSON. Only output the JSON object.`
+  "items": ["alimento 1 com quantidade estimada", "alimento 2 com quantidade estimada"],
+  "identified_foods": [
+    { "food": "Nome do alimento", "amount_g": number, "kcal": number }
+  ],
+  "disclaimer": "Os valores são estimativas baseadas em análise visual. Para precisão total, use uma balança."
+}`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: 'Analyze this food image. Identify the meal name and estimate calories, protein, carbs, and fat. Determine if it\'s breakfast, lunch, dinner, or snack based on the food type.'
+                text: 'Analise esta imagem de comida. Identifique os alimentos visíveis e estime suas quantidades em gramas. Calcule calorias e macronutrientes usando dados de tabelas nutricionais reconhecidas (USDA, TACO). Determine se é café da manhã, almoço, jantar ou lanche. Seja conservador nas estimativas.'
               },
               {
                 type: 'image_url',
@@ -101,7 +111,7 @@ Do not include any text before or after the JSON. Only output the JSON object.`
             ]
           }
         ],
-        max_tokens: 1000,
+        max_tokens: 1200,
       });
     } catch (openaiError: any) {
       console.error("OpenAI API error:", openaiError);
