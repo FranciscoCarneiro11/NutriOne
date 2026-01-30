@@ -10,6 +10,7 @@ import { WeightProgressChart } from "@/components/dashboard/WeightProgressChart"
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { AddMealModal, MealPrefillData } from "@/components/dashboard/AddMealModal";
 import { FoodScannerModal } from "@/components/scanner/FoodScannerModal";
+import { ScanResultsModal } from "@/components/scanner/ScanResultsModal";
 import { StreakLostModal } from "@/components/dashboard/StreakLostModal";
 import { useConfetti } from "@/hooks/useConfetti";
 import { cn } from "@/lib/utils";
@@ -128,6 +129,9 @@ const Dashboard: React.FC = () => {
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
   const [isAddMealOpen, setIsAddMealOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isScanResultsOpen, setIsScanResultsOpen] = useState(false);
+  const [scanResult, setScanResult] = useState<FoodAnalysisResult | null>(null);
+  const [scanImageUrl, setScanImageUrl] = useState<string | null>(null);
   const [mealPrefillData, setMealPrefillData] = useState<MealPrefillData | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [showStreakLostModal, setShowStreakLostModal] = useState(false);
@@ -469,17 +473,18 @@ const Dashboard: React.FC = () => {
     skipMutation.mutate(mealId);
   }, [skipMutation]);
 
-  const handleScanComplete = (result: FoodAnalysisResult) => {
-    setMealPrefillData({
-      title: result.title,
-      calories: result.calories,
-      protein: result.protein,
-      carbs: result.carbs,
-      fat: result.fat,
-      items: result.items,
-      mealType: result.mealType,
-    });
-    setIsAddMealOpen(true);
+  const handleScanComplete = (result: FoodAnalysisResult, imageUrl: string) => {
+    setScanResult(result);
+    setScanImageUrl(imageUrl);
+    setIsScanResultsOpen(true);
+  };
+
+  const handleScanResultsClose = (open: boolean) => {
+    setIsScanResultsOpen(open);
+    if (!open) {
+      setScanResult(null);
+      setScanImageUrl(null);
+    }
   };
 
   const handleAddMealOpenChange = (open: boolean) => {
@@ -616,6 +621,14 @@ const Dashboard: React.FC = () => {
         open={isScannerOpen}
         onOpenChange={setIsScannerOpen}
         onAnalysisComplete={handleScanComplete}
+      />
+
+      <ScanResultsModal
+        open={isScanResultsOpen}
+        onOpenChange={handleScanResultsClose}
+        result={scanResult}
+        imageUrl={scanImageUrl}
+        onMealAdded={fetchMeals}
       />
 
       <StreakLostModal

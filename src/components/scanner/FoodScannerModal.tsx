@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 interface FoodScannerModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAnalysisComplete: (result: FoodAnalysisResult) => void;
+  onAnalysisComplete: (result: FoodAnalysisResult, imageUrl: string) => void;
 }
 
 export const FoodScannerModal: React.FC<FoodScannerModalProps> = ({
@@ -66,9 +66,10 @@ export const FoodScannerModal: React.FC<FoodScannerModalProps> = ({
       const result = await analyzeFoodImage(selectedFile);
       toast({
         title: "Análise concluída!",
-        description: `Detectado: ${result.title}`,
+        description: "Veja os resultados nutricionais",
       });
-      onAnalysisComplete(result);
+      // Pass the image URL along with the result
+      onAnalysisComplete(result, selectedImage!);
       handleClose();
     } catch (error) {
       toast({
