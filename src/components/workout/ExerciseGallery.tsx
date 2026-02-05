@@ -458,13 +458,28 @@ const ExerciseGallery: React.FC = () => {
   const selectedMuscleInfo = muscleGroups.find(m => m.id === selectedMuscle);
   return <div className="space-y-4">
       {/* Muscle Groups Horizontal Scroll */}
-      <ScrollArea className="w-full">
-        <div className="flex gap-4 pb-3 px-1">
+      <ScrollArea className="w-full pt-2">
+        <div className="flex gap-4 pb-3 px-2">
           {muscleGroups.map(muscle => <button key={muscle.id} onClick={() => setSelectedMuscle(muscle.id)} className={cn("flex-shrink-0 flex flex-col items-center gap-2 transition-all")}>
-              <div className={cn("w-20 h-20 transition-all p-2 flex items-center justify-center border rounded-lg", selectedMuscle === muscle.id ? "border-primary bg-primary/10 shadow-lg scale-105" : "border-border bg-card/50 hover:border-muted-foreground/50 hover:bg-card")}>
-                {muscle.customImage ? <img src={muscle.customImage} alt={muscle.name} className="w-full h-full object-contain" /> : <BodySilhouette zone={muscle.highlightZone} isSelected={selectedMuscle === muscle.id} />}
+              <div className={cn(
+                "w-20 h-20 transition-all duration-200 p-2 flex items-center justify-center border-2 rounded-xl",
+                selectedMuscle === muscle.id 
+                  ? "border-primary bg-primary/10 scale-[1.03] shadow-[0_0_12px_rgba(255,70,70,0.4)]" 
+                  : "border-border bg-card/50 hover:border-muted-foreground/50 hover:bg-card"
+              )}>
+                {muscle.customImage ? <img 
+                  src={muscle.customImage} 
+                  alt={muscle.name} 
+                  className={cn(
+                    "w-full h-full object-contain transition-all duration-200",
+                    selectedMuscle === muscle.id && "brightness-110 saturate-[1.2]"
+                  )} 
+                /> : <BodySilhouette zone={muscle.highlightZone} isSelected={selectedMuscle === muscle.id} />}
               </div>
-              <span className={cn("text-xs font-medium transition-colors", selectedMuscle === muscle.id ? "text-primary font-semibold" : "text-muted-foreground")}>
+              <span className={cn(
+                "text-xs font-medium transition-colors duration-200", 
+                selectedMuscle === muscle.id ? "text-primary font-semibold" : "text-muted-foreground"
+              )}>
                 {muscle.name}
               </span>
             </button>)}
