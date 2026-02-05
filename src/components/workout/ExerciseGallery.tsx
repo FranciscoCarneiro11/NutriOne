@@ -63,10 +63,9 @@ const VideoThumbnail: React.FC<{
     </>;
 };
 
-// Dados estáticos de exercícios por grupo muscular
+// Dados estáticos de exercícios por grupo muscular (apenas com mídia)
 const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   favoritos: [],
-  // Will be populated dynamically
   peito: [{
     id: "chest-1",
     muscleGroupId: "peito",
@@ -98,12 +97,6 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     videoUrl: "/videos/flexao_braco.mp4",
     thumbnailUrl: "/images/exercises/flexao-braco.png"
   }, {
-    id: "chest-6",
-    muscleGroupId: "peito"
-  }, {
-    id: "chest-7",
-    muscleGroupId: "peito"
-  }, {
     id: "chest-9",
     muscleGroupId: "peito",
     videoUrl: "/videos/supino_inclinado_smith.mp4",
@@ -114,36 +107,12 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "costas",
     videoUrl: "/videos/remada_aberta_sentado.mp4",
     thumbnailUrl: "/images/exercises/seated-wide-grip-row.jpeg"
-  }, {
-    id: "back-3",
-    muscleGroupId: "costas"
-  }, {
-    id: "back-4",
-    muscleGroupId: "costas"
-  }, {
-    id: "back-5",
-    muscleGroupId: "costas"
-  }, {
-    id: "back-6",
-    muscleGroupId: "costas"
   }],
   ombros: [{
     id: "shoulder-2",
     muscleGroupId: "ombros",
     videoUrl: "/videos/shoulderpress.mp4",
     thumbnailUrl: "/images/exercises/seated-shoulder-press.jpeg"
-  }, {
-    id: "shoulder-3",
-    muscleGroupId: "ombros"
-  }, {
-    id: "shoulder-4",
-    muscleGroupId: "ombros"
-  }, {
-    id: "shoulder-5",
-    muscleGroupId: "ombros"
-  }, {
-    id: "shoulder-6",
-    muscleGroupId: "ombros"
   }],
   biceps: [{
     id: "biceps-1",
@@ -155,109 +124,22 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "biceps",
     videoUrl: "/videos/biceps_martelo.mp4",
     thumbnailUrl: "/images/exercises/hammer-curl.jpeg"
-  }, {
-    id: "biceps-3",
-    muscleGroupId: "biceps"
-  }, {
-    id: "biceps-4",
-    muscleGroupId: "biceps"
-  }, {
-    id: "biceps-5",
-    muscleGroupId: "biceps"
-  }, {
-    id: "biceps-6",
-    muscleGroupId: "biceps"
   }],
   triceps: [{
     id: "triceps-2",
     muscleGroupId: "triceps",
     videoUrl: "/videos/triceps_frances.mp4",
     thumbnailUrl: "/images/exercises/seated-bench-extension.jpeg"
-  }, {
-    id: "triceps-3",
-    muscleGroupId: "triceps"
-  }, {
-    id: "triceps-4",
-    muscleGroupId: "triceps"
-  }, {
-    id: "triceps-5",
-    muscleGroupId: "triceps"
-  }, {
-    id: "triceps-6",
-    muscleGroupId: "triceps"
   }],
   quadriceps: [{
     id: "quad-1",
     muscleGroupId: "quadriceps",
     videoUrl: "/videos/cadeira_extensora.mp4",
     thumbnailUrl: "/images/exercises/leg-extension.jpeg"
-  }, {
-    id: "quad-2",
-    muscleGroupId: "quadriceps"
-  }, {
-    id: "quad-3",
-    muscleGroupId: "quadriceps"
-  }, {
-    id: "quad-4",
-    muscleGroupId: "quadriceps"
-  }, {
-    id: "quad-5",
-    muscleGroupId: "quadriceps"
-  }, {
-    id: "quad-6",
-    muscleGroupId: "quadriceps"
   }],
-  abdomen: [{
-    id: "abs-1",
-    muscleGroupId: "abdomen"
-  }, {
-    id: "abs-2",
-    muscleGroupId: "abdomen"
-  }, {
-    id: "abs-3",
-    muscleGroupId: "abdomen"
-  }, {
-    id: "abs-4",
-    muscleGroupId: "abdomen"
-  }, {
-    id: "abs-5",
-    muscleGroupId: "abdomen"
-  }],
-  posterior: [{
-    id: "post-1",
-    muscleGroupId: "posterior"
-  }, {
-    id: "post-2",
-    muscleGroupId: "posterior"
-  }, {
-    id: "post-3",
-    muscleGroupId: "posterior"
-  }, {
-    id: "post-4",
-    muscleGroupId: "posterior"
-  }, {
-    id: "post-5",
-    muscleGroupId: "posterior"
-  }, {
-    id: "post-6",
-    muscleGroupId: "posterior"
-  }],
-  trapezio: [{
-    id: "trap-1",
-    muscleGroupId: "trapezio"
-  }, {
-    id: "trap-2",
-    muscleGroupId: "trapezio"
-  }, {
-    id: "trap-3",
-    muscleGroupId: "trapezio"
-  }, {
-    id: "trap-4",
-    muscleGroupId: "trapezio"
-  }, {
-    id: "trap-5",
-    muscleGroupId: "trapezio"
-  }]
+  abdomen: [],
+  posterior: [],
+  trapezio: []
 };
 
 // Get all exercises for favorites lookup
