@@ -72,7 +72,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     name: "Bench Press",
     muscleGroup: "Peito",
     videoUrl: "/videos/supino_reto.mp4",
-    thumbnailUrl: "/images/exercises/supino-reto.jpeg"
+    thumbnailUrl: "/images/exercises/bench-press.png"
   }, {
     id: "chest-2",
     name: "Dumbbell Incline Bench Press",
