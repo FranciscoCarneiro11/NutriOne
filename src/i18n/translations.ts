@@ -157,6 +157,22 @@ export const translations = {
      "trap-4": "Face Pull",
      "trap-5": "Elevação Posterior",
     },
+   // Profile
+   profile: {
+     title: "Perfil",
+     editProfile: "Editar Perfil",
+     settings: "Configurações",
+     notifications: "Notificações",
+     privacy: "Privacidade",
+     helpSupport: "Ajuda & Suporte",
+     language: "Idioma",
+     logout: "Sair",
+     loggingOut: "Saindo...",
+     streak: "Sequência",
+     lost: "Perdidos",
+     gained: "Ganhos",
+     goal: "Meta",
+   },
   },
   en: {
     // Welcome Page
@@ -314,6 +330,22 @@ export const translations = {
      "trap-4": "Face Pull",
      "trap-5": "Rear Delt Raise",
     },
+   // Profile
+   profile: {
+     title: "Profile",
+     editProfile: "Edit Profile",
+     settings: "Settings",
+     notifications: "Notifications",
+     privacy: "Privacy",
+     helpSupport: "Help & Support",
+     language: "Language",
+     logout: "Logout",
+     loggingOut: "Logging out...",
+     streak: "Streak",
+     lost: "Lost",
+     gained: "Gained",
+     goal: "Goal",
+   },
   },
   es: {
     // Welcome Page
@@ -471,6 +503,22 @@ export const translations = {
      "trap-4": "Face Pull",
      "trap-5": "Elevación Posterior",
     },
+   // Profile
+   profile: {
+     title: "Perfil",
+     editProfile: "Editar Perfil",
+     settings: "Configuración",
+     notifications: "Notificaciones",
+     privacy: "Privacidad",
+     helpSupport: "Ayuda y Soporte",
+     language: "Idioma",
+     logout: "Cerrar Sesión",
+     loggingOut: "Cerrando sesión...",
+     streak: "Racha",
+     lost: "Perdidos",
+     gained: "Ganados",
+     goal: "Meta",
+   },
   },
 } as const;
 

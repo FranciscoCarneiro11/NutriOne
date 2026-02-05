@@ -3,11 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
-import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight, Camera, Flame, TrendingUp, TrendingDown } from "lucide-react";
+import { User, Settings, Bell, Shield, HelpCircle, LogOut, ChevronRight, Camera, Flame, TrendingUp, TrendingDown, Globe, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { Language } from "@/i18n/translations";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ProfileData {
   first_name: string | null;
@@ -33,6 +41,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { language, setLanguage, t } = useLanguage();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -158,20 +167,28 @@ const Profile: React.FC = () => {
     }
   };
 
+  const languages: { code: Language; label: string; flag: string }[] = [
+    { code: "pt", label: "Português", flag: "🇧🇷" },
+    { code: "en", label: "English", flag: "🇺🇸" },
+    { code: "es", label: "Español", flag: "🇪🇸" },
+  ];
+
+  const currentLanguage = languages.find(l => l.code === language) || languages[0];
+
   const weightProgressDisplay = getWeightProgressDisplay();
   const goalProgress = calculateGoalProgress();
 
   const menuItems = [
-    { icon: User, label: "Editar Perfil", action: () => setIsEditModalOpen(true) },
-    { icon: Settings, label: "Configurações", action: () => navigate("/settings") },
-    { icon: Bell, label: "Notificações", action: () => navigate("/notifications") },
-    { icon: Shield, label: "Privacidade", action: () => navigate("/privacy") },
-    { icon: HelpCircle, label: "Ajuda & Suporte", action: () => navigate("/help") },
+    { icon: User, label: t.profile?.editProfile || "Editar Perfil", action: () => setIsEditModalOpen(true) },
+    { icon: Settings, label: t.profile?.settings || "Configurações", action: () => navigate("/settings") },
+    { icon: Bell, label: t.profile?.notifications || "Notificações", action: () => navigate("/notifications") },
+    { icon: Shield, label: t.profile?.privacy || "Privacidade", action: () => navigate("/privacy") },
+    { icon: HelpCircle, label: t.profile?.helpSupport || "Ajuda & Suporte", action: () => navigate("/help") },
   ];
 
   return (
     <AppShell>
-      <AppHeader title="Perfil" />
+      <AppHeader title={t.profile?.title || "Perfil"} />
 
       <AppContent className="pb-28">
         {/* Profile Header */}
@@ -250,6 +267,37 @@ const Profile: React.FC = () => {
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
           ))}
+
+          {/* Language Selector */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full flex items-center justify-between p-4 bg-card rounded-2xl shadow-card border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <Globe className="w-5 h-5 text-muted-foreground" />
+                  <span className="font-medium text-foreground">{t.profile?.language || "Idioma"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{currentLanguage.flag} {currentLanguage.label}</span>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {languages.map((lang) => (
+                <DropdownMenuItem
+                  key={lang.code}
+                  onClick={() => setLanguage(lang.code)}
+                  className="flex items-center justify-between cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>{lang.flag}</span>
+                    <span>{lang.label}</span>
+                  </span>
+                  {language === lang.code && <Check className="w-4 h-4 text-primary" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           
           <button 
             onClick={handleLogout}
@@ -259,7 +307,7 @@ const Profile: React.FC = () => {
             <div className="flex items-center gap-3">
               <LogOut className="w-5 h-5 text-red-500" />
               <span className="font-medium text-red-500">
-                {isLoggingOut ? "Saindo..." : "Sair"}
+                {isLoggingOut ? (t.profile?.loggingOut || "Saindo...") : (t.profile?.logout || "Sair")}
               </span>
             </div>
           </button>
