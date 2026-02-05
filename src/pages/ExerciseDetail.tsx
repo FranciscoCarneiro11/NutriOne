@@ -17,6 +17,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "chest-5": { muscleGroupId: "peito", descriptionKey: "chest-5" },
   "chest-6": { muscleGroupId: "peito", descriptionKey: "chest-6" },
   "chest-7": { muscleGroupId: "peito", descriptionKey: "chest-7" },
+  "chest-9": { muscleGroupId: "peito", videoUrl: "/videos/supino_inclinado_smith.mp4", descriptionKey: "chest-9" },
   
   // Costas
   "back-1": { muscleGroupId: "costas", videoUrl: "/videos/pulldown.mp4", descriptionKey: "back-1" },
