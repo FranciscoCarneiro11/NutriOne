@@ -68,6 +68,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   favoritos: [],
   // Will be populated dynamically
   peito: [{
+    id: "chest-1",
+    muscleGroupId: "peito",
+    videoUrl: "/videos/supino_reto_com_barra.mp4",
+    thumbnailUrl: "/images/exercises/supino-reto-com-barra.png"
+  }, {
     id: "chest-2",
     muscleGroupId: "peito",
     videoUrl: "/videos/supino_inclinado_com_halter.mp4",
