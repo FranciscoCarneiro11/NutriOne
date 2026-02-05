@@ -12,7 +12,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "chest-1": { muscleGroupId: "peito", videoUrl: "/videos/supino_reto_com_barra.mp4", descriptionKey: "chest-1" },
   "chest-2": { muscleGroupId: "peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4", descriptionKey: "chest-2" },
   "chest-8": { muscleGroupId: "peito", videoUrl: "/videos/voador.mp4", descriptionKey: "chest-8" },
-  "chest-3": { muscleGroupId: "peito", descriptionKey: "chest-3" },
+  "chest-3": { muscleGroupId: "peito", videoUrl: "/videos/supino_inclinado_barra.mp4", descriptionKey: "chest-3" },
   "chest-4": { muscleGroupId: "peito", descriptionKey: "chest-4" },
   "chest-5": { muscleGroupId: "peito", descriptionKey: "chest-5" },
   "chest-6": { muscleGroupId: "peito", descriptionKey: "chest-6" },
