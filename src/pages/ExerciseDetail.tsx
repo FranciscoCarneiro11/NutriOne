@@ -4,87 +4,96 @@ import { ArrowLeft, Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ExerciseLogForm from "@/components/workout/ExerciseLogForm";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 // Dados dos exercícios (mesma estrutura da galeria)
-const allExercises: Record<string, { name: string; muscleGroup: string; videoUrl?: string; description?: string }> = {
+const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; descriptionKey?: string }> = {
   // Peito
-  "chest-1": { name: "Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_reto.mp4", description: "O supino reto é um exercício fundamental para desenvolvimento do peitoral. Deite-se no banco, segure a barra com pegada média, desça até o peito e empurre para cima." },
-  "chest-2": { name: "Dumbbell Incline Bench Press", muscleGroup: "Peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4", description: "Focado na parte superior do peitoral, realizado em banco inclinado a 30-45 graus com halteres." },
-  "chest-3": { name: "Supino Inclinado", muscleGroup: "Peito", description: "Focado na parte superior do peitoral, realizado em banco inclinado a 30-45 graus." },
-  "chest-4": { name: "Crucifixo", muscleGroup: "Peito", description: "Exercício de isolamento para o peitoral, realizado com halteres em movimento de abertura." },
-  "chest-5": { name: "Flexão de Braço", muscleGroup: "Peito", description: "Exercício clássico utilizando o peso do corpo para trabalhar peitoral, ombros e tríceps." },
-  "chest-6": { name: "Crossover", muscleGroup: "Peito", description: "Exercício realizado em polia cruzada para isolamento do peitoral." },
-  "chest-7": { name: "Fly na Máquina", muscleGroup: "Peito", description: "Movimento de abertura na máquina para isolamento do peitoral." },
+  "chest-1": { muscleGroupId: "peito", videoUrl: "/videos/supino_reto_com_barra.mp4", descriptionKey: "chest-1" },
+  "chest-2": { muscleGroupId: "peito", videoUrl: "/videos/supino_inclinado_com_halter.mp4", descriptionKey: "chest-2" },
+  "chest-3": { muscleGroupId: "peito", descriptionKey: "chest-3" },
+  "chest-4": { muscleGroupId: "peito", descriptionKey: "chest-4" },
+  "chest-5": { muscleGroupId: "peito", descriptionKey: "chest-5" },
+  "chest-6": { muscleGroupId: "peito", descriptionKey: "chest-6" },
+  "chest-7": { muscleGroupId: "peito", descriptionKey: "chest-7" },
   
   // Costas
-  "back-1": { name: "Pulldown", muscleGroup: "Costas", videoUrl: "/videos/pulldown.mp4", description: "Exercício para dorsais, puxando a barra em direção ao peito." },
-  "back-2": { name: "Seated Wide-grip Row", muscleGroup: "Costas", videoUrl: "/videos/remada_aberta_sentado.mp4", description: "Remada sentada com pegada aberta para trabalhar as costas." },
-  "back-3": { name: "Puxada Frontal", muscleGroup: "Costas", description: "Exercício para dorsais, puxando a barra em direção ao peito." },
-  "back-4": { name: "Remada Curvada", muscleGroup: "Costas", description: "Exercício composto para espessura das costas." },
-  "back-5": { name: "Barra Fixa", muscleGroup: "Costas", description: "Exercício clássico para dorsais utilizando o peso corporal." },
-  "back-6": { name: "Remada Unilateral", muscleGroup: "Costas", description: "Remada com halter para trabalho unilateral das costas." },
+  "back-1": { muscleGroupId: "costas", videoUrl: "/videos/pulldown.mp4", descriptionKey: "back-1" },
+  "back-2": { muscleGroupId: "costas", videoUrl: "/videos/remada_aberta_sentado.mp4", descriptionKey: "back-2" },
+  "back-3": { muscleGroupId: "costas", descriptionKey: "back-3" },
+  "back-4": { muscleGroupId: "costas", descriptionKey: "back-4" },
+  "back-5": { muscleGroupId: "costas", descriptionKey: "back-5" },
+  "back-6": { muscleGroupId: "costas", descriptionKey: "back-6" },
   
   // Ombros
-  "shoulder-1": { name: "Lateral Raise", muscleGroup: "Ombros", videoUrl: "/videos/elevacao_lateral.mp4", description: "Isolamento para deltoides laterais com halteres." },
-  "shoulder-2": { name: "Seated Shoulder Press", muscleGroup: "Ombros", videoUrl: "/videos/shoulderpress.mp4", description: "Exercício principal para deltoides, empurrando peso acima da cabeça." },
-  "shoulder-3": { name: "Desenvolvimento", muscleGroup: "Ombros", description: "Exercício principal para deltoides, empurrando peso acima da cabeça." },
-  "shoulder-4": { name: "Elevação Frontal", muscleGroup: "Ombros", description: "Isolamento para deltoides anteriores." },
-  "shoulder-5": { name: "Crucifixo Inverso", muscleGroup: "Ombros", description: "Exercício para deltoides posteriores." },
-  "shoulder-6": { name: "Encolhimento", muscleGroup: "Ombros", description: "Exercício para trapézio superior." },
+  "shoulder-1": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral.mp4", descriptionKey: "shoulder-1" },
+  "shoulder-2": { muscleGroupId: "ombros", videoUrl: "/videos/shoulderpress.mp4", descriptionKey: "shoulder-2" },
+  "shoulder-3": { muscleGroupId: "ombros", descriptionKey: "shoulder-3" },
+  "shoulder-4": { muscleGroupId: "ombros", descriptionKey: "shoulder-4" },
+  "shoulder-5": { muscleGroupId: "ombros", descriptionKey: "shoulder-5" },
+  "shoulder-6": { muscleGroupId: "ombros", descriptionKey: "shoulder-6" },
   
   // Bíceps
-  "biceps-1": { name: "Biceps Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_cabo.mp4", description: "Exercício principal para bíceps no cabo." },
-  "biceps-2": { name: "Hammer Curl", muscleGroup: "Bíceps", videoUrl: "/videos/biceps_martelo.mp4", description: "Variação que trabalha bíceps e braquial com pegada neutra." },
-  "biceps-3": { name: "Rosca Direta", muscleGroup: "Bíceps", description: "Exercício principal para bíceps com barra." },
-  "biceps-4": { name: "Rosca Alternada", muscleGroup: "Bíceps", description: "Rosca com halteres alternando os braços." },
-  "biceps-5": { name: "Rosca Concentrada", muscleGroup: "Bíceps", description: "Exercício de isolamento para pico do bíceps." },
-  "biceps-6": { name: "Rosca Scott", muscleGroup: "Bíceps", description: "Rosca no banco Scott para máximo isolamento." },
+  "biceps-1": { muscleGroupId: "biceps", videoUrl: "/videos/biceps_cabo.mp4", descriptionKey: "biceps-1" },
+  "biceps-2": { muscleGroupId: "biceps", videoUrl: "/videos/biceps_martelo.mp4", descriptionKey: "biceps-2" },
+  "biceps-3": { muscleGroupId: "biceps", descriptionKey: "biceps-3" },
+  "biceps-4": { muscleGroupId: "biceps", descriptionKey: "biceps-4" },
+  "biceps-5": { muscleGroupId: "biceps", descriptionKey: "biceps-5" },
+  "biceps-6": { muscleGroupId: "biceps", descriptionKey: "biceps-6" },
   
   // Tríceps
-  "triceps-1": { name: "Triceps Pushdown", muscleGroup: "Tríceps", videoUrl: "/videos/triceps_triangulo.mp4", description: "Exercício na polia para isolamento do tríceps." },
-  "triceps-2": { name: "Seated Bench Extension", muscleGroup: "Tríceps", videoUrl: "/videos/triceps_frances.mp4", description: "Extensão de tríceps sentado acima da cabeça." },
-  "triceps-3": { name: "Tríceps Pulley", muscleGroup: "Tríceps", description: "Exercício na polia para isolamento do tríceps." },
-  "triceps-4": { name: "Tríceps Testa", muscleGroup: "Tríceps", description: "Extensão de tríceps deitado com barra." },
-  "triceps-5": { name: "Mergulho", muscleGroup: "Tríceps", description: "Exercício composto para tríceps e peitoral." },
-  "triceps-6": { name: "Kickback", muscleGroup: "Tríceps", description: "Extensão de tríceps unilateral com halter." },
+  "triceps-1": { muscleGroupId: "triceps", videoUrl: "/videos/triceps_triangulo.mp4", descriptionKey: "triceps-1" },
+  "triceps-2": { muscleGroupId: "triceps", videoUrl: "/videos/triceps_frances.mp4", descriptionKey: "triceps-2" },
+  "triceps-3": { muscleGroupId: "triceps", descriptionKey: "triceps-3" },
+  "triceps-4": { muscleGroupId: "triceps", descriptionKey: "triceps-4" },
+  "triceps-5": { muscleGroupId: "triceps", descriptionKey: "triceps-5" },
+  "triceps-6": { muscleGroupId: "triceps", descriptionKey: "triceps-6" },
   
   // Quadríceps
-  "quad-1": { name: "Lever Leg Extension", muscleGroup: "Quadríceps", videoUrl: "/videos/cadeira_extensora.mp4", description: "Isolamento para quadríceps na máquina extensora." },
-  "quad-2": { name: "Agachamento", muscleGroup: "Quadríceps", description: "Rei dos exercícios para pernas." },
-  "quad-3": { name: "Leg Press", muscleGroup: "Quadríceps", description: "Exercício na máquina para quadríceps." },
-  "quad-4": { name: "Agachamento Hack", muscleGroup: "Quadríceps", description: "Variação do agachamento na máquina hack." },
-  "quad-5": { name: "Avanço", muscleGroup: "Quadríceps", description: "Exercício unilateral para pernas." },
-  "quad-6": { name: "Agachamento Búlgaro", muscleGroup: "Quadríceps", description: "Agachamento unilateral com pé elevado." },
+  "quad-1": { muscleGroupId: "quadriceps", videoUrl: "/videos/cadeira_extensora.mp4", descriptionKey: "quad-1" },
+  "quad-2": { muscleGroupId: "quadriceps", descriptionKey: "quad-2" },
+  "quad-3": { muscleGroupId: "quadriceps", descriptionKey: "quad-3" },
+  "quad-4": { muscleGroupId: "quadriceps", descriptionKey: "quad-4" },
+  "quad-5": { muscleGroupId: "quadriceps", descriptionKey: "quad-5" },
+  "quad-6": { muscleGroupId: "quadriceps", descriptionKey: "quad-6" },
   
   // Abdômen
-  "abs-1": { name: "Abdominal Crunch", muscleGroup: "Abdômen", description: "Exercício básico para abdominais." },
-  "abs-2": { name: "Prancha", muscleGroup: "Abdômen", description: "Exercício isométrico para core." },
-  "abs-3": { name: "Elevação de Pernas", muscleGroup: "Abdômen", description: "Exercício para abdômen inferior." },
-  "abs-4": { name: "Abdominal Bicicleta", muscleGroup: "Abdômen", description: "Exercício para oblíquos e reto abdominal." },
-  "abs-5": { name: "Prancha Lateral", muscleGroup: "Abdômen", description: "Exercício isométrico para oblíquos." },
+  "abs-1": { muscleGroupId: "abdomen", descriptionKey: "abs-1" },
+  "abs-2": { muscleGroupId: "abdomen", descriptionKey: "abs-2" },
+  "abs-3": { muscleGroupId: "abdomen", descriptionKey: "abs-3" },
+  "abs-4": { muscleGroupId: "abdomen", descriptionKey: "abs-4" },
+  "abs-5": { muscleGroupId: "abdomen", descriptionKey: "abs-5" },
   
   // Posterior
-  "post-1": { name: "Stiff", muscleGroup: "Posterior", description: "Exercício para posterior de coxa e glúteos." },
-  "post-2": { name: "Mesa Flexora", muscleGroup: "Posterior", description: "Isolamento para posterior de coxa." },
-  "post-3": { name: "Flexora Deitado", muscleGroup: "Posterior", description: "Flexora na posição deitada." },
-  "post-4": { name: "Levantamento Terra", muscleGroup: "Posterior", description: "Exercício composto para posterior." },
-  "post-5": { name: "Good Morning", muscleGroup: "Posterior", description: "Exercício para posterior com barra." },
-  "post-6": { name: "Cadeira Flexora", muscleGroup: "Posterior", description: "Flexora na posição sentada." },
+  "post-1": { muscleGroupId: "posterior", descriptionKey: "post-1" },
+  "post-2": { muscleGroupId: "posterior", descriptionKey: "post-2" },
+  "post-3": { muscleGroupId: "posterior", descriptionKey: "post-3" },
+  "post-4": { muscleGroupId: "posterior", descriptionKey: "post-4" },
+  "post-5": { muscleGroupId: "posterior", descriptionKey: "post-5" },
+  "post-6": { muscleGroupId: "posterior", descriptionKey: "post-6" },
   
   // Trapézio
-  "trap-1": { name: "Encolhimento com Barra", muscleGroup: "Trapézio", description: "Exercício principal para trapézio." },
-  "trap-2": { name: "Encolhimento com Halteres", muscleGroup: "Trapézio", description: "Variação com halteres." },
-  "trap-3": { name: "Remada Alta", muscleGroup: "Trapézio", description: "Exercício para trapézio e deltoides." },
-  "trap-4": { name: "Face Pull", muscleGroup: "Trapézio", description: "Exercício para trapézio médio e deltoides posteriores." },
-  "trap-5": { name: "Elevação Posterior", muscleGroup: "Trapézio", description: "Exercício para trapézio médio e inferior." },
+  "trap-1": { muscleGroupId: "trapezio", descriptionKey: "trap-1" },
+  "trap-2": { muscleGroupId: "trapezio", descriptionKey: "trap-2" },
+  "trap-3": { muscleGroupId: "trapezio", descriptionKey: "trap-3" },
+  "trap-4": { muscleGroupId: "trapezio", descriptionKey: "trap-4" },
+  "trap-5": { muscleGroupId: "trapezio", descriptionKey: "trap-5" },
 };
 
 const ExerciseDetail: React.FC = () => {
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
+  const { t } = useLanguage();
   
   const exercise = exerciseId ? allExercises[exerciseId] : null;
+  
+  // Get translated names
+  const exerciseTranslations = t.exercises as Record<string, string>;
+  const muscleTranslations = t.muscleGroups as Record<string, string>;
+  
+  const exerciseName = exerciseId ? (exerciseTranslations[exerciseId] || exerciseId) : "";
+  const muscleGroupName = exercise ? (muscleTranslations[exercise.muscleGroupId] || exercise.muscleGroupId) : "";
 
   // Load favorite status from localStorage
   useEffect(() => {
@@ -115,8 +124,8 @@ const ExerciseDetail: React.FC = () => {
   const handleShare = async () => {
     const shareUrl = window.location.href;
     const shareData = {
-      title: exercise?.name || "Exercício",
-      text: `Confira o exercício ${exercise?.name} - ${exercise?.muscleGroup}`,
+      title: exerciseName || "Exercício",
+      text: `Confira o exercício ${exerciseName} - ${muscleGroupName}`,
       url: shareUrl,
     };
 
@@ -213,25 +222,18 @@ const ExerciseDetail: React.FC = () => {
         {/* Header */}
         <div>
           <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
-            {exercise.muscleGroup}
+            {muscleGroupName}
           </span>
           <h1 className="text-2xl font-bold text-foreground">
-            {exercise.name}
+            {exerciseName}
           </h1>
         </div>
 
         {/* Exercise Log Form */}
-        <ExerciseLogForm exerciseName={exercise.name} />
+        <ExerciseLogForm exerciseName={exerciseName} />
 
-        {/* Description */}
-        {exercise.description && (
-          <div className="bg-card rounded-2xl p-4 border border-border">
-            <h2 className="font-semibold text-foreground mb-2">Como executar</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              {exercise.description}
-            </p>
-          </div>
-        )}
+        {/* Description - hidden for now since descriptions aren't translated */}
+        {/* TODO: Add exercise descriptions to translations */}
 
         {/* Tips */}
         <div className="bg-card rounded-2xl p-4 border border-border">
