@@ -8,16 +8,19 @@ const Help: React.FC = () => {
       icon: FileText,
       title: "Perguntas Frequentes",
       description: "Encontre respostas para dúvidas comuns",
+      action: () => {},
     },
     {
       icon: MessageCircle,
       title: "Chat de Suporte",
       description: "Converse com nossa equipe (em breve)",
+      action: () => {},
     },
     {
       icon: Mail,
       title: "Email de Suporte",
-      description: "suporte@exemplo.com",
+      description: "helpnutrione@gmail.com",
+      action: () => window.location.href = "mailto:helpnutrione@gmail.com",
     },
   ];
 
@@ -28,9 +31,10 @@ const Help: React.FC = () => {
       <AppContent className="pb-8">
         <div className="space-y-4 mb-8">
           {helpItems.map((item, index) => (
-            <div
+            <button
               key={index}
-              className="bg-card rounded-2xl p-4 shadow-card border border-border"
+              onClick={item.action}
+              className="w-full text-left bg-card rounded-2xl p-4 shadow-card border border-border hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -41,7 +45,7 @@ const Help: React.FC = () => {
                   <p className="text-sm text-muted-foreground">{item.description}</p>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
