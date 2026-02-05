@@ -192,7 +192,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     name: "Triceps Pushdown",
     muscleGroup: "Tríceps",
     videoUrl: "/videos/triceps_triangulo.mp4",
-    thumbnailUrl: "/images/exercises/triceps-pushdown.jpeg"
+    thumbnailUrl: "/images/exercises/triceps-pushdown.png"
   }, {
     id: "triceps-2",
     name: "Seated Bench Extension",
