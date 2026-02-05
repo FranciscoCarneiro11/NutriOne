@@ -458,8 +458,8 @@ const ExerciseGallery: React.FC = () => {
   const selectedMuscleInfo = muscleGroups.find(m => m.id === selectedMuscle);
   return <div className="space-y-4">
       {/* Muscle Groups Horizontal Scroll */}
-      <ScrollArea className="w-full pt-3 mt-1">
-        <div className="flex gap-4 pb-3 px-2">
+      <ScrollArea className="w-full mt-4 [&>div]:overflow-visible">
+        <div className="flex gap-4 pt-4 pb-2 px-2">
           {muscleGroups.map(muscle => <button key={muscle.id} onClick={() => setSelectedMuscle(muscle.id)} className={cn("flex-shrink-0 flex flex-col items-center gap-2 transition-all")}>
               <div className={cn(
                 "w-20 h-20 transition-all duration-200 p-2 flex items-center justify-center border-2 rounded-xl",
