@@ -94,7 +94,9 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     thumbnailUrl: "/images/exercises/barra-paralela.png"
   }, {
     id: "chest-5",
-    muscleGroupId: "peito"
+    muscleGroupId: "peito",
+    videoUrl: "/videos/flexao_braco.mp4",
+    thumbnailUrl: "/images/exercises/flexao-braco.png"
   }, {
     id: "chest-6",
     muscleGroupId: "peito"
