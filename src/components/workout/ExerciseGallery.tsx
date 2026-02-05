@@ -71,8 +71,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     id: "chest-1",
     name: "Bench Press",
     muscleGroup: "Peito",
-    videoUrl: "/videos/supino_reto.mp4",
-    thumbnailUrl: "/images/exercises/bench-press.png"
+   videoUrl: "/videos/supino_reto.mp4"
   }, {
     id: "chest-2",
     name: "Dumbbell Incline Bench Press",
@@ -104,8 +103,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     id: "back-1",
     name: "Pulldown",
     muscleGroup: "Costas",
-    videoUrl: "/videos/pulldown.mp4",
-    thumbnailUrl: "/images/exercises/pulldown.jpeg"
+   videoUrl: "/videos/pulldown.mp4"
   }, {
     id: "back-2",
     name: "Seated Wide-grip Row",
@@ -133,8 +131,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     id: "shoulder-1",
     name: "Lateral Raise",
     muscleGroup: "Ombros",
-    videoUrl: "/videos/elevacao_lateral.mp4",
-    thumbnailUrl: "/images/exercises/lateral-raise.jpeg"
+   videoUrl: "/videos/elevacao_lateral.mp4"
   }, {
     id: "shoulder-2",
     name: "Seated Shoulder Press",
@@ -191,8 +188,7 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     id: "triceps-1",
     name: "Triceps Pushdown",
     muscleGroup: "Tríceps",
-    videoUrl: "/videos/triceps_triangulo.mp4",
-    thumbnailUrl: "/images/exercises/triceps-pushdown.png"
+   videoUrl: "/videos/triceps_triangulo.mp4"
   }, {
     id: "triceps-2",
     name: "Seated Bench Extension",
