@@ -98,8 +98,9 @@ export const translations = {
    },
    // Exercises
    exercises: {
-     // Peito
-     "chest-2": "Supino Inclinado com Halter",
+      // Peito
+      "chest-1": "Supino Reto com Barra",
+      "chest-2": "Supino Inclinado com Halter",
      "chest-3": "Supino Inclinado",
      "chest-4": "Crucifixo",
      "chest-5": "Flexão de Braço",
@@ -271,8 +272,9 @@ export const translations = {
    },
    // Exercises
    exercises: {
-     // Chest
-     "chest-2": "Dumbbell Incline Bench Press",
+      // Chest
+      "chest-1": "Barbell Bench Press",
+      "chest-2": "Dumbbell Incline Bench Press",
      "chest-3": "Incline Bench Press",
      "chest-4": "Dumbbell Fly",
      "chest-5": "Push-up",
@@ -444,8 +446,9 @@ export const translations = {
    },
    // Exercises
    exercises: {
-     // Pecho
-     "chest-2": "Press Inclinado con Mancuernas",
+      // Pecho
+      "chest-1": "Press de Banca con Barra",
+      "chest-2": "Press Inclinado con Mancuernas",
      "chest-3": "Press Inclinado",
      "chest-4": "Aperturas",
      "chest-5": "Flexiones",
