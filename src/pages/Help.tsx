@@ -20,12 +20,6 @@ const Help: React.FC = () => {
       action: () => {},
     },
     {
-      icon: MessageCircle,
-      title: "Chat de Suporte",
-      description: "Converse com nossa equipe (em breve)",
-      action: () => {},
-    },
-    {
       icon: Mail,
       title: "Email de Suporte",
       description: "helpnutrione@gmail.com",
