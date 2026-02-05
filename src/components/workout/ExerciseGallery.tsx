@@ -68,11 +68,6 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
   favoritos: [],
   // Will be populated dynamically
   peito: [{
-    id: "chest-1",
-    name: "Bench Press",
-    muscleGroup: "Peito",
-   videoUrl: "/videos/supino_reto.mp4"
-  }, {
     id: "chest-2",
     name: "Dumbbell Incline Bench Press",
     muscleGroup: "Peito",
@@ -100,11 +95,6 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroup: "Peito"
   }],
   costas: [{
-    id: "back-1",
-    name: "Pulldown",
-    muscleGroup: "Costas",
-   videoUrl: "/videos/pulldown.mp4"
-  }, {
     id: "back-2",
     name: "Seated Wide-grip Row",
     muscleGroup: "Costas",
@@ -128,11 +118,6 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroup: "Costas"
   }],
   ombros: [{
-    id: "shoulder-1",
-    name: "Lateral Raise",
-    muscleGroup: "Ombros",
-   videoUrl: "/videos/elevacao_lateral.mp4"
-  }, {
     id: "shoulder-2",
     name: "Seated Shoulder Press",
     muscleGroup: "Ombros",
@@ -185,11 +170,6 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroup: "Bíceps"
   }],
   triceps: [{
-    id: "triceps-1",
-    name: "Triceps Pushdown",
-    muscleGroup: "Tríceps",
-   videoUrl: "/videos/triceps_triangulo.mp4"
-  }, {
     id: "triceps-2",
     name: "Seated Bench Extension",
     muscleGroup: "Tríceps",
