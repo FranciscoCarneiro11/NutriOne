@@ -101,6 +101,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "peito",
     videoUrl: "/videos/voador_maquina.mp4",
     thumbnailUrl: "/images/exercises/voador-maquina.png"
+  }, {
+    id: "chest-12",
+    muscleGroupId: "peito",
+    videoUrl: "/videos/flexao.mp4",
+    thumbnailUrl: "/images/exercises/flexao.png"
   }],
   costas: [{
     id: "back-2",
