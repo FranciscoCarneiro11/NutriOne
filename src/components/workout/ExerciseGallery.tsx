@@ -127,6 +127,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "costas",
     videoUrl: "/videos/barra_livre.mp4",
     thumbnailUrl: "/images/exercises/barra-livre.png"
+  }, {
+    id: "back-10",
+    muscleGroupId: "costas",
+    videoUrl: "/videos/remada_livre.mp4",
+    thumbnailUrl: "/images/exercises/remada-livre.png"
   }],
   ombros: [{
     id: "shoulder-2",
