@@ -29,6 +29,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "back-10": { muscleGroupId: "costas", videoUrl: "/videos/remada_livre.mp4", descriptionKey: "back-10" },
   "back-11": { muscleGroupId: "costas", videoUrl: "/videos/puxada_polia_corda.mp4", descriptionKey: "back-11" },
   "back-12": { muscleGroupId: "costas", videoUrl: "/videos/puxada_triangulo.mp4", descriptionKey: "back-12" },
+  "back-13": { muscleGroupId: "costas", videoUrl: "/videos/remada_aberta_maquina.mp4", descriptionKey: "back-13" },
   "back-3": { muscleGroupId: "costas", descriptionKey: "back-3" },
   "back-4": { muscleGroupId: "costas", descriptionKey: "back-4" },
   "back-5": { muscleGroupId: "costas", descriptionKey: "back-5" },
