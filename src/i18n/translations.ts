@@ -107,8 +107,9 @@ export const translations = {
      "chest-5": "Flexão de Braço",
      "chest-6": "Crossover",
      "chest-7": "Fly na Máquina",
-     "chest-9": "Supino Inclinado no Smith",
-     // Costas
+      "chest-9": "Supino Inclinado no Smith",
+      "chest-10": "Crucifixo na Polia Alta",
+      // Costas
      "back-2": "Remada Aberta Sentado",
      "back-3": "Puxada Frontal",
      "back-4": "Remada Curvada",
@@ -283,8 +284,9 @@ export const translations = {
      "chest-5": "Push-up",
      "chest-6": "Cable Crossover",
      "chest-7": "Machine Fly",
-     "chest-9": "Incline Smith Machine Press",
-     // Back
+      "chest-9": "Incline Smith Machine Press",
+      "chest-10": "High Cable Crossover",
+      // Back
      "back-2": "Seated Wide-Grip Row",
      "back-3": "Lat Pulldown",
      "back-4": "Bent-Over Row",
@@ -459,8 +461,9 @@ export const translations = {
      "chest-5": "Flexiones",
      "chest-6": "Cruce de Cables",
      "chest-7": "Aperturas en Máquina",
-     "chest-9": "Press Inclinado en Máquina Smith",
-     // Espalda
+      "chest-9": "Press Inclinado en Máquina Smith",
+      "chest-10": "Crucifijo en Polea Alta",
+      // Espalda
      "back-2": "Remo Sentado Agarre Ancho",
      "back-3": "Jalón al Pecho",
      "back-4": "Remo con Barra",

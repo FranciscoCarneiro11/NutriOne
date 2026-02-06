@@ -101,6 +101,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "peito",
     videoUrl: "/videos/supino_inclinado_smith.mp4",
     thumbnailUrl: "/images/exercises/supino-inclinado-smith.png"
+  }, {
+    id: "chest-10",
+    muscleGroupId: "peito",
+    videoUrl: "/videos/crucifixo_polia_alta.mp4",
+    thumbnailUrl: "/images/exercises/crucifixo-polia-alta.png"
   }],
   costas: [{
     id: "back-2",
