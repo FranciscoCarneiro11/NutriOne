@@ -21,6 +21,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "chest-10": { muscleGroupId: "peito", videoUrl: "/videos/crucifixo_polia_alta.mp4", descriptionKey: "chest-10" },
   "chest-11": { muscleGroupId: "peito", videoUrl: "/videos/voador_maquina.mp4", descriptionKey: "chest-11" },
   "chest-12": { muscleGroupId: "peito", videoUrl: "/videos/flexao.mp4", descriptionKey: "chest-12" },
+  "chest-13": { muscleGroupId: "peito", videoUrl: "/videos/barra_paralela.mp4", descriptionKey: "chest-13" },
   // Costas
   "back-1": { muscleGroupId: "costas", videoUrl: "/videos/pulldown.mp4", descriptionKey: "back-1" },
   "back-2": { muscleGroupId: "costas", videoUrl: "/videos/remada_aberta_sentado.mp4", descriptionKey: "back-2" },

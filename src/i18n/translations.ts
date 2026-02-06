@@ -111,6 +111,7 @@ export const translations = {
       "chest-10": "Crucifixo na Polia Alta",
       "chest-11": "Voador Máquina",
       "chest-12": "Flexão",
+      "chest-13": "Barra Paralela",
       // Costas
       "back-2": "Remada Aberta Sentado",
       "back-7": "Remada Sentado com Triângulo",
@@ -297,6 +298,7 @@ export const translations = {
       "chest-10": "High Cable Crossover",
       "chest-11": "Pec Deck Machine",
       "chest-12": "Push-up",
+      "chest-13": "Parallel Bar Dips",
       // Back
       "back-2": "Seated Wide-Grip Row",
       "back-7": "Seated Close-Grip Row",
@@ -483,6 +485,7 @@ export const translations = {
       "chest-10": "Crucifijo en Polea Alta",
       "chest-11": "Pec Deck Máquina",
       "chest-12": "Flexión",
+      "chest-13": "Barras Paralelas",
       // Espalda
       "back-2": "Remo Sentado Agarre Ancho",
       "back-7": "Remo Sentado con Triángulo",
