@@ -117,6 +117,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "costas",
     videoUrl: "/videos/remada_sentado_triangulo.mp4",
     thumbnailUrl: "/images/exercises/remada-sentado-triangulo.png"
+  }, {
+    id: "back-8",
+    muscleGroupId: "costas",
+    videoUrl: "/videos/puxada_aberta.mp4",
+    thumbnailUrl: "/images/exercises/puxada-aberta.png"
   }],
   ombros: [{
     id: "shoulder-2",

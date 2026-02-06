@@ -112,6 +112,7 @@ export const translations = {
       // Costas
       "back-2": "Remada Aberta Sentado",
       "back-7": "Remada Sentado com Triângulo",
+      "back-8": "Puxada Aberta",
       "back-3": "Puxada Frontal",
      "back-4": "Remada Curvada",
      "back-5": "Barra Fixa",
@@ -290,6 +291,7 @@ export const translations = {
       // Back
       "back-2": "Seated Wide-Grip Row",
       "back-7": "Seated Close-Grip Row",
+      "back-8": "Wide-Grip Lat Pulldown",
       "back-3": "Lat Pulldown",
      "back-4": "Bent-Over Row",
      "back-5": "Pull-up",
@@ -468,6 +470,7 @@ export const translations = {
       // Espalda
       "back-2": "Remo Sentado Agarre Ancho",
       "back-7": "Remo Sentado con Triángulo",
+      "back-8": "Jalón Abierto",
       "back-3": "Jalón al Pecho",
      "back-4": "Remo con Barra",
      "back-5": "Dominadas",
