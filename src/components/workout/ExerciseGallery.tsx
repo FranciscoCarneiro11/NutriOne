@@ -137,6 +137,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "costas",
     videoUrl: "/videos/puxada_polia_corda.mp4",
     thumbnailUrl: "/images/exercises/puxada-polia-corda.png"
+  }, {
+    id: "back-12",
+    muscleGroupId: "costas",
+    videoUrl: "/videos/puxada_triangulo.mp4",
+    thumbnailUrl: "/images/exercises/puxada-triangulo.png"
   }],
   ombros: [{
     id: "shoulder-2",
