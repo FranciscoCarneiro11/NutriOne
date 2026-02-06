@@ -109,6 +109,7 @@ export const translations = {
      "chest-7": "Fly na Máquina",
       "chest-9": "Supino Inclinado no Smith",
       "chest-10": "Crucifixo na Polia Alta",
+      "chest-11": "Voador Máquina",
       // Costas
       "back-2": "Remada Aberta Sentado",
       "back-7": "Remada Sentado com Triângulo",
@@ -293,6 +294,7 @@ export const translations = {
      "chest-7": "Machine Fly",
       "chest-9": "Incline Smith Machine Press",
       "chest-10": "High Cable Crossover",
+      "chest-11": "Pec Deck Machine",
       // Back
       "back-2": "Seated Wide-Grip Row",
       "back-7": "Seated Close-Grip Row",
@@ -477,6 +479,7 @@ export const translations = {
      "chest-7": "Aperturas en Máquina",
       "chest-9": "Press Inclinado en Máquina Smith",
       "chest-10": "Crucifijo en Polea Alta",
+      "chest-11": "Pec Deck Máquina",
       // Espalda
       "back-2": "Remo Sentado Agarre Ancho",
       "back-7": "Remo Sentado con Triángulo",

@@ -19,7 +19,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "chest-7": { muscleGroupId: "peito", descriptionKey: "chest-7" },
   "chest-9": { muscleGroupId: "peito", videoUrl: "/videos/supino_inclinado_smith.mp4", descriptionKey: "chest-9" },
   "chest-10": { muscleGroupId: "peito", videoUrl: "/videos/crucifixo_polia_alta.mp4", descriptionKey: "chest-10" },
-  
+  "chest-11": { muscleGroupId: "peito", videoUrl: "/videos/voador_maquina.mp4", descriptionKey: "chest-11" },
   // Costas
   "back-1": { muscleGroupId: "costas", videoUrl: "/videos/pulldown.mp4", descriptionKey: "back-1" },
   "back-2": { muscleGroupId: "costas", videoUrl: "/videos/remada_aberta_sentado.mp4", descriptionKey: "back-2" },
