@@ -112,7 +112,6 @@ export const translations = {
       // Costas
       "back-2": "Remada Aberta Sentado",
       "back-7": "Remada Sentado com Triângulo",
-      "back-8": "Puxada Aberta",
       "back-9": "Barra Livre",
       "back-10": "Remada Livre",
       "back-11": "Puxada Alta na Polia com Corda",
@@ -296,7 +295,7 @@ export const translations = {
       // Back
       "back-2": "Seated Wide-Grip Row",
       "back-7": "Seated Close-Grip Row",
-      "back-8": "Wide-Grip Lat Pulldown",
+      
       "back-9": "Free Bar Pull-up",
       "back-10": "Barbell Row",
       "back-11": "High Pulley Rope Pulldown",
@@ -480,7 +479,7 @@ export const translations = {
       // Espalda
       "back-2": "Remo Sentado Agarre Ancho",
       "back-7": "Remo Sentado con Triángulo",
-      "back-8": "Jalón Abierto",
+      
       "back-9": "Barra Libre",
       "back-10": "Remo Libre",
       "back-11": "Jalón Alto en Polea con Cuerda",
