@@ -125,8 +125,9 @@ export const translations = {
      "back-4": "Remada Curvada",
      "back-5": "Barra Fixa",
      "back-6": "Remada Unilateral",
-     // Ombros
-     "shoulder-2": "Desenvolvimento Sentado",
+      // Ombros
+      "shoulder-1": "Elevação Lateral",
+      "shoulder-2": "Desenvolvimento Sentado",
      "shoulder-3": "Desenvolvimento",
      "shoulder-4": "Elevação Frontal",
      "shoulder-5": "Crucifixo Inverso",
@@ -312,8 +313,9 @@ export const translations = {
      "back-4": "Bent-Over Row",
      "back-5": "Pull-up",
      "back-6": "Single-Arm Row",
-     // Shoulders
-     "shoulder-2": "Seated Shoulder Press",
+      // Shoulders
+      "shoulder-1": "Lateral Raise",
+      "shoulder-2": "Seated Shoulder Press",
      "shoulder-3": "Overhead Press",
      "shoulder-4": "Front Raise",
      "shoulder-5": "Reverse Fly",
@@ -499,8 +501,9 @@ export const translations = {
      "back-4": "Remo con Barra",
      "back-5": "Dominadas",
      "back-6": "Remo Unilateral",
-     // Hombros
-     "shoulder-2": "Press de Hombros Sentado",
+      // Hombros
+      "shoulder-1": "Elevación Lateral",
+      "shoulder-2": "Press de Hombros Sentado",
      "shoulder-3": "Press Militar",
      "shoulder-4": "Elevación Frontal",
      "shoulder-5": "Pájaro",
