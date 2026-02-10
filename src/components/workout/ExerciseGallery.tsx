@@ -193,6 +193,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "ombros",
     videoUrl: "/videos/crucifixo_inverso_cabo.mp4",
     thumbnailUrl: "/images/exercises/crucifixo-inverso-cabo.png"
+  }, {
+    id: "shoulder-14",
+    muscleGroupId: "ombros",
+    videoUrl: "/videos/desenvolvimento_arnold.mp4",
+    thumbnailUrl: "/images/exercises/desenvolvimento-arnold.png"
   }],
   biceps: [{
     id: "biceps-1",
