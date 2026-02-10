@@ -141,8 +141,9 @@ export const translations = {
       "shoulder-13": "Crucifixo Inverso no Cabo com Suporte de Peito",
       "shoulder-14": "Desenvolvimento Arnold",
       "shoulder-15": "Crucifixo Invertido com Halter",
-      "shoulder-16": "Elevação Lateral Sentado",
-      // Bíceps
+       "shoulder-16": "Elevação Lateral Sentado",
+       "shoulder-17": "FacePull com Corda",
+       // Bíceps
      "biceps-1": "Rosca no Cabo",
      "biceps-2": "Rosca Martelo",
      "biceps-3": "Rosca Direta",
