@@ -183,6 +183,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "ombros",
     videoUrl: "/videos/desenvolvimento_maquina_inclinado.mp4",
     thumbnailUrl: "/images/exercises/desenvolvimento-maquina-inclinado.png"
+  }, {
+    id: "shoulder-12",
+    muscleGroupId: "ombros",
+    videoUrl: "/videos/elevacao_lateral_invertida.mp4",
+    thumbnailUrl: "/images/exercises/elevacao-lateral-invertida.png"
   }],
   biceps: [{
     id: "biceps-1",
