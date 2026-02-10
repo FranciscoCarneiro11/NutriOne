@@ -125,8 +125,9 @@ export const translations = {
      "back-4": "Remada Curvada",
      "back-5": "Barra Fixa",
      "back-6": "Remada Unilateral",
-     // Ombros
-     "shoulder-2": "Desenvolvimento Sentado",
+      // Ombros
+      "shoulder-1": "Elevação Lateral",
+      "shoulder-2": "Desenvolvimento Sentado",
      "shoulder-3": "Desenvolvimento",
      "shoulder-4": "Elevação Frontal",
      "shoulder-5": "Crucifixo Inverso",
