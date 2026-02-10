@@ -90,8 +90,37 @@ serve(async (req) => {
 
     console.log("Authenticated user:", user.id);
 
-    const { profile } = await req.json() as { profile: ProfileData };
-    
+    // SECURITY: Fetch profile from database instead of trusting client-sent data
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("previous_experience, gender, age, height, weight, target_weight, professional_help, goal, obstacles, body_zones, activity_level, dietary_restrictions, workout_days")
+      .eq("user_id", user.id)
+      .single();
+
+    if (profileError || !profileData) {
+      console.error("Failed to fetch profile:", profileError?.message);
+      return new Response(
+        JSON.stringify({ error: "Profile not found. Please complete onboarding first." }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const profile: ProfileData = {
+      previous_experience: profileData.previous_experience,
+      gender: profileData.gender,
+      age: profileData.age ?? 25,
+      height: profileData.height ?? 170,
+      weight: profileData.weight ?? 70,
+      target_weight: profileData.target_weight ?? 70,
+      professional_help: profileData.professional_help,
+      goal: profileData.goal,
+      obstacles: profileData.obstacles ?? [],
+      body_zones: profileData.body_zones ?? [],
+      activity_level: profileData.activity_level,
+      dietary_restrictions: profileData.dietary_restrictions ?? [],
+      workout_days: profileData.workout_days ?? 3,
+    };
+
     // Ensure workout_days is valid (default to 3 if not specified)
     const workoutDays = Math.min(Math.max(profile.workout_days || 3, 1), 7);
     const trainingSplit = getTrainingSplit(workoutDays);
