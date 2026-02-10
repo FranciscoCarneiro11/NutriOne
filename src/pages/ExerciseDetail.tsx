@@ -45,6 +45,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "shoulder-5": { muscleGroupId: "ombros", descriptionKey: "shoulder-5" },
   "shoulder-6": { muscleGroupId: "ombros", descriptionKey: "shoulder-6" },
   "shoulder-7": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_inclinado.mp4", descriptionKey: "shoulder-7" },
+  "shoulder-8": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_maquina.mp4", descriptionKey: "shoulder-8" },
   
   // Bíceps
   "biceps-1": { muscleGroupId: "biceps", videoUrl: "/videos/biceps_cabo.mp4", descriptionKey: "biceps-1" },
