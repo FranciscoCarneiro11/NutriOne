@@ -516,6 +516,7 @@ export const translations = {
      "shoulder-6": "Encogimiento de Hombros",
      "shoulder-7": "Elevación Lateral Inclinado en Banco",
      "shoulder-8": "Press de Hombros en Máquina",
+     "shoulder-9": "Elevación Frontal en Polea",
      // Bíceps
      "biceps-1": "Curl en Polea",
      "biceps-2": "Curl Martillo",
