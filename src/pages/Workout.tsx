@@ -137,18 +137,9 @@ const Workout: React.FC = () => {
     try {
       setGenerating(true);
       setHasPlanError(false);
-      
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user?.id)
-        .single();
 
-      if (profileError) throw profileError;
-
-      const { data, error } = await supabase.functions.invoke("generate-plan", {
-        body: { profile },
-      });
+      // No need to send profile data - the edge function fetches it securely from the database
+      const { data, error } = await supabase.functions.invoke("generate-plan");
 
       if (error) throw error;
 
