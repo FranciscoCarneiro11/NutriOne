@@ -50,6 +50,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "shoulder-10": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_maquina.mp4", descriptionKey: "shoulder-10" },
   "shoulder-11": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_maquina_inclinado.mp4", descriptionKey: "shoulder-11" },
   "shoulder-12": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_invertida.mp4", descriptionKey: "shoulder-12" },
+  "shoulder-13": { muscleGroupId: "ombros", videoUrl: "/videos/crucifixo_inverso_cabo.mp4", descriptionKey: "shoulder-13" },
   
   // Bíceps
   "biceps-1": { muscleGroupId: "biceps", videoUrl: "/videos/biceps_cabo.mp4", descriptionKey: "biceps-1" },
