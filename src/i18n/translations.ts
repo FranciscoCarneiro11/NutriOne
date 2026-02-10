@@ -534,6 +534,7 @@ export const translations = {
       "shoulder-12": "Elevación Lateral Invertida",
       "shoulder-13": "Crucifijo Inverso en Cable con Soporte de Pecho",
       "shoulder-14": "Press Arnold",
+      "shoulder-15": "Crucifijo Invertido con Mancuerna",
       // Bíceps
      "biceps-1": "Curl en Polea",
      "biceps-2": "Curl Martillo",
