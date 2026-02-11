@@ -213,6 +213,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "ombros",
     videoUrl: "/videos/facepull_com_corda.mp4",
     thumbnailUrl: "/images/exercises/facepull-com-corda.png"
+  }, {
+    id: "shoulder-18",
+    muscleGroupId: "ombros",
+    videoUrl: "/videos/elevacao_lateral_maquina_2.mp4",
+    thumbnailUrl: "/images/exercises/elevacao-lateral-maquina-2.png"
   }],
   biceps: [{
     id: "biceps-1",
