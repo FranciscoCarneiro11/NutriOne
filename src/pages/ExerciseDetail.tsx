@@ -54,7 +54,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "shoulder-14": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_arnold.mp4", descriptionKey: "shoulder-14" },
   "shoulder-15": { muscleGroupId: "ombros", videoUrl: "/videos/crucifixo_invertido_halter.mp4", descriptionKey: "shoulder-15" },
   "shoulder-16": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_sentado.mp4", descriptionKey: "shoulder-16" },
-  // shoulder-17 removed
+  "shoulder-17": { muscleGroupId: "ombros", videoUrl: "/videos/facepull_com_corda.mp4", descriptionKey: "shoulder-17" },
   "shoulder-18": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_maquina_2.mp4", descriptionKey: "shoulder-18" },
   "shoulder-19": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_militar_barra.mp4", descriptionKey: "shoulder-19" },
   "shoulder-20": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_maquina_2.mp4", descriptionKey: "shoulder-20" },
