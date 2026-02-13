@@ -151,6 +151,7 @@ export const translations = {
         "shoulder-23": "Desenvolvimento Militar com Barra no Smith",
         "shoulder-24": "Crucifixo Invertido na Máquina",
         "shoulder-25": "Elevação Frontal com Halter",
+        "shoulder-26": "Desenvolvimento Máquina III",
          // Bíceps
      "biceps-1": "Rosca no Cabo",
      "biceps-2": "Rosca Martelo",
@@ -358,6 +359,7 @@ export const translations = {
         "shoulder-23": "Smith Machine Military Press",
         "shoulder-24": "Reverse Machine Fly",
         "shoulder-25": "Dumbbell Front Raise",
+        "shoulder-26": "Machine Shoulder Press III",
          // Biceps
      "biceps-1": "Cable Curl",
      "biceps-2": "Hammer Curl",
@@ -565,6 +567,7 @@ export const translations = {
         "shoulder-23": "Press Militar con Barra en Smith",
         "shoulder-24": "Crucifijo Invertido en Máquina",
         "shoulder-25": "Elevación Frontal con Mancuerna",
+        "shoulder-26": "Press Máquina III",
          // Bíceps
      "biceps-1": "Curl en Polea",
      "biceps-2": "Curl Martillo",
