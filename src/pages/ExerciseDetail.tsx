@@ -38,7 +38,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "back-6": { muscleGroupId: "costas", descriptionKey: "back-6" },
   
   // Ombros
-  // shoulder-1 removed
+  "shoulder-28": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_halter.mp4", descriptionKey: "shoulder-28" },
   "shoulder-2": { muscleGroupId: "ombros", videoUrl: "/videos/shoulderpress.mp4", descriptionKey: "shoulder-2" },
   "shoulder-3": { muscleGroupId: "ombros", descriptionKey: "shoulder-3" },
   "shoulder-4": { muscleGroupId: "ombros", descriptionKey: "shoulder-4" },
