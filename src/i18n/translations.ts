@@ -142,8 +142,9 @@ export const translations = {
       "shoulder-14": "Desenvolvimento Arnold",
       "shoulder-15": "Crucifixo Invertido com Halter",
        "shoulder-16": "Elevação Lateral Sentado",
-       "shoulder-17": "FacePull com Corda",
-       // Bíceps
+        "shoulder-17": "FacePull com Corda",
+        "shoulder-18": "Elevação Lateral Máquina II",
+        // Bíceps
      "biceps-1": "Rosca no Cabo",
      "biceps-2": "Rosca Martelo",
      "biceps-3": "Rosca Direta",
@@ -341,8 +342,9 @@ export const translations = {
       "shoulder-14": "Arnold Press",
       "shoulder-15": "Dumbbell Reverse Fly",
        "shoulder-16": "Seated Lateral Raise",
-       "shoulder-17": "Face Pull with Rope",
-       // Biceps
+        "shoulder-17": "Face Pull with Rope",
+        "shoulder-18": "Machine Lateral Raise II",
+        // Biceps
      "biceps-1": "Cable Curl",
      "biceps-2": "Hammer Curl",
      "biceps-3": "Barbell Curl",
@@ -540,8 +542,9 @@ export const translations = {
       "shoulder-14": "Press Arnold",
       "shoulder-15": "Crucifijo Invertido con Mancuerna",
        "shoulder-16": "Elevación Lateral Sentado",
-       "shoulder-17": "Face Pull con Cuerda",
-       // Bíceps
+        "shoulder-17": "Face Pull con Cuerda",
+        "shoulder-18": "Elevación Lateral Máquina II",
+        // Bíceps
      "biceps-1": "Curl en Polea",
      "biceps-2": "Curl Martillo",
      "biceps-3": "Curl con Barra",
