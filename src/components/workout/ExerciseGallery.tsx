@@ -233,6 +233,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "ombros",
     videoUrl: "/videos/elevacao_lateral_cruzada_cabo.mp4",
     thumbnailUrl: "/images/exercises/elevacao-lateral-cruzada-cabo.png"
+  }, {
+    id: "shoulder-22",
+    muscleGroupId: "ombros",
+    videoUrl: "/videos/remada_alta_barra_w.mp4",
+    thumbnailUrl: "/images/exercises/remada-alta-barra-w.png"
   }],
   biceps: [{
     id: "biceps-1",

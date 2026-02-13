@@ -59,6 +59,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "shoulder-19": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_militar_barra.mp4", descriptionKey: "shoulder-19" },
   "shoulder-20": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_maquina_2.mp4", descriptionKey: "shoulder-20" },
   "shoulder-21": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_cruzada_cabo.mp4", descriptionKey: "shoulder-21" },
+  "shoulder-22": { muscleGroupId: "ombros", videoUrl: "/videos/remada_alta_barra_w.mp4", descriptionKey: "shoulder-22" },
   
   // Bíceps
   "biceps-1": { muscleGroupId: "biceps", videoUrl: "/videos/biceps_cabo.mp4", descriptionKey: "biceps-1" },

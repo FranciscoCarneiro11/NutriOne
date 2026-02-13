@@ -147,7 +147,8 @@ export const translations = {
         "shoulder-19": "Desenvolvimento Militar com Barra",
         "shoulder-20": "Desenvolvimento Máquina II",
         "shoulder-21": "Elevação Lateral Cruzada no Cabo",
-        // Bíceps
+        "shoulder-22": "Remada Alta com Barra W",
+         // Bíceps
      "biceps-1": "Rosca no Cabo",
      "biceps-2": "Rosca Martelo",
      "biceps-3": "Rosca Direta",
@@ -350,7 +351,8 @@ export const translations = {
         "shoulder-19": "Barbell Military Press",
         "shoulder-20": "Machine Shoulder Press II",
         "shoulder-21": "Cable Crossover Lateral Raise",
-        // Biceps
+        "shoulder-22": "W-Bar Upright Row",
+         // Biceps
      "biceps-1": "Cable Curl",
      "biceps-2": "Hammer Curl",
      "biceps-3": "Barbell Curl",
@@ -553,7 +555,8 @@ export const translations = {
         "shoulder-19": "Press Militar con Barra",
         "shoulder-20": "Press Máquina II",
         "shoulder-21": "Elevación Lateral Cruzada en Cable",
-        // Bíceps
+        "shoulder-22": "Remo Alto con Barra W",
+         // Bíceps
      "biceps-1": "Curl en Polea",
      "biceps-2": "Curl Martillo",
      "biceps-3": "Curl con Barra",
