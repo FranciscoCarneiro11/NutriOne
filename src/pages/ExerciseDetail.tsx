@@ -54,14 +54,14 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   // shoulder-14 removed
   "shoulder-15": { muscleGroupId: "ombros", videoUrl: "/videos/crucifixo_invertido_halter.mp4", descriptionKey: "shoulder-15" },
   "shoulder-16": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_sentado.mp4", descriptionKey: "shoulder-16" },
-  "shoulder-17": { muscleGroupId: "ombros", videoUrl: "/videos/facepull_com_corda.mp4", descriptionKey: "shoulder-17" },
+  // shoulder-17 removed
   "shoulder-18": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_maquina_2.mp4", descriptionKey: "shoulder-18" },
   "shoulder-19": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_militar_barra.mp4", descriptionKey: "shoulder-19" },
   "shoulder-20": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_maquina_2.mp4", descriptionKey: "shoulder-20" },
   "shoulder-21": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_cruzada_cabo.mp4", descriptionKey: "shoulder-21" },
   "shoulder-22": { muscleGroupId: "ombros", videoUrl: "/videos/remada_alta_barra_w.mp4", descriptionKey: "shoulder-22" },
   "shoulder-23": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_militar_smith.mp4", descriptionKey: "shoulder-23" },
-  "shoulder-24": { muscleGroupId: "ombros", videoUrl: "/videos/crucifixo_invertido_maquina.mp4", descriptionKey: "shoulder-24" },
+  // shoulder-24 removed
   "shoulder-25": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_frontal_halter.mp4", descriptionKey: "shoulder-25" },
   "shoulder-26": { muscleGroupId: "ombros", videoUrl: "/videos/desenvolvimento_maquina_3.mp4", descriptionKey: "shoulder-26" },
   "shoulder-27": { muscleGroupId: "ombros", videoUrl: "/videos/elevacao_lateral_unilateral_cabo.mp4", descriptionKey: "shoulder-27" },

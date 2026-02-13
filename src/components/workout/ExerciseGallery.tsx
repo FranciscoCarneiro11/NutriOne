@@ -199,11 +199,6 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     videoUrl: "/videos/elevacao_lateral_sentado.mp4",
     thumbnailUrl: "/images/exercises/elevacao-lateral-sentado.png"
   }, {
-    id: "shoulder-17",
-    muscleGroupId: "ombros",
-    videoUrl: "/videos/facepull_com_corda.mp4",
-    thumbnailUrl: "/images/exercises/facepull-com-corda.png"
-  }, {
     id: "shoulder-18",
     muscleGroupId: "ombros",
     videoUrl: "/videos/elevacao_lateral_maquina_2.mp4",
@@ -233,11 +228,6 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "ombros",
     videoUrl: "/videos/desenvolvimento_militar_smith.mp4",
     thumbnailUrl: "/images/exercises/desenvolvimento-militar-smith.png"
-  }, {
-    id: "shoulder-24",
-    muscleGroupId: "ombros",
-    videoUrl: "/videos/crucifixo_invertido_maquina.mp4",
-    thumbnailUrl: "/images/exercises/crucifixo-invertido-maquina.png"
   }, {
     id: "shoulder-25",
     muscleGroupId: "ombros",
