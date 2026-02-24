@@ -21,6 +21,7 @@ import Privacy from "./pages/Privacy";
 import Help from "./pages/Help";
 import ExerciseDetail from "./pages/ExerciseDetail";
 import WorkoutHistory from "./pages/WorkoutHistory";
+import ActiveWorkout from "./pages/ActiveWorkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
                 <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
                 <Route path="/exercise/:exerciseId" element={<ProtectedRoute><ExerciseDetail /></ProtectedRoute>} />
                 <Route path="/workout-history" element={<ProtectedRoute><WorkoutHistory /></ProtectedRoute>} />
+                <Route path="/active-workout" element={<ProtectedRoute><ActiveWorkout /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
