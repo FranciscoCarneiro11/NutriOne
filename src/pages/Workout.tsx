@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
-import { Sparkles, Dumbbell, RefreshCw, History } from "lucide-react";
+import { Sparkles, Dumbbell, RefreshCw, History, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -404,6 +404,20 @@ const Workout: React.FC = () => {
           <ExerciseGallery />
         )}
       </AppContent>
+
+      {/* Floating "Start Workout" button */}
+      <div className="fixed bottom-20 left-0 right-0 px-6 z-40">
+        <div className="max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
+          <Button
+            onClick={() => navigate("/active-workout")}
+            className="w-full gap-2 shadow-fab"
+            size="lg"
+          >
+            <Play className="w-5 h-5" />
+            Iniciar um treino vazio
+          </Button>
+        </div>
+      </div>
 
       <BottomNavigation />
     </AppShell>
