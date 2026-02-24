@@ -406,7 +406,7 @@ const Workout: React.FC = () => {
       </AppContent>
 
       {/* Floating "Start Workout" button */}
-      <div className="fixed bottom-20 left-0 right-0 px-6 z-40">
+      <div className="fixed bottom-24 left-0 right-0 px-6 z-40">
         <div className="max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
           <Button
             onClick={() => navigate("/active-workout")}
