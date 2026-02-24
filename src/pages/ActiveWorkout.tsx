@@ -397,9 +397,10 @@ const ActiveWorkout: React.FC = () => {
     );
   }
 
-  // EXERCISE PICKER MODAL
-  const ExercisePicker = () => (
+  // EXERCISE PICKER MODAL - rendered inline to avoid remount issues
+  const exercisePickerContent = showPicker ? (
     <motion.div
+      key="exercise-picker"
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
@@ -413,7 +414,6 @@ const ActiveWorkout: React.FC = () => {
         </button>
       </div>
 
-      {/* Search */}
       <div className="px-4 py-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -426,7 +426,6 @@ const ActiveWorkout: React.FC = () => {
         </div>
       </div>
 
-      {/* Muscle filter chips */}
       <div className="px-4 pb-2 flex gap-2 overflow-x-auto hide-scrollbar">
         {muscleGroupList.map(mg => (
           <button
@@ -444,7 +443,6 @@ const ActiveWorkout: React.FC = () => {
         ))}
       </div>
 
-      {/* Exercise list */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
         {filteredExercises.map(option => {
           const isAdded = exercises.some(e => e.id === option.id);
@@ -481,7 +479,7 @@ const ActiveWorkout: React.FC = () => {
         })}
       </div>
     </motion.div>
-  );
+  ) : null;
 
   // MAIN VIEW (picking + active)
   return (
@@ -641,7 +639,7 @@ const ActiveWorkout: React.FC = () => {
 
       {/* Picker overlay */}
       <AnimatePresence>
-        {showPicker && <ExercisePicker />}
+        {exercisePickerContent}
       </AnimatePresence>
     </AppShell>
   );
