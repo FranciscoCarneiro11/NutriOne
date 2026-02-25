@@ -118,17 +118,47 @@ const ActiveWorkout: React.FC = () => {
   const exerciseTranslations = t.exercises as Record<string, string>;
   const muscleTranslations = t.muscleGroups as Record<string, string>;
 
-  const [phase, setPhase] = useState<Phase>("picking");
-  const [exercises, setExercises] = useState<ActiveExercise[]>([]);
+  // Restore saved state from localStorage
+  const STORAGE_KEY = "active_workout_state";
+
+  const loadSavedState = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed;
+      }
+    } catch {}
+    return null;
+  };
+
+  const savedState = useRef(loadSavedState());
+
+  const [phase, setPhase] = useState<Phase>(() => savedState.current?.phase || "picking");
+  const [exercises, setExercises] = useState<ActiveExercise[]>(() => savedState.current?.exercises || []);
   const [showPicker, setShowPicker] = useState(false);
   const [filterMuscle, setFilterMuscle] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Timer
+  // Timer - use wallclock start time for persistence
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(() => savedState.current?.isPaused || false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(savedState.current?.startTime || Date.now());
+  const pausedElapsedRef = useRef<number>(savedState.current?.pausedElapsed || 0);
+
+  // Initialize startTimeRef properly (useRef with function doesn't auto-call)
+  useEffect(() => {
+    if (savedState.current?.startTime) {
+      startTimeRef.current = savedState.current.startTime;
+      // If was active and not paused, elapsed = now - startTime
+      if (savedState.current.phase === "active" && !savedState.current.isPaused) {
+        setElapsedSeconds(Math.floor((Date.now() - savedState.current.startTime) / 1000));
+      } else if (savedState.current.pausedElapsed) {
+        setElapsedSeconds(savedState.current.pausedElapsed);
+      }
+    }
+  }, []);
 
   // Summary data
   const [summaryData, setSummaryData] = useState<{
@@ -137,6 +167,22 @@ const ActiveWorkout: React.FC = () => {
     muscleGroups: string[];
     exerciseCount: number;
   } | null>(null);
+
+  // Persist state to localStorage on changes
+  useEffect(() => {
+    if (phase === "summary") {
+      localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+    const state = {
+      phase,
+      exercises,
+      isPaused,
+      startTime: startTimeRef.current,
+      pausedElapsed: isPaused ? elapsedSeconds : undefined,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [phase, exercises, isPaused, elapsedSeconds]);
 
   // Timer logic
   useEffect(() => {
@@ -218,7 +264,9 @@ const ActiveWorkout: React.FC = () => {
       toast.error("Adicione pelo menos 1 exercício");
       return;
     }
-    startTimeRef.current = Date.now();
+    const now = Date.now();
+    startTimeRef.current = now;
+    setElapsedSeconds(0);
     setPhase("active");
   };
 
@@ -489,8 +537,12 @@ const ActiveWorkout: React.FC = () => {
         showBack
         onBack={() => {
           if (phase === "active") {
-            if (confirm("Deseja abandonar o treino?")) navigate("/workout");
+            if (confirm("Deseja abandonar o treino?")) {
+              localStorage.removeItem(STORAGE_KEY);
+              navigate("/workout");
+            }
           } else {
+            localStorage.removeItem(STORAGE_KEY);
             navigate("/workout");
           }
         }}
