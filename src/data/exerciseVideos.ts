@@ -107,6 +107,11 @@ const exerciseVideoDatabase: Record<string, ExerciseMedia> = {
   "unilateral leg curl": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
   "unilateral leg curl machine": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
   "single leg curl": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
+  
+  "mesa flexora": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
+  "lying leg curl": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
+  "prone leg curl": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
+  "flexora deitado": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
 };
 
 // Function to find video for an exercise name

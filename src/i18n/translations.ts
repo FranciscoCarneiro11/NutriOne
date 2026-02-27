@@ -189,6 +189,7 @@ export const translations = {
       "post-6": "Cadeira Flexora",
       "post-7": "Flexão de Perna Reversa Assistida",
       "post-8": "Cadeira Flexora Unilateral",
+      "post-9": "Mesa Flexora",
       // Trapézio
      "trap-1": "Encolhimento com Barra",
      "trap-2": "Encolhimento com Halteres",
@@ -401,6 +402,7 @@ export const translations = {
       "post-6": "Leg Curl Machine",
       "post-7": "Assisted Reverse Leg Curl",
       "post-8": "Unilateral Leg Curl Machine",
+      "post-9": "Lying Leg Curl",
       // Trapezius
      "trap-1": "Barbell Shrugs",
      "trap-2": "Dumbbell Shrugs",
@@ -613,6 +615,7 @@ export const translations = {
       "post-6": "Curl de Piernas en Máquina",
       "post-7": "Flexión de Pierna Reversa Asistida",
       "post-8": "Curl de Piernas Unilateral en Máquina",
+      "post-9": "Curl de Piernas Acostado",
       // Trapecio
      "trap-1": "Encogimiento con Barra",
      "trap-2": "Encogimiento con Mancuernas",
