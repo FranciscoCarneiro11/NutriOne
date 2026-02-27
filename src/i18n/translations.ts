@@ -412,6 +412,7 @@ export const translations = {
        "post-11": "Kettlebell Swing",
        "post-12": "Stiff",
        "post-13": "Standing Leg Curl",
+       "post-14": "Lying Leg Curl",
       // Trapezius
      "trap-1": "Barbell Shrugs",
      "trap-2": "Dumbbell Shrugs",
