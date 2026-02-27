@@ -186,8 +186,9 @@ export const translations = {
      "post-3": "Flexora Deitado",
      "post-4": "Levantamento Terra",
      "post-5": "Good Morning",
-     "post-6": "Cadeira Flexora",
-     // Trapézio
+      "post-6": "Cadeira Flexora",
+      "post-7": "Flexão de Perna Reversa Assistida",
+      // Trapézio
      "trap-1": "Encolhimento com Barra",
      "trap-2": "Encolhimento com Halteres",
      "trap-3": "Remada Alta",
