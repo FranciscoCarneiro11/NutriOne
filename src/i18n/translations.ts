@@ -620,7 +620,7 @@ export const translations = {
       "post-7": "Flexión de Pierna Reversa Asistida",
       "post-8": "Curl de Piernas Unilateral en Máquina",
       "post-9": "Curl de Piernas Acostado",
-      "post-10": "Peso Muerto Rumano",
+      "post-10": "RDL",
       "post-11": "Swing con Kettlebell",
       // Trapecio
      "trap-1": "Encogimiento con Barra",
