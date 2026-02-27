@@ -405,19 +405,8 @@ const Workout: React.FC = () => {
         )}
       </AppContent>
 
-      {/* Floating "Start Workout" button */}
-      <div className="fixed bottom-24 left-0 right-0 px-6 z-40">
-        <div className="max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
-          <Button
-            onClick={() => navigate("/active-workout")}
-            className="w-full gap-2 shadow-fab"
-            size="lg"
-          >
-            <Play className="w-5 h-5" />
-            Iniciar um treino vazio
-          </Button>
-        </div>
-      </div>
+      {/* Floating "Start Workout" FAB */}
+      <FloatingStartButton onClick={() => navigate("/active-workout")} />
 
       <BottomNavigation />
     </AppShell>
