@@ -615,6 +615,7 @@ export const translations = {
       "post-6": "Curl de Piernas en Máquina",
       "post-7": "Flexión de Pierna Reversa Asistida",
       "post-8": "Curl de Piernas Unilateral en Máquina",
+      "post-9": "Curl de Piernas Acostado",
       // Trapecio
      "trap-1": "Encogimiento con Barra",
      "trap-2": "Encogimiento con Mancuernas",
