@@ -51,6 +51,41 @@ const dayMapping: { [key: string]: string } = {
 
 type TabType = "treino" | "galeria";
 
+const FloatingStartButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setVisible(window.scrollY < 80);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.9 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="fixed bottom-24 right-4 z-40"
+        >
+          <Button
+            onClick={onClick}
+            size="lg"
+            className="gap-2 shadow-fab rounded-full px-5"
+          >
+            <Play className="w-5 h-5" />
+            Iniciar treino
+          </Button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const Workout: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
