@@ -293,6 +293,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "posterior",
     videoUrl: "/videos/flexao_perna_reversa_assistida.mp4",
     thumbnailUrl: "/images/exercises/flexao-perna-reversa-assistida.png"
+  }, {
+    id: "post-8",
+    muscleGroupId: "posterior",
+    videoUrl: "/videos/cadeira_flexora_unilateral.mp4",
+    thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png"
   }],
   trapezio: []
 };

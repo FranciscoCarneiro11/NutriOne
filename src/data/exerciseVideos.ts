@@ -102,6 +102,11 @@ const exerciseVideoDatabase: Record<string, ExerciseMedia> = {
   "flexao de perna reversa assistida": { videoUrl: "/videos/flexao_perna_reversa_assistida.mp4", thumbnailUrl: "/images/exercises/flexao-perna-reversa-assistida.png" },
   "flexão de perna reversa assistida": { videoUrl: "/videos/flexao_perna_reversa_assistida.mp4", thumbnailUrl: "/images/exercises/flexao-perna-reversa-assistida.png" },
   "assisted reverse leg curl": { videoUrl: "/videos/flexao_perna_reversa_assistida.mp4", thumbnailUrl: "/images/exercises/flexao-perna-reversa-assistida.png" },
+  
+  "cadeira flexora unilateral": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
+  "unilateral leg curl": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
+  "unilateral leg curl machine": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
+  "single leg curl": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
 };
 
 // Function to find video for an exercise name
