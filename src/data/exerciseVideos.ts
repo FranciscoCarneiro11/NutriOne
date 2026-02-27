@@ -117,6 +117,10 @@ const exerciseVideoDatabase: Record<string, ExerciseMedia> = {
   "stiff-legged deadlift": { videoUrl: "/videos/stiff.mp4", thumbnailUrl: "/images/exercises/stiff.png" },
   "stiff legged deadlift": { videoUrl: "/videos/stiff.mp4", thumbnailUrl: "/images/exercises/stiff.png" },
   "peso muerto rumano": { videoUrl: "/videos/stiff.mp4", thumbnailUrl: "/images/exercises/stiff.png" },
+  
+  "levantamento terra com kettlebell": { videoUrl: "/videos/kettlebell_swing.mp4", thumbnailUrl: "/images/exercises/kettlebell-swing.png" },
+  "kettlebell swing": { videoUrl: "/videos/kettlebell_swing.mp4", thumbnailUrl: "/images/exercises/kettlebell-swing.png" },
+  "swing con kettlebell": { videoUrl: "/videos/kettlebell_swing.mp4", thumbnailUrl: "/images/exercises/kettlebell-swing.png" },
 };
 
 // Function to find video for an exercise name
