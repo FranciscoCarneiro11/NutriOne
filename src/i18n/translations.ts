@@ -397,8 +397,9 @@ export const translations = {
      "post-3": "Seated Leg Curl",
      "post-4": "Deadlift",
      "post-5": "Good Morning",
-     "post-6": "Leg Curl Machine",
-     // Trapezius
+      "post-6": "Leg Curl Machine",
+      "post-7": "Assisted Reverse Leg Curl",
+      // Trapezius
      "trap-1": "Barbell Shrugs",
      "trap-2": "Dumbbell Shrugs",
      "trap-3": "Upright Row",
