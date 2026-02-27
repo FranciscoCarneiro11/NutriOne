@@ -108,10 +108,10 @@ const exerciseVideoDatabase: Record<string, ExerciseMedia> = {
   "unilateral leg curl machine": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
   "single leg curl": { videoUrl: "/videos/cadeira_flexora_unilateral.mp4", thumbnailUrl: "/images/exercises/cadeira-flexora-unilateral.png" },
   
-  "mesa flexora": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
-  "lying leg curl": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
-  "prone leg curl": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
-  "flexora deitado": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
+  "mesa flexora": { videoUrl: "/videos/mesa_flexora_2.mp4", thumbnailUrl: "/images/exercises/mesa-flexora-2.png" },
+  "lying leg curl": { videoUrl: "/videos/mesa_flexora_2.mp4", thumbnailUrl: "/images/exercises/mesa-flexora-2.png" },
+  "prone leg curl": { videoUrl: "/videos/mesa_flexora_2.mp4", thumbnailUrl: "/images/exercises/mesa-flexora-2.png" },
+  "flexora deitado": { videoUrl: "/videos/mesa_flexora_2.mp4", thumbnailUrl: "/images/exercises/mesa-flexora-2.png" },
   
   "stiff": { videoUrl: "/videos/stiff_verdadeiro.mp4", thumbnailUrl: "/images/exercises/stiff-verdadeiro.png" },
   "stiff-legged deadlift": { videoUrl: "/videos/stiff_verdadeiro.mp4", thumbnailUrl: "/images/exercises/stiff-verdadeiro.png" },
