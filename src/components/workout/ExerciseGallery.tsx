@@ -308,6 +308,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "posterior",
     videoUrl: "/videos/stiff.mp4",
     thumbnailUrl: "/images/exercises/stiff.png"
+  }, {
+    id: "post-11",
+    muscleGroupId: "posterior",
+    videoUrl: "/videos/kettlebell_swing.mp4",
+    thumbnailUrl: "/images/exercises/kettlebell-swing.png"
   }],
   trapezio: []
 };
