@@ -194,6 +194,7 @@ export const translations = {
        "post-11": "Levantamento Terra com Kettlebell",
        "post-12": "Stiff",
        "post-13": "Flexora em Pé",
+       "post-14": "Mesa Flexora",
       // Trapézio
      "trap-1": "Encolhimento com Barra",
      "trap-2": "Encolhimento com Halteres",
@@ -411,6 +412,7 @@ export const translations = {
        "post-11": "Kettlebell Swing",
        "post-12": "Stiff",
        "post-13": "Standing Leg Curl",
+       "post-14": "Lying Leg Curl",
       // Trapezius
      "trap-1": "Barbell Shrugs",
      "trap-2": "Dumbbell Shrugs",
@@ -628,6 +630,7 @@ export const translations = {
        "post-11": "Swing con Kettlebell",
        "post-12": "Stiff",
        "post-13": "Curl de Piernas de Pie",
+       "post-14": "Curl de Piernas Acostado",
       // Trapecio
      "trap-1": "Encogimiento con Barra",
      "trap-2": "Encogimiento con Mancuernas",

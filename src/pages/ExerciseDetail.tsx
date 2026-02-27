@@ -111,6 +111,7 @@ const allExercises: Record<string, { muscleGroupId: string; videoUrl?: string; d
   "post-12": { muscleGroupId: "posterior", videoUrl: "/videos/stiff_verdadeiro.mp4", descriptionKey: "post-12" },
   "post-11": { muscleGroupId: "posterior", videoUrl: "/videos/kettlebell_swing.mp4", descriptionKey: "post-11" },
   "post-13": { muscleGroupId: "posterior", videoUrl: "/videos/flexora_em_pe.mp4", descriptionKey: "post-13" },
+  "post-14": { muscleGroupId: "posterior", videoUrl: "/videos/mesa_flexora_2.mp4", descriptionKey: "post-14" },
   
   // Trapézio
   "trap-1": { muscleGroupId: "trapezio", descriptionKey: "trap-1" },
