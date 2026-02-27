@@ -126,6 +126,10 @@ const exerciseVideoDatabase: Record<string, ExerciseMedia> = {
   "flexora em pé": { videoUrl: "/videos/flexora_em_pe.mp4", thumbnailUrl: "/images/exercises/flexora-em-pe.png" },
   "standing leg curl": { videoUrl: "/videos/flexora_em_pe.mp4", thumbnailUrl: "/images/exercises/flexora-em-pe.png" },
   "curl de piernas de pie": { videoUrl: "/videos/flexora_em_pe.mp4", thumbnailUrl: "/images/exercises/flexora-em-pe.png" },
+  
+  "mesa flexora": { videoUrl: "/videos/mesa_flexora_2.mp4", thumbnailUrl: "/images/exercises/mesa-flexora-2.png" },
+  "lying leg curl": { videoUrl: "/videos/mesa_flexora_2.mp4", thumbnailUrl: "/images/exercises/mesa-flexora-2.png" },
+  "curl de piernas acostado": { videoUrl: "/videos/mesa_flexora_2.mp4", thumbnailUrl: "/images/exercises/mesa-flexora-2.png" },
 };
 
 // Function to find video for an exercise name
