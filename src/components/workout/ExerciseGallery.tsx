@@ -318,6 +318,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "posterior",
     videoUrl: "/videos/stiff_verdadeiro.mp4",
     thumbnailUrl: "/images/exercises/stiff-verdadeiro.png"
+  }, {
+    id: "post-13",
+    muscleGroupId: "posterior",
+    videoUrl: "/videos/flexora_em_pe.mp4",
+    thumbnailUrl: "/images/exercises/flexora-em-pe.png"
   }],
   trapezio: []
 };
