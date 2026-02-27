@@ -189,7 +189,7 @@ export const translations = {
       "post-6": "Cadeira Flexora",
       "post-7": "Flexão de Perna Reversa Assistida",
       "post-8": "Cadeira Flexora Unilateral",
-      "post-9": "Mesa Flexora",
+      "post-9": "Mesa Flexora Unilateral",
       "post-10": "RDL",
        "post-11": "Levantamento Terra com Kettlebell",
        "post-12": "Stiff",
