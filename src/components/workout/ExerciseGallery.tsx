@@ -323,6 +323,11 @@ const exercisesByMuscle: Record<string, GalleryExercise[]> = {
     muscleGroupId: "posterior",
     videoUrl: "/videos/flexora_em_pe.mp4",
     thumbnailUrl: "/images/exercises/flexora-em-pe.png"
+  }, {
+    id: "post-14",
+    muscleGroupId: "posterior",
+    videoUrl: "/videos/mesa_flexora_2.mp4",
+    thumbnailUrl: "/images/exercises/mesa-flexora-2.png"
   }],
   trapezio: []
 };
