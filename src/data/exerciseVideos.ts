@@ -121,6 +121,11 @@ const exerciseVideoDatabase: Record<string, ExerciseMedia> = {
   "levantamento terra com kettlebell": { videoUrl: "/videos/kettlebell_swing.mp4", thumbnailUrl: "/images/exercises/kettlebell-swing.png" },
   "kettlebell swing": { videoUrl: "/videos/kettlebell_swing.mp4", thumbnailUrl: "/images/exercises/kettlebell-swing.png" },
   "swing con kettlebell": { videoUrl: "/videos/kettlebell_swing.mp4", thumbnailUrl: "/images/exercises/kettlebell-swing.png" },
+  
+  "flexora em pe": { videoUrl: "/videos/flexora_em_pe.mp4", thumbnailUrl: "/images/exercises/flexora-em-pe.png" },
+  "flexora em pé": { videoUrl: "/videos/flexora_em_pe.mp4", thumbnailUrl: "/images/exercises/flexora-em-pe.png" },
+  "standing leg curl": { videoUrl: "/videos/flexora_em_pe.mp4", thumbnailUrl: "/images/exercises/flexora-em-pe.png" },
+  "curl de piernas de pie": { videoUrl: "/videos/flexora_em_pe.mp4", thumbnailUrl: "/images/exercises/flexora-em-pe.png" },
 };
 
 // Function to find video for an exercise name
