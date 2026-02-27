@@ -112,6 +112,11 @@ const exerciseVideoDatabase: Record<string, ExerciseMedia> = {
   "lying leg curl": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
   "prone leg curl": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
   "flexora deitado": { videoUrl: "/videos/mesa_flexora.mp4", thumbnailUrl: "/images/exercises/mesa-flexora.png" },
+  
+  "stiff": { videoUrl: "/videos/stiff.mp4", thumbnailUrl: "/images/exercises/stiff.png" },
+  "stiff-legged deadlift": { videoUrl: "/videos/stiff.mp4", thumbnailUrl: "/images/exercises/stiff.png" },
+  "stiff legged deadlift": { videoUrl: "/videos/stiff.mp4", thumbnailUrl: "/images/exercises/stiff.png" },
+  "peso muerto rumano": { videoUrl: "/videos/stiff.mp4", thumbnailUrl: "/images/exercises/stiff.png" },
 };
 
 // Function to find video for an exercise name
