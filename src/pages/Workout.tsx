@@ -4,6 +4,7 @@ import { AppShell, AppHeader, AppContent } from "@/components/layout/AppShell";
 import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { Sparkles, Dumbbell, RefreshCw, History, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
