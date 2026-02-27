@@ -632,8 +632,9 @@ export const translations = {
        "post-11": "Swing con Kettlebell",
        "post-12": "Stiff",
        "post-13": "Curl de Piernas de Pie",
-       "post-14": "Curl de Piernas Acostado",
-      // Trapecio
+        "post-14": "Curl de Piernas Acostado",
+        "post-15": "Curl de Piernas Sentado",
+       // Trapecio
      "trap-1": "Encogimiento con Barra",
      "trap-2": "Encogimiento con Mancuernas",
      "trap-3": "Remo al Mentón",
